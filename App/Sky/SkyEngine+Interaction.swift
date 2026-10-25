@@ -18,9 +18,19 @@ struct CardStar: Identifiable, Hashable, Sendable {
 }
 
 extension SkyEngine {
+    /// What a tap on an eligible object measured, with directions in the Core Motion reference frame as drawn.
+    struct AlignmentDetail {
+        var name: String
+        var snapped: Bool
+        var yawDelta: Double
+        var expected: SIMD3<Double>
+        var observed: SIMD3<Double>
+    }
+
     struct TapOutcome {
         var info: ObjectInfo?
         var yawDelta: Double?
+        var detail: AlignmentDetail?
     }
 
     private struct Target {
@@ -33,7 +43,9 @@ extension SkyEngine {
 
     /// Re-aligns the heading when the tap lands within 5° of an eligible object (stars brighter than magnitude 2 at
     /// night; the Moon, Venus, Jupiter or the Sun marker by day) and returns what is under the finger.
-    func handleTap(at point: SIMD2<Double>, context: OverlayContext, canAlign: Bool, headingAccuracy: Double?) -> TapOutcome {
+    /// `snap` may move the tap onto the image of the chosen object (given its kind and the raw tap, it returns a view point).
+    func handleTap(at point: SIMD2<Double>, context: OverlayContext, canAlign: Bool, headingAccuracy: Double?,
+                   snap: ((AlignmentCandidate.Kind, SIMD2<Double>) -> SIMD2<Double>?)? = nil) -> TapOutcome {
         guard let data, let observer = context.observer else { return TapOutcome() }
         let session = session(for: context.skyDate, observer: observer)
         let instant = AstroInstant(date: context.skyDate)
@@ -96,10 +108,22 @@ extension SkyEngine {
         var outcome = TapOutcome()
         let mode = context.lighting <= 0.02 ? AlignmentMode.day : (context.lighting >= 0.98 ? .night : .twilight)
         var alignedName: String?
-        if canAlign, let result = TapToAlign.align(tap: point, pose: CameraPose(referenceToDevice: context.deviceFromReference),
+        if canAlign, var result = TapToAlign.align(tap: point, pose: CameraPose(referenceToDevice: context.deviceFromReference),
                                                    intrinsics: context.camera.skyIntrinsics, mapping: context.camera.mapping,
                                                    candidates: candidates, mode: mode, headingAccuracy: headingAccuracy) {
+            var rayPoint = point, snapped = false
+            if let snappedPoint = snap?(result.candidate.kind, point),
+               let refined = TapToAlign.align(tap: snappedPoint, pose: CameraPose(referenceToDevice: context.deviceFromReference),
+                                              intrinsics: context.camera.skyIntrinsics, mapping: context.camera.mapping,
+                                              candidates: [result.candidate], mode: mode, headingAccuracy: headingAccuracy) {
+                result = refined
+                rayPoint = snappedPoint
+                snapped = true
+            }
             outcome.yawDelta = result.yawDelta
+            outcome.detail = AlignmentDetail(name: result.candidate.name, snapped: snapped, yawDelta: result.yawDelta,
+                                             expected: OverlayContext.reference(enu: result.candidate.enu),
+                                             observed: context.referenceDirection(screen: rayPoint))
             alignedName = result.candidate.name
         }
 
@@ -147,6 +171,34 @@ extension SkyEngine {
         if let id = data.roman.constellation(icrs: data.directions[i]) { lines.append("In \(data.name(ofConstellation: id)).") }
         lines.append(String(format: "Altitude %.0f°, azimuth %.0f° (%@)", alt, az, CompassDirection.name(azimuthDegrees: az)))
         return lines
+    }
+
+    /// Bright objects (stars to `maxMagnitude`, the Moon and planets) as drawn, for the session recorder's predictions.
+    func predictionObjects(date: Date, observer: ObserverLocation, maxMagnitude: Double) -> [AlignmentCandidate] {
+        guard let data else { return [] }
+        let session = session(for: date, observer: observer)
+        let instant = AstroInstant(date: date)
+        let icrsToENU = session.icrsToENU(at: instant)
+        let beta = session.earthVelocityOverC
+        var objects: [AlignmentCandidate] = []
+        if let solarSystem = solarSystem(date: date, instant: instant, session: session) {
+            let horizon = session.horizonMatrix(at: instant)
+            for body in solarSystem.bodies where body.body != .sun && body.magnitude < maxMagnitude {
+                let enu = refraction.apparent(enu: horizon * body.ofDate)
+                guard enu.z > -0.01 else { continue }
+                objects.append(AlignmentCandidate(kind: body.body == .moon ? .moon : .planet(body.body), name: body.body.name,
+                                                  magnitude: body.magnitude, enu: enu))
+            }
+        }
+        for i in data.brightStarIndices {
+            let star = data.catalog.stars[i]
+            guard Double(star.vmag) < maxMagnitude else { continue }
+            let enu = refraction.apparent(enu: icrsToENU * SkySession.aberrate(data.directions[i], beta: beta))
+            guard enu.z > -0.01 else { continue }
+            objects.append(AlignmentCandidate(kind: .star(hip: star.hip), name: data.displayName(hip: star.hip) ?? "HIP \(star.hip)",
+                                              magnitude: Double(star.vmag), enu: enu))
+        }
+        return objects
     }
 
     // MARK: Readout

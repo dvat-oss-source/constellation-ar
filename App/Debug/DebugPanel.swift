@@ -77,6 +77,11 @@ struct DebugPanel: View {
                 }
                 .pickerStyle(.segmented)
 
+                Picker("Night frames", selection: $model.warpMode) {
+                    ForEach(AppModel.WarpMode.allCases) { Text($0.rawValue).tag($0) }
+                }
+                .pickerStyle(.segmented)
+
                 HStack {
                     Button("Refocus far") { model.refocusFar() }
                     Button(model.nightProbeRunning ? "Probing…" : "Night probe") { model.runNightProbe() }
@@ -85,6 +90,37 @@ struct DebugPanel: View {
                 }
                 .buttonStyle(.bordered)
                 .font(.footnote)
+            }
+
+            Toggle("Snap taps to the star or Moon in the image", isOn: $model.snapTaps).font(.footnote)
+
+            recorderControls
+        }
+    }
+
+    private var recorderControls: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Button(model.recorder.isRecording ? "Stop recording" : "Record session") {
+                    if model.recorder.isRecording { model.stopRecording() } else { model.startRecording() }
+                }
+                .tint(model.recorder.isRecording ? .red : .accentColor)
+                Button("Reload calibration") { model.reloadCalibration() }
+            }
+            .buttonStyle(.bordered)
+            .font(.footnote)
+
+            if !model.recorder.isRecording {
+                Picker("Small frames every", selection: $model.recordingConfig.smallEvery) {
+                    ForEach(SessionConfig.smallChoices, id: \.self) { Text($0 == 0 ? "off" : "\($0)").tag($0) }
+                }
+                .pickerStyle(.segmented)
+                Picker("Full frames every", selection: $model.recordingConfig.fullEvery) {
+                    ForEach(SessionConfig.fullChoices, id: \.self) { Text($0 == 0 ? "off" : "\($0)").tag($0) }
+                }
+                .pickerStyle(.segmented)
+                Text("Small = 4× downsampled luminance; full = raw luminance + PNG. Sessions land in Files › ConstellationAR › Sessions.")
+                    .font(.caption2).foregroundStyle(.secondary)
             }
         }
     }

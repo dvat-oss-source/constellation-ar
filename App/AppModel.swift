@@ -53,6 +53,18 @@ final class AppModel {
         }
     }
 
+    /// Whether the camera frame is re-projected to the display-time gyro attitude (night) or drawn frame-matched (day).
+    enum WarpMode: String, CaseIterable, Identifiable {
+        case auto = "Auto"
+        case on = "Warp"
+        case off = "Frame"
+        var id: Self { self }
+    }
+
+    /// One-sigma accuracy credited to a tap on a drawn star, and to a tap snapped onto the star's image, degrees.
+    static let tapSigma = 1.0
+    static let snappedTapSigma = 0.4
+
     static let nightExposureChoices: [Double] = [1.0 / 15, 1.0 / 8, 1.0 / 4, 1.0 / 2]
 
     let isSimulator: Bool
@@ -61,6 +73,7 @@ final class AppModel {
     let alignment = HeadingAlignment()
     let look = LookController()
     @ObservationIgnored let capture: CameraCapture?
+    @ObservationIgnored let recorder = SessionRecorder()
     let layers: LayerSettings
     let satellites: SatelliteTracker
     let narrator = Narrator()
@@ -81,6 +94,14 @@ final class AppModel {
     var lightingOverride: LightingOverride = .auto
     var redTheme = false
     var showDebug: Bool
+    var warpMode: WarpMode = .auto
+    var snapTaps = true
+    var recordingConfig = SessionConfig()
+    private(set) var calibration = PrecisionCalibration()
+    private(set) var calibrationSource = "none"
+    private(set) var recordingStatus: String? = nil
+    private(set) var lastRecording: String? = nil
+    private(set) var lastFix: String? = nil
     var timeOffsetHours: Double = 0
     var captureTimeReference: CaptureTimeReference = .midExposure
     var nightExposureDuration: Double = 1.0 / 8 {
@@ -154,7 +175,104 @@ final class AppModel {
         sunLightingProvider = { [engine] date, observer in engine.nightFactor(date: date, observer: observer) }
         skyReadoutProvider = { [engine] in engine.readout($0) }
         engine.onEvent = { [weak self] in self?.handle($0) }
+        motion.setRecorder(recorder)
+        capture?.receiver?.setRecorder(recorder)
+        reloadCalibration()
         loadSkyData()
+    }
+
+    // MARK: Precision
+
+    func reloadCalibration() {
+        let loaded = CalibrationStore.load()
+        calibration = loaded.calibration
+        calibrationSource = loaded.source
+        alignment.setBoresight(loaded.calibration.lens?.boresightInDevice ?? simd_quatd(angle: 0, axis: SIMD3(0, 0, 1)))
+    }
+
+    /// When the centre row of a frame was exposed: the frame's timestamp, the chosen point of its exposure, and the measured offset.
+    func captureTime(frameHostTime: Double, exposure: Double?) -> Double {
+        frameHostTime + captureTimeReference.rawValue * (exposure ?? 0) + (calibration.timing?.offsetSeconds ?? 0)
+    }
+
+    /// Entry point for star-derived orientation fixes (the plate solver, the multi-star solve and taps all land here).
+    /// `fix.hostTime` is a host-clock time (`CACurrentMediaTime` base), best taken from `captureTime(frameHostTime:exposure:)`.
+    func ingest(_ fix: StarFix) {
+        guard let cm = motion.buffer.attitude(at: fix.hostTime)?.deviceFromReference ?? driver?.lastCoreMotion else { return }
+        ingest(fix, coreMotion: cm)
+    }
+
+    private func ingest(_ fix: StarFix, coreMotion cm: simd_quatd) {
+        alignment.ingest(fix, coreMotion: cm, cumulativeTurn: motion.buffer.cumulativeTurn)
+        lastFix = String(format: "%@ ×%d σ %.2f° → ±%.2f°", fix.source.rawValue, fix.starCount, fix.sigmaDegrees, alignment.accuracyDegrees)
+        if recorder.isRecording, let line = (try? JSONEncoder().encode(fix)).flatMap({ try? JSONSerialization.jsonObject(with: $0) }) as? [String: Any] {
+            recorder.recordTap(line.merging(["accuracyAfter": alignment.accuracyDegrees]) { _, new in new })
+        }
+    }
+
+    func startRecording() {
+        var meta: [String: Any] = [
+            "app": AppInfo.summary, "device": Self.deviceModel, "os": UIDevice.current.systemVersion, "isSimulator": isSimulator,
+            "captureTimeReference": captureTimeReference.rawValue, "warpMode": warpMode.rawValue,
+            "nightExposure": nightExposureDuration, "nightStrategy": nightStrategy.rawValue,
+        ]
+        if let observer { meta["observer"] = ["latitude": observer.latitude, "longitude": observer.longitude, "altitude": observer.altitude] }
+        if let data = try? JSONEncoder().encode(calibration), let object = try? JSONSerialization.jsonObject(with: data) {
+            meta["calibration"] = object
+        }
+        do {
+            try recorder.start(config: recordingConfig, meta: meta)
+            lastRecording = nil
+        } catch {
+            lastRecording = "could not start: \(error.localizedDescription)"
+        }
+    }
+
+    func stopRecording() {
+        let test = motion.buffer.conventionTest
+        let verdict = test.convention == .matrixIsDeviceFromReference ? "deviceFromReference" : "referenceFromDevice"
+        guard let summary = recorder.stop(finalMeta: ["attitudeQuaternionIs": verdict, "rotationConventionTest": test.summary]) else { return }
+        recordingStatus = nil
+        lastRecording = String(format: "saved %@: %.0f s, %d motion rows, %d frames (%d small, %d full)", summary.name, summary.seconds,
+                               summary.motionRows, summary.frames, summary.storedSmall, summary.storedFull)
+    }
+
+    private static var deviceModel: String {
+        var system = utsname()
+        uname(&system)
+        return withUnsafeBytes(of: &system.machine) { String(decoding: $0.prefix { $0 != 0 }, as: UTF8.self) }
+    }
+
+    private func writeRecordingExtras() {
+        guard recorder.isRecording else { recordingStatus = nil; return }
+        recordingStatus = recorder.status
+        let now = CACurrentMediaTime()
+        if let o = observer {
+            recorder.recordLocation(["t": now, "latitude": o.latitude, "longitude": o.longitude, "altitude": o.altitude, "live": o.isLive,
+                                     "horizontalAccuracy": location.horizontalAccuracy ?? -1, "headingAccuracy": location.headingAccuracy ?? -1,
+                                     "trueHeading": location.trueHeading ?? -1])
+        }
+        guard let o = observer else { return }
+        let timing = calibration.timing ?? .none
+        for request in recorder.takePredictionRequests() {
+            guard let k = request.intrinsics, let cm = motion.buffer.attitude(at: captureTime(frameHostTime: request.hostTime, exposure: request.exposure))
+            else { continue }
+            let t = captureTime(frameHostTime: request.hostTime, exposure: request.exposure)
+            let attitude = alignment.drawnAttitude(coreMotion: cm.deviceFromReference, at: t)
+            let date = skyDate(now: Date().addingTimeInterval(t - now))
+            var intrinsics = SkyCore.CameraIntrinsics(fx: k.fx, fy: k.fy, cx: k.cx, cy: k.cy, bufferWidth: Double(request.width), bufferHeight: Double(request.height))
+            if let lens = calibration.lens { intrinsics = lens.applied(to: intrinsics) }
+            var projector = Projector(pose: CameraPose(referenceToDevice: simd_double3x3(attitude)), intrinsics: intrinsics,
+                                      mapping: .identity(bufferWidth: Double(request.width), bufferHeight: Double(request.height)))
+            if let lens = calibration.lens, lens.hasDistortion { projector.distortion = lens.distortion }
+            let objects: [[String: Any]] = engine.predictionObjects(date: date, observer: o, maxMagnitude: 2.5).compactMap { object in
+                guard let p = projector.pixel(enu: object.enu), p.x >= 0, p.y >= 0, p.x < Double(request.width), p.y < Double(request.height) else { return nil }
+                return ["name": object.name, "mag": object.magnitude, "x": p.x, "y": p.y]
+            }
+            recorder.recordPredictions(["seq": request.sequence, "t": request.hostTime, "frameTime": t, "objects": objects,
+                                        "attitude": [attitude.imag.x, attitude.imag.y, attitude.imag.z, attitude.real],
+                                        "readoutSeconds": timing.readoutSeconds, "accuracyDegrees": alignment.accuracyDegrees])
+        }
     }
 
     var showsCamera: Bool { !skyOnly && cameraStatus == .running }
@@ -216,10 +334,36 @@ final class AppModel {
         }
         let (az, alt) = OverlayContext.horizontal(reference: context.referenceDirection(screen: point))
         lastTap = String(format: "tap az %.1f° alt %.1f° at (%.0f, %.0f) px", az, alt, point.x, point.y)
-        let accuracy = location.headingAccuracy
-        let outcome = engine.handleTap(at: point, context: context, canAlign: effectiveAttitudeSource != .fixed, headingAccuracy: accuracy)
-        if let yaw = outcome.yawDelta { alignment.align(yawDelta: yaw, headingAccuracy: accuracy) }
-        showInfo(outcome.info)
+        let snap: (AlignmentCandidate.Kind, SIMD2<Double>) -> SIMD2<Double>? = { [weak driver] kind, p in
+            driver?.snappedScreenPoint(kind: kind, near: p)
+        }
+        let outcome = engine.handleTap(at: point, context: context, canAlign: effectiveAttitudeSource != .fixed,
+                                       headingAccuracy: location.headingAccuracy, snap: snap)
+        var info = outcome.info
+        if let detail = outcome.detail { info?.alignmentNote = align(on: detail, context: context) }
+        showInfo(info)
+    }
+
+    /// Turns a tap on a star into an orientation fix: with two or more recent stars the three-axis multi-star solve,
+    /// otherwise a yaw about the vertical. Returns the note shown on the card.
+    private func align(on detail: SkyEngine.AlignmentDetail, context: OverlayContext) -> String {
+        let t = context.hostTime
+        let cm = driver?.lastCoreMotion ?? simd_quatd(context.deviceFromReference)
+        let sigma = detail.snapped ? Self.snappedTapSigma : Self.tapSigma
+        let observation = StarObservation(hostTime: t, expected: detail.expected, observed: alignment.correction(at: t).act(detail.observed),
+                                          sigmaDegrees: sigma)
+        let fix: StarFix
+        if let solution = alignment.add(observation, now: t) {
+            fix = StarFix(hostTime: t, deviceFromReference: (alignment.boresight * cm * solution.correction).normalized,
+                          sigmaDegrees: solution.sigmaDegrees, starCount: solution.count, source: .multiStar)
+        } else {
+            let attitude = simd_quatd(context.deviceFromReference) * simd_quatd(angle: detail.yawDelta, axis: SIMD3(0, 0, 1))
+            fix = StarFix(hostTime: t, deviceFromReference: attitude.normalized, sigmaDegrees: sigma, starCount: 1,
+                          source: detail.snapped ? .tapSnapped : .tap)
+        }
+        ingest(fix, coreMotion: cm)
+        let stars = fix.starCount > 1 ? "\(fix.starCount) stars" : (detail.snapped ? "snapped to the star" : "tap")
+        return String(format: "Aligned on %@ (%@), now ±%.1f°.", detail.name, stars, alignment.accuracyDegrees)
     }
 
     func showInfo(_ info: ObjectInfo?) {
@@ -335,7 +479,8 @@ final class AppModel {
     private func refresh() async {
         let latestMotion = motion.buffer.latestSample
         headingQuality.update(accuracyDegrees: location.headingAccuracy, magneticAccuracy: latestMotion?.magneticAccuracy)
-        alignment.update(headingAccuracy: location.headingAccuracy)
+        alignment.update(headingAccuracy: location.headingAccuracy, now: CACurrentMediaTime(), cumulativeTurn: motion.buffer.cumulativeTurn)
+        writeRecordingExtras()
 
         var snapshot: CaptureSnapshot?
         if let capture {
@@ -435,6 +580,26 @@ final class AppModel {
         motionLines.append(String(format: "yaw correction %.2f°%@", alignment.yawCorrection * 180 / .pi, alignment.suggestsRealign ? " (re-align suggested)" : ""))
         if let lastTap { motionLines.append(lastTap) }
         sections.append(DebugSection(title: "Motion", lines: motionLines))
+
+        var precision = [String(format: "accuracy ±%.2f° (%@)", alignment.accuracyDegrees,
+                                alignment.isAligned ? "\(alignment.filter.fixCount) fixes" : "not aligned: compass only")]
+        let f = alignment.filter
+        precision.append(String(format: "yaw %.2f° drift %+.4f°/s, tilt %.2f°", Angle.degrees(f.yaw(at: CACurrentMediaTime())),
+                                Angle.degrees(f.yawRate), Angle.degrees(simd_length(Rotations.rotationVector(f.tilt)))))
+        if let m = alignment.lastMultiStar {
+            precision.append(String(format: "multi-star: %d stars, rms %.2f°, σ %.2f°", m.count, m.rmsResidualDegrees, m.sigmaDegrees))
+        }
+        if let lastFix { precision.append("last fix \(lastFix)") }
+        precision.append("frame path: " + (driver?.isWarping == true ? "gyro warp to display time" : "frame-matched") + " (\(warpMode.rawValue))")
+        precision.append("calibration: \(calibrationSource)")
+        if let t = calibration.timing { precision.append(String(format: "timing offset %+.1f ms, rolling shutter %+.1f ms", t.offsetSeconds * 1000, t.readoutSeconds * 1000)) }
+        if let l = calibration.lens {
+            precision.append(String(format: "lens f×%.4f/%.4f, centre %+.2f/%+.2f%%, k1 %+.4f, boresight %.3f° %.3f° %.3f°", l.focalScaleX, l.focalScaleY,
+                                    l.principalShiftX * 100, l.principalShiftY * 100, l.distortion.k1,
+                                    Angle.degrees(l.boresight.x), Angle.degrees(l.boresight.y), Angle.degrees(l.boresight.z)))
+        }
+        if let recordingStatus { precision.append(recordingStatus) } else if let lastRecording { precision.append(lastRecording) }
+        sections.append(DebugSection(title: "Precision", lines: precision))
 
         var locationLines = ["authorization \(location.authorization.rawValue)"]
         if let o = observer {

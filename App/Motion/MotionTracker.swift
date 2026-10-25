@@ -1,6 +1,7 @@
 import CoreMotion
 import Observation
 import QuartzCore
+import Synchronization
 
 /// Device motion at 100 Hz in the .xTrueNorthZVertical frame, recorded into `buffer` on its own queue.
 @MainActor
@@ -10,6 +11,7 @@ final class MotionTracker {
     private(set) var isRunning = false
     private(set) var unavailableReason: String? = nil
 
+    @ObservationIgnored private let recorder = RecorderSlot()
     @ObservationIgnored private let manager = CMMotionManager()
     @ObservationIgnored private let queue: OperationQueue = {
         let queue = OperationQueue()
@@ -32,14 +34,20 @@ final class MotionTracker {
             return
         }
         manager.deviceMotionUpdateInterval = 1.0 / 100
-        let buffer = buffer
+        let buffer = buffer, recorder = recorder
         // @Sendable keeps the closure off the main actor; it runs on `queue`.
         manager.startDeviceMotionUpdates(using: .xTrueNorthZVertical, to: queue) { @Sendable motion, _ in
             guard let motion else { return }
-            buffer.append(MotionSample(motion, receivedAt: CACurrentMediaTime()))
+            let received = CACurrentMediaTime()
+            buffer.append(MotionSample(motion, receivedAt: received))
+            if let recorder = recorder.current, recorder.isRecording { recorder.record(motion: motion, receivedAt: received) }
         }
         isRunning = true
         unavailableReason = nil
+    }
+
+    func setRecorder(_ recorder: SessionRecorder?) {
+        self.recorder.set(recorder)
     }
 
     func stop() {

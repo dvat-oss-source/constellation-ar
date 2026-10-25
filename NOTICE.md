@@ -12,6 +12,7 @@ Bundled into the app: `Data/*.bin`, `Data/*.json`, `Data/artwork/`. Not bundled:
 | Bundled file | Derived from | Licence |
 |---|---|---|
 | `stars.bin` | Hipparcos Catalogue (ESA) via CDS | CC BY-NC 3.0 IGO (non-commercial) |
+| `solver_db.bin` | `stars.bin` (V ≤ 5.0), pattern table built with an algorithm from tetra3 / Cedar-Solve | CC BY-NC 3.0 IGO (data); Apache-2.0 (algorithm) |
 | `roman1875.json` | Roman (1987), CDS VI/42 | no licence stated; CDS terms |
 | `lines.json`, `artwork.json` (anchors) | Stellarium modern sky culture | CC BY-SA 4.0 |
 | `artwork/*.png` | Stellarium, art by Johan Meuris | Free Art License |
@@ -142,6 +143,42 @@ quote is checked word for word against its source.
   - Transcription used: Theoi Classical Texts Library, <https://www.theoi.com/Text/AratusPhaenomena.html>. The site
     states "Theoi Project © Copyright 2000 - 2017 Aaron J. Atsma".
   - Only the 1921 translation text is used. Theoi's headings and bracketed glosses are removed.
+
+## Plate solving: tetra3 and Cedar-Solve (Apache-2.0)
+
+- Used for: automatic star alignment. `tools/build_solver_db.py` (database builder, Python) and
+  `Packages/SkyCore/Sources/SkyCore/PlateSolve/PlateSolver.swift`, `SolverDatabase.swift` (solver, Swift) are
+  re-implementations of the algorithms in **tetra3** and **Cedar-Solve**; no code was copied or linked, and the
+  upstream packages are not used. `Data/solver_db.bin` is the database that builder writes.
+- tetra3: <https://github.com/esa/tetra3>, `tetra3/tetra3.py`: "Copyright 2019 the European Space Agency", "Licensed
+  under the Apache License, Version 2.0". tetra3 is "Free and Open-Source Software based on `Tetra` rewritten by
+  Gustav Pettersson at ESA."
+- Cedar-Solve: <https://github.com/smroid/cedar-solve>, `tetra3/tetra3.py`, `tetra3/fov_util.py`,
+  `tetra3/breadth_first_combinations.py`: "Copyright 2023 Steven Rosenthal smr@dt3.org", "Licensed under the Apache
+  License, Version 2.0". Cedar-Solve is a fork of tetra3.
+- Neither repository has a `NOTICE` file, so there is no NOTICE text to reproduce (Apache-2.0 section 4(d)).
+- The Apache License 2.0 text, with the original Tetra notice that tetra3 ships beside it, is in
+  `tools/licenses/tetra3-LICENSE.txt` (Apache-2.0 section 4(a)).
+- Original Tetra: J. Brown, K. Stubis and K. Cahoy, "TETRA: Star Identification with Hash Tables", Proceedings of the
+  AIAA/USU Conference on Small Satellites, 2017, <https://github.com/brownj4/Tetra>. Its MIT notice, as reproduced in
+  tetra3: "Copyright (c) 2016 brownj4. Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal in the Software without restriction
+  ... The above copyright notice and this permission notice shall be included in all copies or substantial portions of
+  the Software." The full text is in the same licence file.
+- Ported from them (Apache-2.0 section 4(b), changes stated):
+  - Database: 4-star patterns; sorted edge ratios binned at 1/(4 × max error); key hash `Σ keyᵢ·binsⁱ`, table index
+    `hash × 2654435761 mod prime`, quadratic probing, 16-bit key check, stored largest edge; stars of each pattern
+    ordered by distance from the pattern centroid; cluster-busting separation `0.6 · fov / √stars_per_fov`; Fibonacci
+    lattice of overlapping fields with brightest-first breadth-first combinations; multiscale FOV steps; the 16-bit
+    key check and largest-edge gate come from Cedar-Solve.
+  - Solver: brightest-first breadth-first pattern enumeration over cluster-busted centroids; edge-ratio key ranges
+    searched nearest-first; FOV/scale gate from a prior; pattern rotation from Wahba's problem; catalogue stars in the
+    field matched one-to-one within a radius; false-match probability from a binomial tail with two degrees of freedom
+    removed, accepted below `threshold / patterns`; rotation and focal length refit on all matches.
+  - Changed: a single catalogue (Hipparcos, V ≤ 5.0) and a pinhole camera model with Apple's per-frame intrinsics
+    (no distortion fit); Davenport q-method with a hand-written 4×4 Jacobi solver instead of SVD; permutation retry for
+    ambiguous star pairing; the per-star chance of a random match uses the area fraction of the match circles; the
+    database is a flat binary file read directly; the star detector and the conversion to a device attitude are new.
 
 ## Runtime services (not bundled)
 

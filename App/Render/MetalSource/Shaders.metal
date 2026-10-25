@@ -9,7 +9,20 @@ struct FrameUniforms {
     float3x3 sensorFromScreen;
     float2 sensorSize;
     float2 padding2;
+    // Camera-frame warp (see FrameWarp in SkyCore): display ray → ray at the frame's centre-row time, the rotation
+    // accumulated top row to bottom row (w = 1 when the warp is in use), and fx, fy, cx, cy in buffer pixels.
+    float3x3 cameraFromDisplay;
+    float4 rowRotation;
+    float4 intrinsics;
 };
+
+static float3 rotateAbout(float3 v, float3 rotationVector) {
+    float angle = length(rotationVector);
+    if (angle < 1e-9) return v;
+    float3 k = rotationVector / angle;
+    float c = cos(angle), s = sin(angle);
+    return v * c + cross(k, v) * s + k * dot(k, v) * (1.0 - c);
+}
 
 struct SkyUniforms {
     float3x3 referenceFromScreen;
@@ -64,9 +77,20 @@ vertex FullscreenOut fullscreenVertex(uint vid [[vertex_id]], constant FrameUnif
 fragment float4 cameraFragment(FullscreenOut in [[stage_in]],
                                constant FrameUniforms &u [[buffer(0)]],
                                texture2d<float> camera [[texture(0)]]) {
-    constexpr sampler linearSampler(filter::linear, address::clamp_to_zero);
+    constexpr sampler linearSampler(filter::linear, address::clamp_to_edge);
     float3 sensor = u.sensorFromScreen * float3(in.screen, 1.0);
-    float4 c = camera.sample(linearSampler, sensor.xy / u.sensorSize);
+    float2 pixel = sensor.xy;
+    if (u.rowRotation.w > 0.5) {
+        float fx = u.intrinsics.x, fy = u.intrinsics.y, cx = u.intrinsics.z, cy = u.intrinsics.w;
+        float3 ray = u.cameraFromDisplay * float3((sensor.x - cx) / fx, (sensor.y - cy) / fy, 1.0);
+        pixel = float2(fx * ray.x / ray.z + cx, fy * ray.y / ray.z + cy);
+        // Each row was exposed at its own time: look the row up from where the pixel lands, a few times over.
+        for (int i = 0; i < 3 && any(u.rowRotation.xyz != 0.0); i++) {
+            float3 r = rotateAbout(ray, u.rowRotation.xyz * (pixel.y / u.sensorSize.y - 0.5));
+            pixel = float2(fx * r.x / r.z + cx, fy * r.y / r.z + cy);
+        }
+    }
+    float4 c = camera.sample(linearSampler, pixel / u.sensorSize);
     return float4(applyTheme(c.rgb, u.redTheme), 1.0);
 }
 

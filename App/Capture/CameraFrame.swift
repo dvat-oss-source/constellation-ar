@@ -55,6 +55,8 @@ struct CameraIntrinsics: Sendable, Equatable {
 struct CameraFrame: @unchecked Sendable {
     let texture: any MTLTexture
     let backing: CVMetalTexture
+    /// The pixels behind `texture` (BGRA), for tap snapping.
+    let pixelBuffer: CVPixelBuffer
     /// Native landscape buffer size in pixels.
     let size: SIMD2<Int>
     /// Presentation timestamp converted to the host clock (seconds, same base as CACurrentMediaTime and CMLogItem.timestamp).
@@ -86,6 +88,8 @@ final class VideoFrameReceiver: NSObject, AVCaptureVideoDataOutputSampleBufferDe
     private let syncClock = Mutex<CMClock?>(nil)
     private let latest = Mutex<CameraFrame?>(nil)
     private let stats = Mutex(FrameStatistics())
+    private let recorder = Mutex<SessionRecorder?>(nil)
+    private let lensPosition = Mutex<Float?>(nil)
 
     init?(metalDevice: any MTLDevice) {
         var cache: CVMetalTextureCache?
@@ -96,6 +100,14 @@ final class VideoFrameReceiver: NSObject, AVCaptureVideoDataOutputSampleBufferDe
     /// Timestamps are on the session's synchronization clock; without one they are taken as host time.
     func setSynchronizationClock(_ clock: CMClock?) {
         syncClock.withLock { $0 = clock }
+    }
+
+    func setRecorder(_ recorder: SessionRecorder?) {
+        self.recorder.withLock { $0 = recorder }
+    }
+
+    func setLensPosition(_ position: Float) {
+        lensPosition.withLock { $0 = position }
     }
 
     /// The newest frame not yet taken, or nil if none arrived since the last call.
@@ -145,8 +157,13 @@ final class VideoFrameReceiver: NSObject, AVCaptureVideoDataOutputSampleBufferDe
             return s.frames
         }
 
-        let frame = CameraFrame(texture: texture, backing: cvTexture, size: size, hostTime: hostTime,
+        let frame = CameraFrame(texture: texture, backing: cvTexture, pixelBuffer: pixelBuffer, size: size, hostTime: hostTime,
                                 intrinsics: intrinsics, exposureDuration: exposure, iso: iso, sequence: sequence)
+        if let recorder = recorder.withLock({ $0 }), recorder.isRecording {
+            recorder.record(frame: RecordedFrame(pixelBuffer: pixelBuffer, sequence: sequence, hostTime: hostTime, pts: pts.seconds,
+                                                 exposureDuration: exposure, iso: iso, lensPosition: lensPosition.withLock { $0 },
+                                                 intrinsics: intrinsics))
+        }
         latest.withLock { $0 = frame }
     }
 

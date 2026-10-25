@@ -17,9 +17,12 @@ struct CameraGeometry: Sendable {
     let sensorFromScreen: simd_double3x3
     /// Screen pixels per sensor pixel.
     let scale: Double
+    /// Residual lens distortion from the calibration, applied by the projector.
+    let distortion: RadialDistortion?
 
-    init(intrinsics: CameraIntrinsics, drawableSize: SIMD2<Double>) {
+    init(intrinsics: CameraIntrinsics, drawableSize: SIMD2<Double>, distortion: RadialDistortion? = nil) {
         self.intrinsics = intrinsics
+        self.distortion = distortion
         self.drawableSize = drawableSize
         mapping = ScreenMapping.portraitAspectFill(bufferWidth: intrinsics.referenceSize.x, bufferHeight: intrinsics.referenceSize.y,
                                                    viewWidth: drawableSize.x, viewHeight: drawableSize.y)
@@ -45,5 +48,14 @@ struct CameraGeometry: Sendable {
     /// Homogeneous screen px → unnormalised reference-frame ray, for per-pixel sky shading.
     func referenceFromScreen(deviceFromReference r: simd_double3x3) -> simd_double3x3 {
         r.transpose * CameraPose.deviceToCamera.transpose * intrinsicMatrix.inverse * sensorFromScreen
+    }
+}
+
+extension CameraIntrinsics {
+    /// Apple's intrinsics with the calibration's focal and principal-point refinements applied.
+    func refined(by lens: LensCalibration?) -> CameraIntrinsics {
+        guard let lens else { return self }
+        let k = lens.applied(to: SkyCore.CameraIntrinsics(fx: fx, fy: fy, cx: cx, cy: cy, bufferWidth: referenceSize.x, bufferHeight: referenceSize.y))
+        return CameraIntrinsics(fx: k.fx, fy: k.fy, cx: k.cx, cy: k.cy, referenceSize: referenceSize, isMeasured: isMeasured)
     }
 }

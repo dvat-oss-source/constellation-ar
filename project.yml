@@ -89,6 +89,8 @@ targets:
         NSLocationWhenInUseUsageDescription: Your location sets which stars are above you and points the compass at true north.
         NSMotionUsageDescription: Motion sensors tell the app where the phone is pointing in the sky.
         CADisableMinimumFrameDurationOnPhone: true
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
         VertexAPIKey: $(VERTEX_API_KEY)
         GemmaModelID: $(GEMMA_MODEL_ID)
         GCPProjectID: $(GCP_PROJECT_ID)

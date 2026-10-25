@@ -2,6 +2,7 @@ import Foundation
 import Metal
 import MetalKit
 import QuartzCore
+import SkyCore
 import simd
 
 enum RenderBackground {
@@ -33,6 +34,9 @@ final class Renderer {
         var sensorFromScreen: simd_float3x3
         var sensorSize: SIMD2<Float>
         var padding2: SIMD2<Float> = .zero
+        var cameraFromDisplay = matrix_identity_float3x3
+        var rowRotation = SIMD4<Float>.zero
+        var intrinsics = SIMD4<Float>.zero
     }
 
     private struct SkyUniforms {
@@ -122,7 +126,7 @@ final class Renderer {
     }
 
     func draw(to drawable: any CAMetalDrawable, background: RenderBackground, geometry: CameraGeometry,
-              deviceFromReference: simd_double3x3, overlay: OverlayFrame, redTheme: Bool, contentScale: Double) {
+              deviceFromReference: simd_double3x3, warp: FrameWarp? = nil, overlay: OverlayFrame, redTheme: Bool, contentScale: Double) {
         inFlight.wait()
         guard let commandBuffer = queue.makeCommandBuffer() else {
             inFlight.signal()
@@ -152,6 +156,11 @@ final class Renderer {
         switch background {
         case .camera(let frame):
             uniforms.sensorSize = SIMD2(Float(frame.size.x), Float(frame.size.y))
+            if let warp {
+                uniforms.cameraFromDisplay = Self.float(warp.cameraFromDisplay)
+                uniforms.rowRotation = SIMD4(Float(warp.rowRotation.x), Float(warp.rowRotation.y), Float(warp.rowRotation.z), 1)
+                uniforms.intrinsics = SIMD4(Float(warp.intrinsics.fx), Float(warp.intrinsics.fy), Float(warp.intrinsics.cx), Float(warp.intrinsics.cy))
+            }
             encoder.setRenderPipelineState(cameraPipeline)
             encoder.setVertexBytes(&uniforms, length: MemoryLayout<FrameUniforms>.stride, index: 0)
             encoder.setFragmentBytes(&uniforms, length: MemoryLayout<FrameUniforms>.stride, index: 0)

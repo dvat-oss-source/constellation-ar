@@ -157,8 +157,10 @@ struct OverlayContext: Sendable {
         self.lighting = lighting
         self.isSkyOnly = isSkyOnly
         self.contentScale = contentScale
-        projector = Projector(pose: CameraPose(referenceToDevice: deviceFromReference),
-                              intrinsics: camera.skyIntrinsics, mapping: camera.mapping)
+        var projector = Projector(pose: CameraPose(referenceToDevice: deviceFromReference),
+                                  intrinsics: camera.skyIntrinsics, mapping: camera.mapping)
+        projector.distortion = camera.distortion
+        self.projector = projector
     }
 
     /// Ray through the centre of the screen in the reference frame.

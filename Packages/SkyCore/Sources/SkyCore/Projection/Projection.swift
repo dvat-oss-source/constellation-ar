@@ -111,6 +111,8 @@ public struct Projector: Sendable {
     public let mapping: ScreenMapping
     /// Camera-space z (for unit vectors) below which a point counts as behind the camera.
     public var nearZ: Double = 1e-3
+    /// Residual lens distortion left in the buffer (see `LensCalibration`); nil draws a pure pinhole.
+    public var distortion: RadialDistortion?
 
     public init(pose: CameraPose, intrinsics: CameraIntrinsics, mapping: ScreenMapping) {
         self.enuToCamera = pose.enuToCamera
@@ -128,11 +130,13 @@ public struct Projector: Sendable {
 
     @inlinable public func pixel(camera c: SIMD3<Double>) -> SIMD2<Double>? {
         guard c.z > nearZ * simd_length(c) else { return nil }
-        return SIMD2(intrinsics.fx * c.x / c.z + intrinsics.cx, intrinsics.fy * c.y / c.z + intrinsics.cy)
+        return pixelUnchecked(camera: c)
     }
 
     @inlinable func pixelUnchecked(camera c: SIMD3<Double>) -> SIMD2<Double> {
-        SIMD2(intrinsics.fx * c.x / c.z + intrinsics.cx, intrinsics.fy * c.y / c.z + intrinsics.cy)
+        var n = SIMD2(c.x / c.z, c.y / c.z)
+        if let distortion { n = distortion.distort(n) }
+        return SIMD2(intrinsics.fx * n.x + intrinsics.cx, intrinsics.fy * n.y + intrinsics.cy)
     }
 
     /// Sensor-native pixel, nil if the direction is behind the camera.
@@ -145,7 +149,9 @@ public struct Projector: Sendable {
 
     /// Unit ENU ray through a sensor pixel.
     public func ray(pixel p: SIMD2<Double>) -> SIMD3<Double> {
-        let c = SIMD3((p.x - intrinsics.cx) / intrinsics.fx, (p.y - intrinsics.cy) / intrinsics.fy, 1)
+        var n = SIMD2((p.x - intrinsics.cx) / intrinsics.fx, (p.y - intrinsics.cy) / intrinsics.fy)
+        if let distortion { n = distortion.undistort(n) }
+        let c = SIMD3(n.x, n.y, 1)
         return simd_normalize(enuToCamera.transpose * c)
     }
 

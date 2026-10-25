@@ -1,6 +1,7 @@
 import CoreMotion
 import QuartzCore
 import Synchronization
+import SkyCore
 import simd
 
 struct MotionSample: Sendable {
@@ -44,6 +45,7 @@ final class AttitudeBuffer: Sendable {
         var latest: MotionSample?
         var test = RotationConventionTest()
         var minimumDeliveryLag = Double.infinity
+        var cumulativeTurn = 0.0
     }
 
     private let state = Mutex(State())
@@ -53,6 +55,10 @@ final class AttitudeBuffer: Sendable {
             s.test.add(matrix: sample.rawMatrix, gravity: sample.gravity)
             let rotation = simd_quatd(sample.rawMatrix)
             let entry = (time: sample.timestamp, rotation: rotation)
+            if let previous = s.samples.isEmpty ? nil : s.samples[(s.head + s.samples.count - 1) % s.samples.count].rotation {
+                let delta = previous.inverse * rotation
+                s.cumulativeTurn += 2 * atan2(simd_length(delta.imag), abs(delta.real))
+            }
             if s.samples.count < Self.capacity {
                 s.samples.append(entry)
             } else {
@@ -63,6 +69,9 @@ final class AttitudeBuffer: Sendable {
             s.minimumDeliveryLag = min(s.minimumDeliveryLag, sample.receivedAt - sample.timestamp)
         }
     }
+
+    /// Total angle the device has been rotated since the stream started, radians (the gyro path length).
+    var cumulativeTurn: Double { state.withLock { $0.cumulativeTurn } }
 
     var latestSample: MotionSample? { state.withLock { $0.latest } }
     var conventionTest: RotationConventionTest { state.withLock { $0.test } }
@@ -107,6 +116,24 @@ final class AttitudeBuffer: Sendable {
             }
             let oldest = sample(0)
             return Attitude(timestamp: oldest.time, deviceFromReference: Self.oriented(oldest.rotation, convention))
+        }
+    }
+
+    /// Like `attitude(at:)`, but past the newest sample the rotation continues at the rate of the last intervals
+    /// (at most `maximumExtrapolation`), so a frame shown a few milliseconds after the last gyro sample does not lag.
+    func predictedAttitude(at hostTime: Double, maximumExtrapolation: Double = 0.04) -> Attitude? {
+        state.withLock { s in
+            let count = s.samples.count
+            guard count >= 3 else { return nil }
+            let convention = s.test.convention
+            func sample(_ i: Int) -> (time: Double, rotation: simd_quatd) { s.samples[(s.head + i) % count] }
+            let newest = sample(count - 1), older = sample(count - 3)
+            let ahead = min(hostTime - newest.time, maximumExtrapolation)
+            let span = newest.time - older.time
+            guard ahead > 0, span > 0 else { return nil }
+            let step = (newest.rotation * older.rotation.inverse).normalized
+            let q = (Rotations.quaternion(rotationVector: Rotations.rotationVector(step) * (ahead / span)) * newest.rotation).normalized
+            return Attitude(timestamp: hostTime, deviceFromReference: Self.oriented(q, convention))
         }
     }
 

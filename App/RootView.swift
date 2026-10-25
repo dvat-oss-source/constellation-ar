@@ -15,6 +15,7 @@ struct RootView: View {
             }
 
             VStack(spacing: 8) {
+                if model.effectiveAttitudeSource == .motion { AccuracyBadge(model: model) }
                 hints
                 if model.showLayers { LayerPanel(model: model).transition(.opacity) }
                 Spacer()
@@ -129,6 +130,25 @@ struct RootView: View {
                 model.showDebug.toggle()
             }
         }
+    }
+}
+
+/// The heading filter's current one-sigma pointing accuracy.
+private struct AccuracyBadge: View {
+    let model: AppModel
+
+    var body: some View {
+        let alignment = model.alignment
+        HStack {
+            Spacer()
+            Text(String(format: "±%.1f°", alignment.accuracyDegrees) + (alignment.isAligned ? "" : " compass"))
+                .font(.footnote.monospacedDigit().weight(.semibold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(.black.opacity(0.5), in: Capsule())
+        }
+        .accessibilityIdentifier("accuracyReadout")
     }
 }
 

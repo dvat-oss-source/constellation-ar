@@ -28,6 +28,8 @@
 	<string>$(GEMMA_LOCATION)</string>
 	<key>GemmaModelID</key>
 	<string>$(GEMMA_MODEL_ID)</string>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>The camera shows the sky so constellations can be drawn over it.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
@@ -39,6 +41,8 @@
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UIStatusBarHidden</key>

@@ -1,6 +1,7 @@
 import Foundation
 import Metal
 import QuartzCore
+import SkyCore
 import simd
 
 /// Per display-link tick: newest camera frame + attitude interpolated at that frame's capture time → overlay
@@ -16,9 +17,14 @@ final class SceneDriver {
     private var cameraFrame: CameraFrame?
     private var measuredIntrinsics: CameraIntrinsics?
     private var smoother = AttitudeSmoother()
+    private var warping = false
     private var displayRate = RateMeter()
     private var cameraRate = RateMeter()
     private(set) var lastContext: OverlayContext?
+    private(set) var lastWarp: FrameWarp?
+    /// Raw Core Motion attitude (before boresight and correction) behind `lastContext`.
+    private(set) var lastCoreMotion: simd_quatd?
+    var isWarping: Bool { warping }
     /// Display time − capture time of the camera frame drawn last.
     private(set) var cameraToDisplayLatency: Double?
     /// Capture time − timestamp of the motion sample used (positive = attitude interpolated, ~0 = clamped to newest).
@@ -50,6 +56,9 @@ final class SceneDriver {
         var hostTime = displayTime
         var attitude: simd_double3x3
         var intrinsics: CameraIntrinsics
+        var warp: FrameWarp?
+        let calibration = model.calibration
+        let useCorrection = model.effectiveAttitudeSource != .fixed
 
         if model.showsCamera, let receiver = model.capture?.receiver {
             if let frame = receiver.takeLatest() {
@@ -57,33 +66,56 @@ final class SceneDriver {
                 cameraRate.tick(at: frame.hostTime)
                 if let measured = frame.intrinsics { measuredIntrinsics = measured }
             }
+            updateWarpState(deliveredFPS: receiver.statistics.framesPerSecond)
         } else {
             cameraFrame = nil
         }
 
         if let frame = cameraFrame {
-            hostTime = frame.hostTime + model.captureTimeReference.rawValue * (frame.exposureDuration ?? 0)
-            let sample = model.motion.buffer.attitude(at: hostTime)
-            attitude = sample?.matrix ?? model.look.deviceFromReference
-            attitudeSampleAge = sample.map { hostTime - $0.timestamp }
+            let timing = calibration.timing ?? .none
+            let frameTime = model.captureTime(frameHostTime: frame.hostTime, exposure: frame.exposureDuration)
             let size = SIMD2(Double(frame.size.x), Double(frame.size.y))
-            intrinsics = frame.intrinsics ?? measuredIntrinsics?.scaled(to: size)
-                ?? .nominal(size: size, longAxisFOVDegrees: Self.nominalFieldOfView)
+            let raw = frame.intrinsics ?? measuredIntrinsics?.scaled(to: size) ?? .nominal(size: size, longAxisFOVDegrees: Self.nominalFieldOfView)
+            intrinsics = raw.refined(by: calibration.lens)
+
+            // Warped: the (possibly slow, long-exposure) frame is re-projected to the gyro attitude at display time, and the
+            // overlay uses that attitude too. Frame-matched: the overlay uses the attitude at the frame's own time.
+            let attitudeTime = warping ? displayTime : frameTime
+            let buffer = model.motion.buffer
+            let fallback = simd_quatd(model.look.deviceFromReference)
+            func coreMotion(at t: Double) -> simd_quatd {
+                if warping, let predicted = buffer.predictedAttitude(at: t) { return predicted.deviceFromReference }
+                return buffer.attitude(at: t)?.deviceFromReference ?? fallback
+            }
+            let sample = buffer.attitude(at: attitudeTime)
+            let raw0 = coreMotion(at: attitudeTime)
+            lastCoreMotion = raw0
+            let alignment = model.alignment
+            func drawn(at t: Double) -> simd_quatd {
+                useCorrection ? alignment.drawnAttitude(coreMotion: coreMotion(at: t), at: t) : coreMotion(at: t)
+            }
+            let displayAttitude = drawn(at: attitudeTime)
+            attitude = simd_double3x3(displayAttitude)
+            hostTime = attitudeTime
+            attitudeSampleAge = sample.map { attitudeTime - $0.timestamp }
             background = .camera(frame)
             cameraToDisplayLatency = displayTime - frame.hostTime
             smoother.reset()
+            warp = FrameWarp(frameTime: frameTime, displayAttitude: displayAttitude, readoutSeconds: timing.readoutSeconds,
+                             intrinsics: Self.skyIntrinsics(intrinsics), attitude: { drawn(at: $0) })
         } else {
             attitude = skyOnlyAttitude(at: displayTime)
-            intrinsics = measuredIntrinsics ?? .nominal(size: Self.nominalSensorSize, longAxisFOVDegrees: Self.nominalFieldOfView)
+            lastCoreMotion = simd_quatd(attitude)
+            intrinsics = (measuredIntrinsics ?? .nominal(size: Self.nominalSensorSize, longAxisFOVDegrees: Self.nominalFieldOfView))
+                .refined(by: calibration.lens)
             cameraToDisplayLatency = nil
             attitudeSampleAge = nil
+            if useCorrection { attitude = model.alignment.apply(to: attitude, at: displayTime) }
         }
+        lastWarp = warp
 
-        // The fixed-sky preset must stay repeatable, so it never takes the persisted heading correction.
-        if model.effectiveAttitudeSource != .fixed {
-            attitude = model.alignment.apply(to: attitude)
-        }
-        let geometry = CameraGeometry(intrinsics: intrinsics, drawableSize: drawableSize)
+        let distortion = calibration.lens.flatMap { $0.hasDistortion ? $0.distortion : nil }
+        let geometry = CameraGeometry(intrinsics: intrinsics, drawableSize: drawableSize, distortion: distortion)
         let context = OverlayContext(hostTime: hostTime, displayTime: displayTime, skyDate: model.skyDate(now: Date()),
                                      observer: model.observer, deviceFromReference: attitude, camera: geometry,
                                      lighting: model.lightingBlend, isSkyOnly: cameraFrame == nil,
@@ -91,8 +123,64 @@ final class SceneDriver {
         lastContext = context
         let overlay = model.overlayProvider(context)
         renderer.draw(to: update.drawable, background: background, geometry: geometry,
-                      deviceFromReference: attitude, overlay: overlay, redTheme: model.redTheme,
+                      deviceFromReference: attitude, warp: warp, overlay: overlay, redTheme: model.redTheme,
                       contentScale: context.contentScale)
+    }
+
+    /// Warp when the camera cannot keep up (night exposures, below ~40 fps); stay frame-matched at the day rate, where
+    /// the frame is only a few milliseconds old. Hysteresis keeps it from flapping near the threshold.
+    private func updateWarpState(deliveredFPS fps: Double) {
+        switch model.warpMode {
+        case .on: warping = true
+        case .off: warping = false
+        case .auto:
+            guard fps > 0 else { return }
+            if warping, fps > 55 { warping = false } else if !warping, fps < 40 { warping = true }
+        }
+    }
+
+    private static func skyIntrinsics(_ i: CameraIntrinsics) -> SkyCore.CameraIntrinsics {
+        SkyCore.CameraIntrinsics(fx: i.fx, fy: i.fy, cx: i.cx, cy: i.cy, bufferWidth: i.referenceSize.x, bufferHeight: i.referenceSize.y)
+    }
+
+    /// The view point where the star (or Moon disc) under a tap really is in the camera image, or nil without a frame or
+    /// a clear detection. Works in the buffer pixels of the frame the tap landed on, through the warp.
+    func snappedScreenPoint(kind: AlignmentCandidate.Kind, near point: SIMD2<Double>) -> SIMD2<Double>? {
+        guard model.snapTaps, let frame = cameraFrame, let warp = lastWarp, let context = lastContext, !context.isSkyOnly else { return nil }
+        let display = context.camera.mapping.pixel(fromScreen: point)
+        let centre = warp.sensorPixel(forDisplayPixel: display)
+        guard let window = Self.luminanceWindow(of: frame.pixelBuffer, around: centre, halfSize: 40) else { return nil }
+        let found: SIMD2<Double>?
+        switch kind {
+        case .sun:
+            return nil
+        case .moon:
+            found = TapSnap.moon(in: window, near: centre, radius: max(2, tan(Angle.radians(0.2575)) * warp.intrinsics.fx))
+        case .star, .planet:
+            found = TapSnap.star(in: window, near: centre, radius: 36)
+        }
+        return found.map { context.camera.mapping.screen(fromPixel: warp.displayPixel(forSensorPixel: $0)) }
+    }
+
+    private static func luminanceWindow(of buffer: CVPixelBuffer, around centre: SIMD2<Double>, halfSize: Int) -> LuminanceWindow? {
+        let width = CVPixelBufferGetWidth(buffer), height = CVPixelBufferGetHeight(buffer)
+        let x0 = max(0, Int(centre.x) - halfSize), y0 = max(0, Int(centre.y) - halfSize)
+        let x1 = min(width, Int(centre.x) + halfSize), y1 = min(height, Int(centre.y) + halfSize)
+        let w = x1 - x0, h = y1 - y0
+        guard w >= 24, h >= 24 else { return nil }
+        CVPixelBufferLockBaseAddress(buffer, .readOnly)
+        defer { CVPixelBufferUnlockBaseAddress(buffer, .readOnly) }
+        guard let base = CVPixelBufferGetBaseAddress(buffer) else { return nil }
+        let rowBytes = CVPixelBufferGetBytesPerRow(buffer)
+        var pixels = [UInt8](repeating: 0, count: w * h)
+        for row in 0..<h {
+            let source = base.advanced(by: (y0 + row) * rowBytes + x0 * 4).assumingMemoryBound(to: UInt8.self)
+            for col in 0..<w {
+                // BGRA: 0.114 B + 0.587 G + 0.299 R
+                pixels[row * w + col] = UInt8((29 * Int(source[col * 4]) + 150 * Int(source[col * 4 + 1]) + 77 * Int(source[col * 4 + 2])) >> 8)
+            }
+        }
+        return LuminanceWindow(width: w, height: h, origin: SIMD2(Double(x0), Double(y0)), pixels: pixels)
     }
 
     func setMilkyWay(levels: [UInt8], width: Int, height: Int) {

@@ -32,6 +32,7 @@ actor CameraCapture {
     private let log = Logger(subsystem: "org.constellationar.ConstellationAR", category: "camera")
     private var device: AVCaptureDevice?
     private var connection: AVCaptureConnection?
+    private var lensObservation: NSKeyValueObservation?
     private var focus = FocusController()
     private var exposure = ExposureController()
     private var lightingBlend: Double = 0
@@ -208,6 +209,9 @@ actor CameraCapture {
         let maxFrameRate = format.videoSupportedFrameRateRanges.map(\.maxFrameRate).max() ?? 30
         exposure.dayFrameRate = min(maxFrameRate, 120)
         device = camera
+        lensObservation = camera.observe(\.lensPosition, options: [.initial, .new]) { [receiver] camera, _ in
+            receiver.setLensPosition(camera.lensPosition)
+        }
         self.connection = connection
         probe = CameraProbe(device: camera, connection: connection, formatsTried: tried)
         return nil
