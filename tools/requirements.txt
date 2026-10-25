@@ -1,0 +1,14 @@
+astropy==8.0.2
+astropy-iers-data==0.2026.10.19.0.52.1
+certifi==2026.10.23
+charset-normalizer==3.5.2
+idna==3.20
+jplephem==2.24
+numpy==2.5.4
+packaging==26.3
+pyerfa==2.0.1.5
+PyYAML==6.0.3
+requests==2.34.2
+sgp4==2.27
+skyfield==1.55
+urllib3==2.8.0

@@ -1,0 +1,442 @@
+[
+ {
+  "id": "And",
+  "name": "Andromeda",
+  "genitive": "Andromedae"
+ },
+ {
+  "id": "Ant",
+  "name": "Antlia",
+  "genitive": "Antliae"
+ },
+ {
+  "id": "Aps",
+  "name": "Apus",
+  "genitive": "Apodis"
+ },
+ {
+  "id": "Aqr",
+  "name": "Aquarius",
+  "genitive": "Aquarii"
+ },
+ {
+  "id": "Aql",
+  "name": "Aquila",
+  "genitive": "Aquilae"
+ },
+ {
+  "id": "Ara",
+  "name": "Ara",
+  "genitive": "Arae"
+ },
+ {
+  "id": "Ari",
+  "name": "Aries",
+  "genitive": "Arietis"
+ },
+ {
+  "id": "Aur",
+  "name": "Auriga",
+  "genitive": "Aurigae"
+ },
+ {
+  "id": "Boo",
+  "name": "Boötes",
+  "genitive": "Boötis"
+ },
+ {
+  "id": "Cae",
+  "name": "Caelum",
+  "genitive": "Caeli"
+ },
+ {
+  "id": "Cam",
+  "name": "Camelopardalis",
+  "genitive": "Camelopardalis"
+ },
+ {
+  "id": "Cnc",
+  "name": "Cancer",
+  "genitive": "Cancri"
+ },
+ {
+  "id": "CVn",
+  "name": "Canes Venatici",
+  "genitive": "Canum Venaticorum"
+ },
+ {
+  "id": "CMa",
+  "name": "Canis Major",
+  "genitive": "Canis Majoris"
+ },
+ {
+  "id": "CMi",
+  "name": "Canis Minor",
+  "genitive": "Canis Minoris"
+ },
+ {
+  "id": "Cap",
+  "name": "Capricornus",
+  "genitive": "Capricorni"
+ },
+ {
+  "id": "Car",
+  "name": "Carina",
+  "genitive": "Carinae"
+ },
+ {
+  "id": "Cas",
+  "name": "Cassiopeia",
+  "genitive": "Cassiopeiae"
+ },
+ {
+  "id": "Cen",
+  "name": "Centaurus",
+  "genitive": "Centauri"
+ },
+ {
+  "id": "Cep",
+  "name": "Cepheus",
+  "genitive": "Cephei"
+ },
+ {
+  "id": "Cet",
+  "name": "Cetus",
+  "genitive": "Ceti"
+ },
+ {
+  "id": "Cha",
+  "name": "Chamaeleon",
+  "genitive": "Chamaeleontis"
+ },
+ {
+  "id": "Cir",
+  "name": "Circinus",
+  "genitive": "Circini"
+ },
+ {
+  "id": "Col",
+  "name": "Columba",
+  "genitive": "Columbae"
+ },
+ {
+  "id": "Com",
+  "name": "Coma Berenices",
+  "genitive": "Comae Berenices"
+ },
+ {
+  "id": "CrA",
+  "name": "Corona Australis",
+  "genitive": "Coronae Australis"
+ },
+ {
+  "id": "CrB",
+  "name": "Corona Borealis",
+  "genitive": "Coronae Borealis"
+ },
+ {
+  "id": "Crv",
+  "name": "Corvus",
+  "genitive": "Corvi"
+ },
+ {
+  "id": "Crt",
+  "name": "Crater",
+  "genitive": "Crateris"
+ },
+ {
+  "id": "Cru",
+  "name": "Crux",
+  "genitive": "Crucis"
+ },
+ {
+  "id": "Cyg",
+  "name": "Cygnus",
+  "genitive": "Cygni"
+ },
+ {
+  "id": "Del",
+  "name": "Delphinus",
+  "genitive": "Delphini"
+ },
+ {
+  "id": "Dor",
+  "name": "Dorado",
+  "genitive": "Doradus"
+ },
+ {
+  "id": "Dra",
+  "name": "Draco",
+  "genitive": "Draconis"
+ },
+ {
+  "id": "Equ",
+  "name": "Equuleus",
+  "genitive": "Equulei"
+ },
+ {
+  "id": "Eri",
+  "name": "Eridanus",
+  "genitive": "Eridani"
+ },
+ {
+  "id": "For",
+  "name": "Fornax",
+  "genitive": "Fornacis"
+ },
+ {
+  "id": "Gem",
+  "name": "Gemini",
+  "genitive": "Geminorum"
+ },
+ {
+  "id": "Gru",
+  "name": "Grus",
+  "genitive": "Gruis"
+ },
+ {
+  "id": "Her",
+  "name": "Hercules",
+  "genitive": "Herculis"
+ },
+ {
+  "id": "Hor",
+  "name": "Horologium",
+  "genitive": "Horologii"
+ },
+ {
+  "id": "Hya",
+  "name": "Hydra",
+  "genitive": "Hydrae"
+ },
+ {
+  "id": "Hyi",
+  "name": "Hydrus",
+  "genitive": "Hydri"
+ },
+ {
+  "id": "Ind",
+  "name": "Indus",
+  "genitive": "Indi"
+ },
+ {
+  "id": "Lac",
+  "name": "Lacerta",
+  "genitive": "Lacertae"
+ },
+ {
+  "id": "Leo",
+  "name": "Leo",
+  "genitive": "Leonis"
+ },
+ {
+  "id": "LMi",
+  "name": "Leo Minor",
+  "genitive": "Leonis Minoris"
+ },
+ {
+  "id": "Lep",
+  "name": "Lepus",
+  "genitive": "Leporis"
+ },
+ {
+  "id": "Lib",
+  "name": "Libra",
+  "genitive": "Librae"
+ },
+ {
+  "id": "Lup",
+  "name": "Lupus",
+  "genitive": "Lupi"
+ },
+ {
+  "id": "Lyn",
+  "name": "Lynx",
+  "genitive": "Lyncis"
+ },
+ {
+  "id": "Lyr",
+  "name": "Lyra",
+  "genitive": "Lyrae"
+ },
+ {
+  "id": "Men",
+  "name": "Mensa",
+  "genitive": "Mensae"
+ },
+ {
+  "id": "Mic",
+  "name": "Microscopium",
+  "genitive": "Microscopii"
+ },
+ {
+  "id": "Mon",
+  "name": "Monoceros",
+  "genitive": "Monocerotis"
+ },
+ {
+  "id": "Mus",
+  "name": "Musca",
+  "genitive": "Muscae"
+ },
+ {
+  "id": "Nor",
+  "name": "Norma",
+  "genitive": "Normae"
+ },
+ {
+  "id": "Oct",
+  "name": "Octans",
+  "genitive": "Octantis"
+ },
+ {
+  "id": "Oph",
+  "name": "Ophiuchus",
+  "genitive": "Ophiuchi"
+ },
+ {
+  "id": "Ori",
+  "name": "Orion",
+  "genitive": "Orionis"
+ },
+ {
+  "id": "Pav",
+  "name": "Pavo",
+  "genitive": "Pavonis"
+ },
+ {
+  "id": "Peg",
+  "name": "Pegasus",
+  "genitive": "Pegasi"
+ },
+ {
+  "id": "Per",
+  "name": "Perseus",
+  "genitive": "Persei"
+ },
+ {
+  "id": "Phe",
+  "name": "Phoenix",
+  "genitive": "Phoenicis"
+ },
+ {
+  "id": "Pic",
+  "name": "Pictor",
+  "genitive": "Pictoris"
+ },
+ {
+  "id": "Psc",
+  "name": "Pisces",
+  "genitive": "Piscium"
+ },
+ {
+  "id": "PsA",
+  "name": "Piscis Austrinus",
+  "genitive": "Piscis Austrini"
+ },
+ {
+  "id": "Pup",
+  "name": "Puppis",
+  "genitive": "Puppis"
+ },
+ {
+  "id": "Pyx",
+  "name": "Pyxis",
+  "genitive": "Pyxidis"
+ },
+ {
+  "id": "Ret",
+  "name": "Reticulum",
+  "genitive": "Reticuli"
+ },
+ {
+  "id": "Sge",
+  "name": "Sagitta",
+  "genitive": "Sagittae"
+ },
+ {
+  "id": "Sgr",
+  "name": "Sagittarius",
+  "genitive": "Sagittarii"
+ },
+ {
+  "id": "Sco",
+  "name": "Scorpius",
+  "genitive": "Scorpii"
+ },
+ {
+  "id": "Scl",
+  "name": "Sculptor",
+  "genitive": "Sculptoris"
+ },
+ {
+  "id": "Sct",
+  "name": "Scutum",
+  "genitive": "Scuti"
+ },
+ {
+  "id": "Ser",
+  "name": "Serpens",
+  "genitive": "Serpentis"
+ },
+ {
+  "id": "Sex",
+  "name": "Sextans",
+  "genitive": "Sextantis"
+ },
+ {
+  "id": "Tau",
+  "name": "Taurus",
+  "genitive": "Tauri"
+ },
+ {
+  "id": "Tel",
+  "name": "Telescopium",
+  "genitive": "Telescopii"
+ },
+ {
+  "id": "Tri",
+  "name": "Triangulum",
+  "genitive": "Trianguli"
+ },
+ {
+  "id": "TrA",
+  "name": "Triangulum Australe",
+  "genitive": "Trianguli Australis"
+ },
+ {
+  "id": "Tuc",
+  "name": "Tucana",
+  "genitive": "Tucanae"
+ },
+ {
+  "id": "UMa",
+  "name": "Ursa Major",
+  "genitive": "Ursae Majoris"
+ },
+ {
+  "id": "UMi",
+  "name": "Ursa Minor",
+  "genitive": "Ursae Minoris"
+ },
+ {
+  "id": "Vel",
+  "name": "Vela",
+  "genitive": "Velorum"
+ },
+ {
+  "id": "Vir",
+  "name": "Virgo",
+  "genitive": "Virginis"
+ },
+ {
+  "id": "Vol",
+  "name": "Volans",
+  "genitive": "Volantis"
+ },
+ {
+  "id": "Vul",
+  "name": "Vulpecula",
+  "genitive": "Vulpeculae"
+ }
+]

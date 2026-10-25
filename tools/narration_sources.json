@@ -1,0 +1,1052 @@
+{
+  "aratus": {
+    "url": "https://www.theoi.com/Text/AratusPhaenomena.html",
+    "version": "Theoi Classical Texts Library page (Mair 1921 translation)",
+    "path": "narration_sources/aratus/theoi_AratusPhaenomena.html",
+    "sha256": "6eaef37b12aee50ef0a5a3871a2afd3fe8d28420c5291e7529b167b8d91cc54c"
+  },
+  "wikipedia:Orion_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Orion_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Orion_(constellation).json",
+    "sha256": "c8c902c42042f04e2d5be7502edda28bfa61ac5df32049627cffed4f2a0b7910"
+  },
+  "allen:Orion": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Orion*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Orion.html",
+    "sha256": "85f001dc275f1b3825b3517ae337c2f940f3d5863a6368e56646f76f4af8f5db"
+  },
+  "wikipedia:Antlia": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Antlia",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Antlia.json",
+    "sha256": "80b3bda06da79fb3ea797354a734632cf06893353912c301a9377d9ff6d4c04e"
+  },
+  "allen:Antlia_Pneumatica": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Antlia_Pneumatica*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Antlia_Pneumatica.html",
+    "sha256": "e0b91160bc07df86ae8480843633b1a21a9f86ccdd156aa5454b808759e2e047"
+  },
+  "wikipedia:Andromeda_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Andromeda_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Andromeda_(constellation).json",
+    "sha256": "66ecea70a862bf3a4c89c4f2543202782c6d1c5daea94f71effd69842ae882ad"
+  },
+  "allen:Andromeda": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Andromeda*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Andromeda.html",
+    "sha256": "f294308d656d7a9f660b724c347d768a0319521fd52a8ae3404cf2bc2b52cac3"
+  },
+  "wikipedia:Apus": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Apus",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Apus.json",
+    "sha256": "28dea63d8f742a3d5f0bd0bb1652254597e984d3b56f0efddd930bf6cb123053"
+  },
+  "allen:Apus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Apus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Apus.html",
+    "sha256": "ccd21147389dc701bcd4a6b61a6b7088fdca37dce13e142643afd73118909538"
+  },
+  "wikipedia:Aquarius_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Aquarius_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Aquarius_(constellation).json",
+    "sha256": "23fd95fa6de93566b6dbbf2696e1788ecc67d77bf26485eb099adb3ac7c533fc"
+  },
+  "allen:Aquarius": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Aquarius*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Aquarius.html",
+    "sha256": "f080cac6c91bad71bbefaa61a906982ed1e744d1f83079af636da65ba7ee6d9e"
+  },
+  "wikipedia:Aquila_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Aquila_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Aquila_(constellation).json",
+    "sha256": "c70dbe7aabf683d8e877f11a8653db3da5f7839cab146d59cebfedac43af8f1e"
+  },
+  "allen:Aquila": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Aquila*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Aquila.html",
+    "sha256": "b8084f490652f9745b595a71005678c208509330f7aad20a5ff7db9b2d5a218e"
+  },
+  "wikipedia:Ara_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Ara_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Ara_(constellation).json",
+    "sha256": "7de03b1cb432cc0b1d3f344ebe6bec24fc1f19986b0f7e8335982ca963f836c9"
+  },
+  "allen:Ara": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Ara*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Ara.html",
+    "sha256": "523b7a35550bfc4f6549d8dbd357a4c5bcb06732133a589a24cc2d7cc8b07d44"
+  },
+  "wikipedia:Aries_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Aries_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Aries_(constellation).json",
+    "sha256": "3d44370e62e004d16541bb67cee9cda4c036fe7b999c8bad2bf47e8d375f2362"
+  },
+  "allen:Aries": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Aries*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Aries.html",
+    "sha256": "62da2bb20e4a45fad62c055f07c96593ee82b07373e272713cb8a766f59a0825"
+  },
+  "wikipedia:Auriga_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Auriga_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Auriga_(constellation).json",
+    "sha256": "8ccc69863da8738ee25b02bf6e0e4fc0757d525dbf7631997ce6c6dfa4a909b5"
+  },
+  "allen:Auriga": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Auriga*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Auriga.html",
+    "sha256": "18e221875f99c2f6f4ff5792604d24ff30a8784a9eecfd54cbca3303c8582a8b"
+  },
+  "wikipedia:Boötes": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Bo%C3%B6tes",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Boötes.json",
+    "sha256": "99e12317e5d97650c48f870f038d3cd37dc48685251410f22b9726636efa9ee3"
+  },
+  "allen:Bootes": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Bootes*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Bootes.html",
+    "sha256": "f7bc6d19d3d66f08ed037c00c1ea8106779adf7cf85699cde6b6da1496572b6b"
+  },
+  "wikipedia:Caelum": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Caelum",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Caelum.json",
+    "sha256": "6ce04da92afd94863235403ce047ecfaa69494b971ac681cf9d1aa8d771e52be"
+  },
+  "allen:Caelum": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Caelum*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Caelum.html",
+    "sha256": "9c3c7d852ba9b8a0beba9725aebe1892c6420c1e5e6df5b682734f23b3b120c4"
+  },
+  "wikipedia:Camelopardalis": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Camelopardalis",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Camelopardalis.json",
+    "sha256": "0d37f6a762e47891d9ec51c4a3bac5072999505eb3093ca5fd17b9a99c31e50c"
+  },
+  "allen:Camelopardalis": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Camelopardalis*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Camelopardalis.html",
+    "sha256": "328b1e674f560f5b1f69816add16ab2ca37cdcfa0ed7d76943f9f17b2a413d86"
+  },
+  "wikipedia:Cancer_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Cancer_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Cancer_(constellation).json",
+    "sha256": "33196867125a579454ba155de52678f1fc87fa7230ca10854db23519ca403fc9"
+  },
+  "allen:Cancer": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Cancer*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Cancer.html",
+    "sha256": "d7f363a440fc1a9db30d2ac8af146180c0ecc63c69c2189e4feb8e9c7260fd49"
+  },
+  "wikipedia:Canes_Venatici": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Canes_Venatici",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Canes_Venatici.json",
+    "sha256": "8415958078a96b8bd90176932a2992c48cd48234f710e8a538a8f393b7258899"
+  },
+  "allen:Canes_Venatici": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Canes_Venatici*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Canes_Venatici.html",
+    "sha256": "7dc76a65a5fff3663a5afa2fb78f6de60e6db67b87ca1245c451a5b8d06108fe"
+  },
+  "wikipedia:Canis_Major": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Canis_Major",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Canis_Major.json",
+    "sha256": "263515f2c1e4121df422f559175ea545f1e4ed53ca7d9ddc434861705e574cad"
+  },
+  "allen:Canis_Major": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Canis_Major*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Canis_Major.html",
+    "sha256": "933317ec27c71538787843acc96ac2c46a223ec174987ed7293eeb9361e56a12"
+  },
+  "wikipedia:Canis_Minor": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Canis_Minor",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Canis_Minor.json",
+    "sha256": "d7202152df8998ab52caf158e5bd02184bc2fb3b87b0550d6e5ff614c71e6c2e"
+  },
+  "allen:Canis_Minor": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Canis_Minor*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Canis_Minor.html",
+    "sha256": "5694ca9d13d8ef1c503ad8019e6359842229b79ca4786e6866faf231d6369975"
+  },
+  "wikipedia:Capricornus": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Capricornus",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Capricornus.json",
+    "sha256": "ace73c17b36768ee6fc61d5da892b48777d072c0a2e67b7331542b837552dfa3"
+  },
+  "allen:Capricornus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Capricornus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Capricornus.html",
+    "sha256": "e17eff299ef3cfffb15ce5c7f0a4a9bd4410f4eccc14e513ec49d61824acf232"
+  },
+  "wikipedia:Carina_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Carina_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Carina_(constellation).json",
+    "sha256": "cd38451051bbe8a5a7baf15b0abfee585fef6b6f742147426ece112872a0c554"
+  },
+  "allen:Argo_Navis": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Argo_Navis*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Argo_Navis.html",
+    "sha256": "e9ae2cb97c550e4f6a079800ddca12e601f07ed73f46807301ff7b55f41fe755"
+  },
+  "wikipedia:Cassiopeia_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Cassiopeia_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Cassiopeia_(constellation).json",
+    "sha256": "45e00a0cc8fac1fe6da07e2cec5485c504d36b54bdb4ae73733df4bbe57a1087"
+  },
+  "allen:Cassiopeia": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Cassiopeia*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Cassiopeia.html",
+    "sha256": "257d77f703e4515737fe5a9d67c791a8aed0926b046fea9db91480cbb3a9d2de"
+  },
+  "wikipedia:Centaurus": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Centaurus",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Centaurus.json",
+    "sha256": "d7e2b6a08dfb7d621ccbe486d7501fc320623ca022ee15cbe609891a197ca9c2"
+  },
+  "allen:Centaurus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Centaurus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Centaurus.html",
+    "sha256": "6d571abb3841f0c6558530678192bdc58a2e2170f0e726780569c1fc4ca8ed11"
+  },
+  "wikipedia:Cepheus_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Cepheus_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Cepheus_(constellation).json",
+    "sha256": "52285dec9b326495ff8bd543c753f8a8657606857e26e3d39d1494ed9a13b834"
+  },
+  "allen:Cepheus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Cepheus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Cepheus.html",
+    "sha256": "9800f7dac93ba2c1750114d24162b7f0bbac91c90e9f3b822c8a2a48416c7f7b"
+  },
+  "wikipedia:Cetus_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Cetus_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Cetus_(constellation).json",
+    "sha256": "897f3d18e8835c9cde74d8a75b666c3abc06e99d614c41471a0f034ab12e1712"
+  },
+  "allen:Cetus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Cetus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Cetus.html",
+    "sha256": "605bd1ab58a89f31fa84ba741e468d1f58daaa74b88e4853a61c92e50981b0a2"
+  },
+  "wikipedia:Chamaeleon": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Chamaeleon",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Chamaeleon.json",
+    "sha256": "40f0216ebf19a46aaafca06fc69706368294736640b4b46b2b9f1e9a24d88d75"
+  },
+  "allen:Chamaeleon": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Chamaeleon*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Chamaeleon.html",
+    "sha256": "76a854dd1b2bdcaca7d8d7acf1db2851a1b90b20d454976d36f7d2beb0b9ea24"
+  },
+  "wikipedia:Circinus": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Circinus",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Circinus.json",
+    "sha256": "305b4ef3d38481229e2ff9049199780112253dcb384fefbcb2c071f7143257f6"
+  },
+  "allen:Circinus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Circinus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Circinus.html",
+    "sha256": "294bba9ef85229e8c17cc81b9ee7cd780bdb939fc623f299bc76269d58c0d555"
+  },
+  "wikipedia:Columba_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Columba_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Columba_(constellation).json",
+    "sha256": "cf8f735cda22fef01b7c4b2d301c66a9a5f7d053aa06fc20fdf4874b6ad9a4d4"
+  },
+  "allen:Columba_Noae": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Columba_Noae*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Columba_Noae.html",
+    "sha256": "6b6394068c0d25767d5a6d41252ec47a7f3fb23950316edd92ebed7d7dfdf348"
+  },
+  "wikipedia:Coma_Berenices": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Coma_Berenices",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Coma_Berenices.json",
+    "sha256": "1e1b5c38090db175f193377bb6c75700394f6a890909e72af15949fedfc0c2f8"
+  },
+  "allen:Coma_Berenices": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Coma_Berenices*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Coma_Berenices.html",
+    "sha256": "63048510461d164b520ea12008c015c3bfee4b051fa1b15114e32b7d4bf9c91e"
+  },
+  "wikipedia:Corona_Australis": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Corona_Australis",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Corona_Australis.json",
+    "sha256": "817317e6c0bd2883d48dfea8fc5a4443309fdf95104a2ed3f8aa8f9a3c47b894"
+  },
+  "allen:Corona_Australis": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Corona_Australis*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Corona_Australis.html",
+    "sha256": "15a4b310e9c0d7c004a2e1231c0767c4b76ab9352e261d7831a0f9ebc78ac0c7"
+  },
+  "wikipedia:Corona_Borealis": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Corona_Borealis",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Corona_Borealis.json",
+    "sha256": "3257149bbcb508c9f83322adb81d2a26b0f1d850bb5d17d15678db9e714e6189"
+  },
+  "allen:Corona_Borealis": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Corona_Borealis*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Corona_Borealis.html",
+    "sha256": "5863e5dd73a7a26bf3e8d4be8c062afe0a4d7d1dce2067a356a68a32f304451d"
+  },
+  "wikipedia:Corvus_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Corvus_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Corvus_(constellation).json",
+    "sha256": "193a774d7d339c3d4a46120abc147cc64081c194a707651d622c39bed31acbdc"
+  },
+  "allen:Corvus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Corvus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Corvus.html",
+    "sha256": "a9cd7fe3a052a553f0a72356653344eb83f9e7c69833cbf3dd0cd602a2fa05d3"
+  },
+  "wikipedia:Crater_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Crater_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Crater_(constellation).json",
+    "sha256": "ed50560fea0a1350e556e3ea17716e17882b0e474e41658b853529d8987d456f"
+  },
+  "allen:Crater": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Crater*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Crater.html",
+    "sha256": "b6a7bd878f5f204e6fc20db9860fcb49eeda92be81d4db070fa0c000b6e00e95"
+  },
+  "wikipedia:Crux": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Crux",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Crux.json",
+    "sha256": "c5959da3fa9f76ec076b1b6ced95cdba10ba0d7d48a170dd13e58e4062984579"
+  },
+  "allen:Crux": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Crux*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Crux.html",
+    "sha256": "e371f94dd501b732a74200018a57777c73e36e411090b7e3812cc15d2b80809c"
+  },
+  "wikipedia:Cygnus_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Cygnus_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Cygnus_(constellation).json",
+    "sha256": "730895298882d1ce953ef232fc280cfd703c115d5341b0bd94b8f9e5d2da93e1"
+  },
+  "allen:Cygnus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Cygnus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Cygnus.html",
+    "sha256": "7fcc896bebcd213b6b09d35ecc26a8174ffb34d51444132b1311f5b11e82ff9d"
+  },
+  "wikipedia:Delphinus": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Delphinus",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Delphinus.json",
+    "sha256": "80703127f87a135c915f858cf740357beeea3611cb7eaaa0ecc801cd5be8fe77"
+  },
+  "allen:Delphinus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Delphinus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Delphinus.html",
+    "sha256": "38ebe8dc2891aeed364dad4cf8902add2212dff1eb1fd819317495626ce45d3c"
+  },
+  "wikipedia:Dorado": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Dorado",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Dorado.json",
+    "sha256": "6c7deb1db9dd61de1c20f1acdd05e4494aa7de2a5ec8ee1892b3217f0efb2a75"
+  },
+  "allen:Dorado": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Dorado*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Dorado.html",
+    "sha256": "79cb0c80a13c46f095e122e505caf0b24c0fddd039dc39223ece2779f09e9c24"
+  },
+  "wikipedia:Draco_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Draco_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Draco_(constellation).json",
+    "sha256": "5b5470f44df3cb3e7490a59724324abb76c45222009b1b1c2efd462e88d47519"
+  },
+  "allen:Draco": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Draco*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Draco.html",
+    "sha256": "8262fcf2142969f8097d05cb7867554159a19f451d45bcdeed986a6fa97175f6"
+  },
+  "wikipedia:Equuleus": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Equuleus",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Equuleus.json",
+    "sha256": "d2b0e94cda1d7fe1ffb2800c21afbcbae15884d0448eaea23dc59661da171fd2"
+  },
+  "allen:Equuleus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Equuleus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Equuleus.html",
+    "sha256": "6242242f1898a3101721bddfb0bcf788a13f05d15de9f592705b05dda2345589"
+  },
+  "wikipedia:Eridanus": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Eridanus",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Eridanus.json",
+    "sha256": "c583a77ed4851ca0b6ea2da0a8c83ee3c482fe51c7643f6ad74ccb2ed56e1a50"
+  },
+  "allen:Eridanus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Eridanus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Eridanus.html",
+    "sha256": "d2acc671b8388cbc327805f0ab928cbfeafde8e0549c66c84206f56e3cc83c2f"
+  },
+  "wikipedia:Fornax": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Fornax",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Fornax.json",
+    "sha256": "205c6f6118bbf711958d0df4f432a955d585d4105a7baa31b21c08070edc88ca"
+  },
+  "allen:Fornax": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Fornax*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Fornax.html",
+    "sha256": "11ff10f06ef1619f1b9d5aab3e209a0818c12ce221ec6805cee12fb3ee13ff5d"
+  },
+  "wikipedia:Gemini_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Gemini_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Gemini_(constellation).json",
+    "sha256": "3946f26e299c995bccd982afda3e9111b364febb6d8dcc512fcdce88794ee308"
+  },
+  "allen:Gemini": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Gemini*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Gemini.html",
+    "sha256": "df6e007268631e2153c44ebfedf01dfd4ae8cdf12533c2a00d8000da5d58affb"
+  },
+  "wikipedia:Grus_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Grus_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Grus_(constellation).json",
+    "sha256": "5057d8003ea2f937112d83954d8a454ed8465d2643be048ec955a6db6ac9e754"
+  },
+  "allen:Grus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Grus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Grus.html",
+    "sha256": "8b0f81e82b29578cb214dcabc6fb0a1d6b1cde4ffbcbe9b2184db0a9103e5f51"
+  },
+  "wikipedia:Hercules_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Hercules_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Hercules_(constellation).json",
+    "sha256": "b8e835542f9a828a6a534ae64cbf524d4d6567fe4eb5ff0ceb741c545590cdd0"
+  },
+  "allen:Hercules": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Hercules*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Hercules.html",
+    "sha256": "315f89f91d4fa55602a706283c5ec76136e31442511859cc577f0770d39a767a"
+  },
+  "wikipedia:Horologium_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Horologium_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Horologium_(constellation).json",
+    "sha256": "a3925c6b8464267d448f2db46f6020cd3b83e4bbbb140ffa2ceab736b320409a"
+  },
+  "allen:Horologium": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Horologium*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Horologium.html",
+    "sha256": "597ce32874c533c36959bf6470c8e51ba6f1601d2d0325f1ff1589a7905a9af0"
+  },
+  "wikipedia:Hydra_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Hydra_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Hydra_(constellation).json",
+    "sha256": "317a47b6118576e47f01de4b9a277bdaaf9f7cee075bec6371e3a8bfebb261f9"
+  },
+  "allen:Hydra": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Hydra*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Hydra.html",
+    "sha256": "506762e9aad24f13362193f445cb8a57c39eae0eb280bbd39e5c46b484708a26"
+  },
+  "wikipedia:Hydrus": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Hydrus",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Hydrus.json",
+    "sha256": "e72d53b4a56d49da8a1d836dc9ebbb01ffaca9001cd8b502dbf85be6a99be34a"
+  },
+  "allen:Hydrus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Hydrus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Hydrus.html",
+    "sha256": "6414d5edfef772a17d94e7f9fa78e91cf3a964a2667f991ea18f10c10fee4ff3"
+  },
+  "wikipedia:Indus_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Indus_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Indus_(constellation).json",
+    "sha256": "ee9b5bb6b70091354a46dabde78e5090bedc0383fc4dc909a91a22e8dc83bb32"
+  },
+  "allen:Indus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Indus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Indus.html",
+    "sha256": "762e0ac3387444f8f5a18e54faf4ae15a6ce099e4778cd68da994ab70658bd98"
+  },
+  "wikipedia:Lacerta": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Lacerta",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Lacerta.json",
+    "sha256": "a5ac4ab39f4226f0d330146ff0cd7d09e3b30b1d0e3fc30bc0d2f3210cb5bb12"
+  },
+  "allen:Lacerta": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Lacerta*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Lacerta.html",
+    "sha256": "6b363e393998ec6350d85156816af2555042118a792bc4590bb726caaa222be9"
+  },
+  "wikipedia:Leo_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Leo_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Leo_(constellation).json",
+    "sha256": "5bfc97e9abbf09968ca0fc64038c9554f0af4853ae65389a11430b8253ae8946"
+  },
+  "allen:Leo": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Leo*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Leo.html",
+    "sha256": "3cbf8750b1854e060785f7cd883448958a0d0bcb4e8b358998e14e3b94bbada7"
+  },
+  "wikipedia:Leo_Minor": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Leo_Minor",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Leo_Minor.json",
+    "sha256": "829f638299a739736fcffbe0705a674a9473928a42523816191879aa9c22ea93"
+  },
+  "allen:Leo_Minor": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Leo_Minor*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Leo_Minor.html",
+    "sha256": "bc0aa2286e4635c228bb87533e69fd28efd9d8b8e42f042344a05a406079a379"
+  },
+  "wikipedia:Lepus_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Lepus_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Lepus_(constellation).json",
+    "sha256": "a610d0e3f98c9c37cfcdbc71124282c5cb01f2cd28a800c95c859d452f2bb7a0"
+  },
+  "allen:Lepus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Lepus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Lepus.html",
+    "sha256": "6469bec7dd7a36081f5e2c59d669168cb7bb009df514bf9e74e98b501e15a921"
+  },
+  "wikipedia:Libra_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Libra_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Libra_(constellation).json",
+    "sha256": "4d6bd1c706a230cbf88efbeac3803b6cd5701b8fa1b84d646083461386439ef7"
+  },
+  "allen:Libra": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Libra*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Libra.html",
+    "sha256": "5d39e34d734aecba02b3e5275a8dade9fb0156084895e8db19611c47ce2208ec"
+  },
+  "wikipedia:Lupus_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Lupus_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Lupus_(constellation).json",
+    "sha256": "3e6fca5b21ba879d4a83a46ecfba3591804ed0b48ed964fa4bf38bb53ff1b426"
+  },
+  "allen:Lupus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Lupus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Lupus.html",
+    "sha256": "b9298946bca1ee9efa65938903e7660ba8727fc9bf1aa7f61579c5817d59e1d5"
+  },
+  "wikipedia:Lynx_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Lynx_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Lynx_(constellation).json",
+    "sha256": "a21a26e32fd3f2b2454ab94f08e2d76d3aa28a3df88c17960852ecac2449c79e"
+  },
+  "allen:Lynx": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Lynx*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Lynx.html",
+    "sha256": "49daf5c0ac40517952b94be8ca94ec17292ffe12a6101329537c75c71794ca4a"
+  },
+  "wikipedia:Lyra": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Lyra",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Lyra.json",
+    "sha256": "0a93c4eb706feb02c61d3edcd7e293753b100acdd142b30ae4883e1013fd70ca"
+  },
+  "allen:Lyra": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Lyra*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Lyra.html",
+    "sha256": "034eb2ae97d5dc8800e4710e5a0b90433acbbcb5c8b81146321dca21f0f76f40"
+  },
+  "wikipedia:Mensa_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Mensa_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Mensa_(constellation).json",
+    "sha256": "6931527a295e96ac36ed6df3bec51c80ab9d4269c993c4b840b475bfd459bfde"
+  },
+  "allen:Mons_Mensae": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Mons_Mensae*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Mons_Mensae.html",
+    "sha256": "43890543289184d8ee5b3d86fb4acde63ec0146199670be4834b7da1ca614a83"
+  },
+  "wikipedia:Microscopium": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Microscopium",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Microscopium.json",
+    "sha256": "eaec816ee5afe28575db64488f68ead9e98878ddb6b104541b1c5954160eb337"
+  },
+  "allen:Microscopium": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Microscopium*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Microscopium.html",
+    "sha256": "47da42165deb8c34cf6abb7eeea13e0f14c106615b62955d2981b420836227e5"
+  },
+  "wikipedia:Monoceros": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Monoceros",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Monoceros.json",
+    "sha256": "0b8446507aeae2767861fd894596c20168fbc7dee7632fec3e6addf51baac308"
+  },
+  "allen:Monoceros": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Monoceros*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Monoceros.html",
+    "sha256": "1632b671760b91f8dae52a749f6ce26613f124cb7eed491faf2094aab33d85b4"
+  },
+  "wikipedia:Musca": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Musca",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Musca.json",
+    "sha256": "abb82ebeeb81b3bfc776c83dab9fc2b691834df3a338ee4028c42ad7eb31fffe"
+  },
+  "allen:Musca_Australis": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Musca_Australis*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Musca_Australis.html",
+    "sha256": "c1bd881f0754d98cb17bf3cc62385611b2bd98fc2cbcbb4c34e42b8696cbb8b7"
+  },
+  "wikipedia:Norma_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Norma_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Norma_(constellation).json",
+    "sha256": "7744ad41d4e082f5af1978a06092170056478ff377c60bbf0ea4b9a6757deed7"
+  },
+  "allen:Norma_et_Regula": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Norma_et_Regula*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Norma_et_Regula.html",
+    "sha256": "3320826a3926b203312b5869da8109f1fd3a4c812a7948931f6cfe0f21e383b4"
+  },
+  "wikipedia:Octans": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Octans",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Octans.json",
+    "sha256": "0d4dc804cc4d1959de502f8b740216e798bc09e055ac9b6b10b0bf5819b836d8"
+  },
+  "allen:Octans": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Octans*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Octans.html",
+    "sha256": "e22f9096d57f4c0bfd44029182ae3f69ddf94d2e2ad72db431d5a553a39edb91"
+  },
+  "wikipedia:Ophiuchus": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Ophiuchus",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Ophiuchus.json",
+    "sha256": "b6b934a5b96b9fe8645986f1dac1ef6badbd3de7ecc6d653823a6965d900c917"
+  },
+  "allen:Ophiuchus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Ophiuchus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Ophiuchus.html",
+    "sha256": "f01bcbc27fab6c0e52949390df509d6329ffbe1cffb2646fa4fcb05056a058fb"
+  },
+  "wikipedia:Pavo_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Pavo_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Pavo_(constellation).json",
+    "sha256": "51e5b6e39e6b410efd02f90728e0d1d4b86f02ff8127e6d0dc468d20bfd053b1"
+  },
+  "allen:Pavo": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Pavo*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Pavo.html",
+    "sha256": "c3ff13863d3bcc191d0872c374ca720bbec8878cc4f6bcf61857c239f29bf856"
+  },
+  "wikipedia:Pegasus_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Pegasus_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Pegasus_(constellation).json",
+    "sha256": "75637ef70c78fd0062f0b3a67bc1bbe42660b9072fad712eb1d46c49181e0e6e"
+  },
+  "allen:Pegasus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Pegasus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Pegasus.html",
+    "sha256": "19b551f8cd5a9a4256b6b3988e3f8756c5213dbac7b9be0c5c812facb9c50879"
+  },
+  "wikipedia:Perseus_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Perseus_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Perseus_(constellation).json",
+    "sha256": "67fd29355c5987a01acf6b1bb5d62dd5c93f5428d355eeef2801efac3193b861"
+  },
+  "allen:Perseus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Perseus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Perseus.html",
+    "sha256": "c5fc2520e12bf978694fc6d06b96783eca1b42d45bd44046f3927b0f93d0f777"
+  },
+  "wikipedia:Phoenix_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Phoenix_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Phoenix_(constellation).json",
+    "sha256": "e1d50d971859020c31102efa6aa5e2c7d7232f80035f4b79a64e269f59af3d7f"
+  },
+  "allen:Phoenix": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Phoenix*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Phoenix.html",
+    "sha256": "5685b3f57c4d5484dec5ee2829c06c9d86ab2139870dfbcc420de3d6a6d45b7a"
+  },
+  "wikipedia:Pictor": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Pictor",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Pictor.json",
+    "sha256": "be27d2cb1e693e4a0216ab014ce87a88c01b7055e358d7f73a18bcbde183586c"
+  },
+  "allen:Equuleus_Pictoris": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Equuleus_Pictoris*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Equuleus_Pictoris.html",
+    "sha256": "08a1cc8824addf83ddc839045bbef4fb4eb00aa0c4c8b9e2470871788fbb70b9"
+  },
+  "wikipedia:Pisces_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Pisces_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Pisces_(constellation).json",
+    "sha256": "1fb87e77181e9dc3a0362b28a5095632b04e7e24ad6f9d5429c3788cf3be3a9c"
+  },
+  "allen:Pisces": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Pisces*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Pisces.html",
+    "sha256": "55213ba635182d3d70255f71039ff1a815e058d6c3fc62e53c4ec9fc4652ca88"
+  },
+  "wikipedia:Piscis_Austrinus": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Piscis_Austrinus",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Piscis_Austrinus.json",
+    "sha256": "a2a6cfff5b6b5cbfe87fc68e35ace5f67a00b5cf30f5c05a45e1a10f86382d88"
+  },
+  "allen:Piscis_Australis": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Piscis_Australis*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Piscis_Australis.html",
+    "sha256": "ab3d4c7a00262094f85aaadf64958f9bbf60c4efbf73f64d25a29bca466e893a"
+  },
+  "wikipedia:Puppis": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Puppis",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Puppis.json",
+    "sha256": "37ec88713285b0143c6c3888afb21448bd2f3c1561cac15361ef19f06876c99e"
+  },
+  "wikipedia:Pyxis": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Pyxis",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Pyxis.json",
+    "sha256": "2da4abb2ce7e5b44d0085d1f4cf91566c987e85f12392ae0b5d1681fc1a848c3"
+  },
+  "allen:Pyxis": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Pyxis*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Pyxis.html",
+    "sha256": "9c57af9b6071435443aaf963d07bfa50f6f31ca20be5a5e5ba402a15faa54f4e"
+  },
+  "wikipedia:Reticulum": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Reticulum",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Reticulum.json",
+    "sha256": "bf5c64484efa6dafd69f40746c5a2f69de74cde8e5309447ff892b0b17ca2307"
+  },
+  "allen:Reticulum": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Reticulum*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Reticulum.html",
+    "sha256": "28764ff9f42d047e872071207ddfcc73281a68791356edf1999020100ad0009e"
+  },
+  "wikipedia:Sagitta": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Sagitta",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Sagitta.json",
+    "sha256": "612e8d572970a4de25b737650ab23d3d1648ee485559bca1147e1e81dd8cac4f"
+  },
+  "allen:Sagitta": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Sagitta*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Sagitta.html",
+    "sha256": "37b5460a0dcebe61a1e803f7075b528cd039f647f401d613cd6c492607e8b624"
+  },
+  "wikipedia:Sagittarius_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Sagittarius_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Sagittarius_(constellation).json",
+    "sha256": "896aaeb2e02ab50b7d15c742445d44d3a647f89827050d869cbf0290e042f355"
+  },
+  "allen:Sagittarius": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Sagittarius*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Sagittarius.html",
+    "sha256": "331d81fa968d0a619011cf9dd46646c4bc978788f5244a8b0ce05ee6ae51c2ea"
+  },
+  "wikipedia:Scorpius": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Scorpius",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Scorpius.json",
+    "sha256": "f2a9352f0b9301ea64931335be0126d9be8c4c0f7a205851ba8221f0140d2c41"
+  },
+  "allen:Scorpio": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Scorpio*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Scorpio.html",
+    "sha256": "f79193bc96ee6ed8e4c5eaf78188424478648803c4001a16921555a8d5d2e632"
+  },
+  "wikipedia:Sculptor_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Sculptor_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Sculptor_(constellation).json",
+    "sha256": "199b42c1dd4773da2a28c7f1dec5b3cb616654d5e24be6fbec1f603f51c09de0"
+  },
+  "allen:Sculptor": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Sculptor*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Sculptor.html",
+    "sha256": "82661d8e835d791f1ec1541f189a3ee4d22f13f39f39ea12f4c55a40b41ea45e"
+  },
+  "wikipedia:Scutum_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Scutum_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Scutum_(constellation).json",
+    "sha256": "c82cfbd08ea766079f4e491861ce8889bc181eaac4d8a4486538ecd6d1bdb5dc"
+  },
+  "allen:Scutum_Sobiescianum": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Scutum_Sobiescianum*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Scutum_Sobiescianum.html",
+    "sha256": "5456b01e24c5dc4d31346c3edc5c09e9d8d0fbb718568b81d12aa151ab2cd4d3"
+  },
+  "wikipedia:Serpens": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Serpens",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Serpens.json",
+    "sha256": "ce269001b1a3bc0bf7d62f6794e8c203b57ba38021d997b8516bbc11cbdbdc96"
+  },
+  "allen:Serpens": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Serpens*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Serpens.html",
+    "sha256": "8268c2b3f818a04e8a185d4fffa396f15dfd251fd07a0ac49fb9b7caedb2c5e3"
+  },
+  "wikipedia:Sextans": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Sextans",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Sextans.json",
+    "sha256": "1b434b9e1693f08a3b17e394fee22f57556507ac14677c32812e048a901e7d2e"
+  },
+  "allen:Sextans": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Sextans*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Sextans.html",
+    "sha256": "54f7e7510ca048722197747ee0346e439dacc5089203a1d097e6155f0de6dda3"
+  },
+  "wikipedia:Taurus_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Taurus_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Taurus_(constellation).json",
+    "sha256": "4c69a9d784a6f21c07d06669b34a8baff2512276952307f387106b641adb4099"
+  },
+  "allen:Taurus": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Taurus*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Taurus.html",
+    "sha256": "5b4e662567d515f80d5213cb2465950cfd467bb0ca4c341912a531bfacf67550"
+  },
+  "wikipedia:Telescopium": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Telescopium",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Telescopium.json",
+    "sha256": "c11abf3849ff7527bafe7ea9dc68bb5ac06f90e16047e26370988e1cbfbaae1c"
+  },
+  "allen:Telescopium": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Telescopium*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Telescopium.html",
+    "sha256": "ca0867678f14f22e5f187f921dad47056a798c91fff646945168017eeb2a000d"
+  },
+  "wikipedia:Triangulum": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Triangulum",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Triangulum.json",
+    "sha256": "f2a679a114cb6adfc683879890aef82b660ff063777eb67fde405a742c34d776"
+  },
+  "allen:Triangulum": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Triangulum*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Triangulum.html",
+    "sha256": "674c91fa0c8479ed8373e0e76fc75a4bce1555ae0b346d73caaec41eab01b077"
+  },
+  "wikipedia:Triangulum_Australe": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Triangulum_Australe",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Triangulum_Australe.json",
+    "sha256": "001f9de2b3e2dbea8e2c1a9bd89aca6acc357a2e9007587c9e0986aa9e53094d"
+  },
+  "allen:Triangulum_Australe": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Triangulum_Australe*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Triangulum_Australe.html",
+    "sha256": "e167504669144f8c82d2c547135ad021d294485f661c9601b312dec5835d64fd"
+  },
+  "wikipedia:Tucana": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Tucana",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Tucana.json",
+    "sha256": "f11ae9b9f3d294f3bb9b65e9a1234b61ecb8f2fb60c4d34be3c9e01cce6a5a4b"
+  },
+  "allen:Tucana": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Tucana*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Tucana.html",
+    "sha256": "ac1f7020ac259b4e3e082482a4607ef33bd605a60c9314b88a5058d2ed0fde88"
+  },
+  "wikipedia:Ursa_Major": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Ursa_Major",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Ursa_Major.json",
+    "sha256": "ac0849ad6489a7d42d18924b8730025d2f0120b4fba9e21222bb7b85cad4f839"
+  },
+  "allen:Ursa_Major": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Ursa_Major*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Ursa_Major.html",
+    "sha256": "69144f69518bb98513c505c6b16a66588e39abca07413bb747e6cac0b59c414b"
+  },
+  "wikipedia:Ursa_Minor": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Ursa_Minor",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Ursa_Minor.json",
+    "sha256": "da3d15090c26e9da2449fe0ca205ba4905ec60aaecea063056a5e89f273dce70"
+  },
+  "allen:Ursa_Minor": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Ursa_Minor*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Ursa_Minor.html",
+    "sha256": "d1ed8918a9c4896233eb3085d6926d7c5bb00501a3d09a6ceaab776de7ae4c4c"
+  },
+  "wikipedia:Vela_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Vela_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Vela_(constellation).json",
+    "sha256": "944bea41c9858a75c8fa3fab1b18a54fd993af7a1236999d2dc2a64f684e069f"
+  },
+  "wikipedia:Virgo_(constellation)": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Virgo_(constellation)",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Virgo_(constellation).json",
+    "sha256": "4971f77e7d06f14422957862470b511f6df132fd8a46bbc8e41dfaaeffc7d1b0"
+  },
+  "allen:Virgo": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Virgo*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Virgo.html",
+    "sha256": "2a0d3ff5b7cb982332d739d10652ee628336d25d1408c7be0b42ba62b1e256b6"
+  },
+  "wikipedia:Volans": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Volans",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Volans.json",
+    "sha256": "88bfc8ffea52f2220b6e7331e772cd8db644d12b50a146ae8c4a15fadf4de349"
+  },
+  "allen:Piscis_Volans": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Piscis_Volans*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Piscis_Volans.html",
+    "sha256": "e1244fe7c994c09712c60717345bb61cdc71203fdaa7b05f95ecec62bd83c4f7"
+  },
+  "wikipedia:Vulpecula": {
+    "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Vulpecula",
+    "version": "Wikipedia REST page summary (revision recorded in the cached JSON)",
+    "path": "narration_sources/wikipedia/Vulpecula.json",
+    "sha256": "5467f9d08f065ac67919560f5d4215106d420838a386c072bfbf3b2abf61b468"
+  },
+  "allen:Vulpecula": {
+    "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Vulpecula*.html",
+    "version": "LacusCurtius ALLSTA transcription",
+    "path": "narration_sources/allen/Vulpecula.html",
+    "sha256": "be2c2b17e9e32b5f2d054a4cfd14986b195e8d20c28d45e4ae368e29f19f86ad"
+  }
+}

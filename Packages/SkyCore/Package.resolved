@@ -1,0 +1,24 @@
+{
+  "originHash" : "cb5346d0f46b0c24c01d167b9365e4c77c8dd87fe0aedc1f8906f018baf56c9a",
+  "pins" : [
+    {
+      "identity" : "astronomykit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/heirloomlogic/AstronomyKit",
+      "state" : {
+        "revision" : "bd2f548f90a8f1bb66fa0c4420af6a3259c1eb02",
+        "version" : "4.1.0"
+      }
+    },
+    {
+      "identity" : "satellitekit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/gavineadie/SatelliteKit",
+      "state" : {
+        "revision" : "9a87cdb80344f26e81bc5fc82fdf9a3350478603",
+        "version" : "2.1.2"
+      }
+    }
+  ],
+  "version" : 3
+}

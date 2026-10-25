@@ -1,0 +1,596 @@
+{
+  "hip_main": {
+    "url": "https://cdsarc.cds.unistra.fr/ftp/I/239/hip_main.dat",
+    "version": "CDS VizieR I/239 (ESA 1997, SP-1200), hip_main.dat dated 1997-06-25",
+    "path": "hip_main.dat",
+    "sha256": "58ceabb104d647160d9437ce6e513a02a036bb4ad9f8879a5a22fd52943616e0"
+  },
+  "hip_readme": {
+    "url": "https://cdsarc.cds.unistra.fr/ftp/I/239/ReadMe",
+    "version": "CDS VizieR I/239 ReadMe",
+    "path": "hip_ReadMe",
+    "sha256": "7a7d54903d16460a76c240f07c41b019d57becfd27b5dfa2908e828f52f90c27"
+  },
+  "vi42_data": {
+    "url": "https://cdsarc.cds.unistra.fr/ftp/VI/42/data.dat",
+    "version": "CDS VizieR VI/42 (Roman 1987), data.dat dated 2000-05-08 (row 229 corrected 1999-12-30)",
+    "path": "vizier/vi42_data.dat",
+    "sha256": "daf9e2b39ec57446d862a445276ae2ea50490ee455540972906098f5f9187957"
+  },
+  "vi42_readme": {
+    "url": "https://cdsarc.cds.unistra.fr/ftp/VI/42/ReadMe",
+    "version": "CDS VizieR VI/42 ReadMe",
+    "path": "vizier/vi42_ReadMe",
+    "sha256": "b6a3e9ec21f902df084406e97d71754671c5787bee1cf49c109b3bc8cfc50ab9"
+  },
+  "vi49_bound18": {
+    "url": "https://cdsarc.cds.unistra.fr/ftp/VI/49/bound_18.dat",
+    "version": "CDS VizieR VI/49 (Davenhall & Leggett 1989), bound_18.dat dated 2013-06-14",
+    "path": "vizier/vi49_bound_18.dat",
+    "sha256": "3f563d0e3002a410afbc551791db6297cbfc3d291a20deb18f1fd7b4df60d7b8"
+  },
+  "vi49_readme": {
+    "url": "https://cdsarc.cds.unistra.fr/ftp/VI/49/ReadMe",
+    "version": "CDS VizieR VI/49 ReadMe",
+    "path": "vizier/vi49_ReadMe",
+    "sha256": "af906e494b7390de1257a06934b69ce1a87e1c4a55776d2e8c16de8e3b468705"
+  },
+  "stellarium_index": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/index.json",
+    "version": "Stellarium v26.3 (tag object c84941eb6966ec83d0fc93987d3268eb4bffb134), skycultures/modern/index.json",
+    "path": "stellarium/index.json",
+    "sha256": "1f2f5ffd6c9e25a7d0dcfdbf1f756e2db03dd3b8ed4ec016a2839b09f6b0fe1e"
+  },
+  "stellarium_description": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/description.md",
+    "version": "Stellarium v26.3 skycultures/modern/description.md (licence section)",
+    "path": "stellarium/description.md",
+    "sha256": "4b58344f63168d7c816fdfef405103b5770fda2e1f4a4bf5c8871041ce042586"
+  },
+  "wgsn_csn": {
+    "url": "https://web.archive.org/web/20261017213655id_/https://exopla.net/star-names/modern-iau-star-names/",
+    "version": "IAU WGSN Catalog of Star Names table at exopla.net, Wayback Machine snapshot 2026-10-17T21:36:55Z",
+    "path": "wgsn_csn_20261017.html",
+    "sha256": "abaa0ed87d82115adaf7ee85fbe53279f18d743837f70735ec9885b12767533c"
+  },
+  "iau_constellations_wiki": {
+    "url": "https://en.wikipedia.org/w/index.php?title=IAU_designated_constellations&oldid=1381140789&action=raw",
+    "version": "Wikipedia 'IAU designated constellations' revision 1381140789 (2026-10-20), wikitext",
+    "path": "wiki_iau_constellations_1381140789.txt",
+    "sha256": "e19708a59251a87effbbb9bfb2b2606161146900361acbdb631d04f5c5430930"
+  },
+  "d3_asterisms": {
+    "url": "https://raw.githubusercontent.com/ofrohn/d3-celestial/7e720a3de062059d4c5400a379146a601d9010e0/data/asterisms.json",
+    "version": "d3-celestial commit 7e720a3de062059d4c5400a379146a601d9010e0 (master, 2022-07-05)",
+    "path": "d3/asterisms.json",
+    "sha256": "397b764878038ac1214db44ea9fd39bffd3ec9eec8ee53a291d6ad95d9c6b3e3"
+  },
+  "d3_mw": {
+    "url": "https://raw.githubusercontent.com/ofrohn/d3-celestial/7e720a3de062059d4c5400a379146a601d9010e0/data/mw.json",
+    "version": "d3-celestial commit 7e720a3de062059d4c5400a379146a601d9010e0 (master, 2022-07-05)",
+    "path": "d3/mw.json",
+    "sha256": "aee221a7a0e879418e685de00c3e68fbdfac5667c0a8aab74929ef9cf4aab4fb"
+  },
+  "openngc_ngc": {
+    "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/v20260501/database_files/NGC.csv",
+    "version": "OpenNGC release v20260501 (commit 36cb178a0f69dba8bfc03a99c10512831edf1c6b)",
+    "path": "openngc/NGC.csv",
+    "sha256": "840fe0c9ee1332e551b2e722a0e92726cd7b157914a3d2177602832aadd3aa9e"
+  },
+  "openngc_addendum": {
+    "url": "https://raw.githubusercontent.com/mattiaverga/OpenNGC/v20260501/database_files/addendum.csv",
+    "version": "OpenNGC release v20260501 (commit 36cb178a0f69dba8bfc03a99c10512831edf1c6b)",
+    "path": "openngc/addendum.csv",
+    "sha256": "1d8f0914e643ada325a5a94d88d8fefad6a4937a2f77cc34f21483af22b11983"
+  },
+  "stellarium_art:illustrations/aquila.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/aquila.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/aquila.png",
+    "sha256": "c627aca0719e0e771114661289ce8b651df891f8aa8c6ebe338d13b986eae7db"
+  },
+  "stellarium_art:illustrations/andromeda.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/andromeda.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/andromeda.png",
+    "sha256": "1e631fa6846b3805b9708b03089cf38df160b51a2ca50b7ec17dcd1e8e55eefb"
+  },
+  "stellarium_art:illustrations/sculptor.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/sculptor.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/sculptor.png",
+    "sha256": "4ed0ffcb6e88868b8d91421fed1666d1500f82f07b322bcf7a87effbad58926f"
+  },
+  "stellarium_art:illustrations/ara.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/ara.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/ara.png",
+    "sha256": "47abcf063c4e35e4c0938bb8c56ca42f9ffdb696e206913b46d74a4ee35ce766"
+  },
+  "stellarium_art:illustrations/libra.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/libra.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/libra.png",
+    "sha256": "b62452cb1273f425cf54be07c95ff5efc759cea23761f31a63bb3c5ca6095681"
+  },
+  "stellarium_art:illustrations/cetus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/cetus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/cetus.png",
+    "sha256": "794eef84ea06637886179d5384b0b1446b91978f3215f28ddf272b5b91a8e3d2"
+  },
+  "stellarium_art:illustrations/aries.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/aries.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/aries.png",
+    "sha256": "70158bca8ab737c5529707be030a77d99ec0f0a0cec00c640396a1ebbdf26d5e"
+  },
+  "stellarium_art:illustrations/scutum.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/scutum.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/scutum.png",
+    "sha256": "252312723d04a799482e61eecd7e357a74bbba16d58259a2eef3cfd017b06b53"
+  },
+  "stellarium_art:illustrations/pyxis.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/pyxis.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/pyxis.png",
+    "sha256": "c73023861e4c310ff1f5e5c821f4561856dc3aa1c4eb89cf61d0f8f6d6c8f1e8"
+  },
+  "stellarium_art:illustrations/bootes.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/bootes.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/bootes.png",
+    "sha256": "dc958bf2f6e4779302df7a890e24c028fb037d7bb6d5963f820abaae8fee0a78"
+  },
+  "stellarium_art:illustrations/caelum.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/caelum.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/caelum.png",
+    "sha256": "e5a7dc7a01770e98ee15b7b8065952b460eb53b68967e5b21414893db40fed60"
+  },
+  "stellarium_art:illustrations/chamaeleon.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/chamaeleon.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/chamaeleon.png",
+    "sha256": "07d3f1dc0b38a295729f7116e1cbbf97b1d3c8b530b41f0fc162ca9c95f7153a"
+  },
+  "stellarium_art:illustrations/cancer.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/cancer.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/cancer.png",
+    "sha256": "4d8b1123815f81fa99ceab520141e2225c466f5e48ca5e82ab9742ef8902d7ef"
+  },
+  "stellarium_art:illustrations/capricornus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/capricornus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/capricornus.png",
+    "sha256": "7135358cd50bbc2717a8f7e3ce3fa47431261e7cee01d21d26688b2aca8424f7"
+  },
+  "stellarium_art:illustrations/argonavis.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/argonavis.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/argonavis.png",
+    "sha256": "6445e77a9e878e1fcedf738ac85d9b3162708defe37113dfd4f41879cb1d519f"
+  },
+  "stellarium_art:illustrations/cassiopeia.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/cassiopeia.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/cassiopeia.png",
+    "sha256": "e0cf5e4d328b0105a44aea2001a9fc9a5e6cb99f041a29242d9d4e331410f004"
+  },
+  "stellarium_art:illustrations/centaurus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/centaurus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/centaurus.png",
+    "sha256": "76c4e6b98f224ad7e4853e46be5c7b897dfb344f7e495a321a9a711ddd5cc232"
+  },
+  "stellarium_art:illustrations/cepheus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/cepheus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/cepheus.png",
+    "sha256": "3efd152711397e3424e220f6a2ead2e590ce9782a7de9eac8f009100457198b6"
+  },
+  "stellarium_art:illustrations/coma-berenices.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/coma-berenices.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/coma-berenices.png",
+    "sha256": "0a9c1b6e7b3e2041ec29aa1df42f92504f3f77efbd5cd3416612a6615eb85a57"
+  },
+  "stellarium_art:illustrations/canes-venatici.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/canes-venatici.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/canes-venatici.png",
+    "sha256": "4cefc086d9500502b2172e3aae15800233a62c86203f4ef17c57dea024289d1c"
+  },
+  "stellarium_art:illustrations/auriga.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/auriga.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/auriga.png",
+    "sha256": "059dfbbce1388bab8f9ad3ccf86bcd3b060f3eb9e0d09ca1b96d13b064ef2c8e"
+  },
+  "stellarium_art:illustrations/columba.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/columba.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/columba.png",
+    "sha256": "6cc00cc6477dc19843c7c994c0a587f024f17b9786f6ad3c5023f5539c4a9665"
+  },
+  "stellarium_art:illustrations/circinus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/circinus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/circinus.png",
+    "sha256": "40aa1396ce2cbc2b6009fd088b04256ea807081d7d37ffda5f815c2fb8002709"
+  },
+  "stellarium_art:illustrations/crater.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/crater.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/crater.png",
+    "sha256": "78521af72845d29eb707e07435a927247411b8d89472d131b5fa9d2f297f80b7"
+  },
+  "stellarium_art:illustrations/corona-australis.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/corona-australis.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/corona-australis.png",
+    "sha256": "2c91843c5326cf5a5952f942ea83327a233376afddc95cd6804f166f6142572e"
+  },
+  "stellarium_art:illustrations/corona-borealis.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/corona-borealis.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/corona-borealis.png",
+    "sha256": "090649da2d64f53ed7f8f593c4642e242addffaded11a4887e7a590cbfa664e2"
+  },
+  "stellarium_art:illustrations/corvus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/corvus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/corvus.png",
+    "sha256": "c0e7f48acaa272c44a4f9e63dc508577851f1bb184e36a31b4b2ba6219e2e5d7"
+  },
+  "stellarium_art:illustrations/crux.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/crux.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/crux.png",
+    "sha256": "228b444d397b904c5f470e28014a53d63505d46fbaff36029ecd439a39c76225"
+  },
+  "stellarium_art:illustrations/cygnus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/cygnus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/cygnus.png",
+    "sha256": "d9ad9d2ffea6fb50eedf1ace1353efcca35bedf7fe4c45c6b67b8b01ec5e87a0"
+  },
+  "stellarium_art:illustrations/delphinus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/delphinus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/delphinus.png",
+    "sha256": "109625afb21447ae6b8d03d06bab84695009141b682ac5978b19e0404fbb40f0"
+  },
+  "stellarium_art:illustrations/dorado.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/dorado.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/dorado.png",
+    "sha256": "465d2e1d9b171aa22190ce1f4b854acebf11bd61aaa56819b6fd6f29a5b26dcc"
+  },
+  "stellarium_art:illustrations/draco.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/draco.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/draco.png",
+    "sha256": "624e24404ad3139806c898f2495638ec0bceedcb15daf4bfc9850e6c34da3367"
+  },
+  "stellarium_art:illustrations/norma.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/norma.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/norma.png",
+    "sha256": "c3fbac8305a0d3f871661e46697961828e389f02662cb82c6f8215318d80c6e4"
+  },
+  "stellarium_art:illustrations/eridanus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/eridanus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/eridanus.png",
+    "sha256": "21d5ecce9bd6b998fbf597fb575b849995fb64ac8566146a99b0d5746db63691"
+  },
+  "stellarium_art:illustrations/sagitta.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/sagitta.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/sagitta.png",
+    "sha256": "5dd90e4c916e947f496560c7e8b87e2b61631c09db6412dc0c83823f0bf87227"
+  },
+  "stellarium_art:illustrations/fornax.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/fornax.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/fornax.png",
+    "sha256": "8911514ed7bb414e3d4299c70bb7dd48a7c874ae7dec533f39ee07bb518867b0"
+  },
+  "stellarium_art:illustrations/gemini.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/gemini.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/gemini.png",
+    "sha256": "fb481f6bb73c44a7b0009a20fc7b17d574dac1d425a13b48b75a8bb6b2e5511a"
+  },
+  "stellarium_art:illustrations/camelopardalis.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/camelopardalis.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/camelopardalis.png",
+    "sha256": "18490202bf130ba4bfbeda97e20c3ab841b153d12e7c59a08cc3131230a273a8"
+  },
+  "stellarium_art:illustrations/canis-major.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/canis-major.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/canis-major.png",
+    "sha256": "802bd40c4e93c540e2fa601f1363fff4d6145575b91e441846ae8959bc238298"
+  },
+  "stellarium_art:illustrations/ursa-major.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/ursa-major.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/ursa-major.png",
+    "sha256": "da2a2a5c5024bd850ccd97924d18aab8b9ac45f32d168a8ee32c31dd2679ec4c"
+  },
+  "stellarium_art:illustrations/grus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/grus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/grus.png",
+    "sha256": "f2c137013291ddc88e30ae6a702b163895b3714cfaa3c5598eaa4215f995b36a"
+  },
+  "stellarium_art:illustrations/hercules.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/hercules.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/hercules.png",
+    "sha256": "b67337cc651db0bcfe1a332d2f735b81e468c2fd6db0df6b0a835323d225ba29"
+  },
+  "stellarium_art:illustrations/horlogium.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/horlogium.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/horlogium.png",
+    "sha256": "be97b257a0af2995ee29f53edc39170a7040dfa9730f1b6903cd9e3ed7d4a29b"
+  },
+  "stellarium_art:illustrations/hydra.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/hydra.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/hydra.png",
+    "sha256": "10b18b023fe61877c476054587534d98762c8dee26729a7ef3781a2d0a031aa8"
+  },
+  "stellarium_art:illustrations/hydrus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/hydrus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/hydrus.png",
+    "sha256": "168c2062f5f2d824d0470cc528c7b83dab72b42b8ea1dada601973686ada38b7"
+  },
+  "stellarium_art:illustrations/indus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/indus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/indus.png",
+    "sha256": "1f9830b780d4619fd76eeee8fcbcd73db44f982e9f091bc3054fc46bbf08e6f9"
+  },
+  "stellarium_art:illustrations/lacerta.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/lacerta.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/lacerta.png",
+    "sha256": "90b6b685d82a494fa5b798bbbf2a4742e0466924759af8da32ab5dbd6e256da8"
+  },
+  "stellarium_art:illustrations/monoceros.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/monoceros.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/monoceros.png",
+    "sha256": "b17d0febbba11ee0985d12241a46f7f1383c8a5380fa209b8c51b74e621a84bc"
+  },
+  "stellarium_art:illustrations/lepus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/lepus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/lepus.png",
+    "sha256": "4b8f15f5485c0114360fee3dd0f28ed4a92ec58bb997a8e089e185b9ab7794c0"
+  },
+  "stellarium_art:illustrations/leo.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/leo.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/leo.png",
+    "sha256": "1e12035d808d63f4dbc9e4a195fce32ef69281d38efea2ea2242c38cf0fec2ba"
+  },
+  "stellarium_art:illustrations/lupus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/lupus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/lupus.png",
+    "sha256": "849acf9d6fe5c61485fbeccbe92eda91ec3017808d8724034e2282110716d3fd"
+  },
+  "stellarium_art:illustrations/lynx.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/lynx.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/lynx.png",
+    "sha256": "1be70d1645d9d936c0b93f6dbfde116e69ed962a03c3929502a0d14aca01154e"
+  },
+  "stellarium_art:illustrations/lyra.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/lyra.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/lyra.png",
+    "sha256": "53604076248c70ef79ae7e98e6661613d65d22ebdf39a423398c06d71ccb13c1"
+  },
+  "stellarium_art:illustrations/antlia.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/antlia.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/antlia.png",
+    "sha256": "54d70b95614ef0f3a937e6ae49eadb798eb58b0cddd2db6c346849a1e3eed41d"
+  },
+  "stellarium_art:illustrations/microscopium.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/microscopium.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/microscopium.png",
+    "sha256": "29b51be3623aaf12d88562198c42d373cf18aa0b848872f65714aab9bfd24320"
+  },
+  "stellarium_art:illustrations/musca.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/musca.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/musca.png",
+    "sha256": "88ac34def295358256ef5f7ced1291c7534d60e1aeb33c680c5dccbc316ede9e"
+  },
+  "stellarium_art:illustrations/octans.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/octans.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/octans.png",
+    "sha256": "a3bb68ac580dc35b23eaf950af007c0d9d076eec6e35c9b0ebba83525cc66d10"
+  },
+  "stellarium_art:illustrations/apus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/apus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/apus.png",
+    "sha256": "521a9258b2e067b722ffbe19b6b4947bea03fa52175be9c127d96261cf0cc5e0"
+  },
+  "stellarium_art:illustrations/ophiuchus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/ophiuchus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/ophiuchus.png",
+    "sha256": "09967fbed6f14e768da00d492b7ba2daa2165406690014d0f00b711d372a0079"
+  },
+  "stellarium_art:illustrations/orion.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/orion.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/orion.png",
+    "sha256": "3edea0a3275ce25e084642f55111e07d8e7fc16cfeb8a04844719f45523744ae"
+  },
+  "stellarium_art:illustrations/pavo.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/pavo.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/pavo.png",
+    "sha256": "b6dfec3495d646920f76b4bbd0233553a88cb5b0290ab8e4b24209fcc303fa02"
+  },
+  "stellarium_art:illustrations/pegasus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/pegasus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/pegasus.png",
+    "sha256": "ad4a6926b939cd113aa78c06418513bc6b0e2342cca6df9d4fa0c9bd20743148"
+  },
+  "stellarium_art:illustrations/pictor.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/pictor.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/pictor.png",
+    "sha256": "355e4e3e3f2c0e657259e5fea4e1124a667babae0efc98bda62fc16fa08de92b"
+  },
+  "stellarium_art:illustrations/perseus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/perseus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/perseus.png",
+    "sha256": "fe9278ddf3dd52f1e1cfbc9f29b14739ebd146656b1d0b39e91309ba5983802e"
+  },
+  "stellarium_art:illustrations/equuleus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/equuleus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/equuleus.png",
+    "sha256": "0a44f2bb4e0b0bb2750c04f18f1f5a56bdd26406b7c9d56bf3f51ca45a67a09e"
+  },
+  "stellarium_art:illustrations/canis-minor.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/canis-minor.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/canis-minor.png",
+    "sha256": "198114abce3010a74f7804dcdfb0004b3ba1a2aa2e805463b23be373c8c3dd96"
+  },
+  "stellarium_art:illustrations/leo-minor.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/leo-minor.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/leo-minor.png",
+    "sha256": "c78cf7d582b7e54ada517b9db387af91ec85ae2624a26142c6bede3de9ebf7cc"
+  },
+  "stellarium_art:illustrations/vulpecula.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/vulpecula.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/vulpecula.png",
+    "sha256": "16980e83243f003d5a4f665e902e0e62fa3eee50ab21b68a17c09e8eea9d6672"
+  },
+  "stellarium_art:illustrations/ursa-minor.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/ursa-minor.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/ursa-minor.png",
+    "sha256": "e95cd699568b7b8877086d746d86b79f78863634904e8388291983e31265b1b5"
+  },
+  "stellarium_art:illustrations/phoenix.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/phoenix.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/phoenix.png",
+    "sha256": "a2b7e18c1f854f33cbe1779010bb4fff59e84107c938facbf8b881e8d38ca10e"
+  },
+  "stellarium_art:illustrations/pisces.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/pisces.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/pisces.png",
+    "sha256": "82a011c9d022af1dd651ef35deef0075c21e0e6ad900f38ef48d8c367d26dab2"
+  },
+  "stellarium_art:illustrations/piscis-austrinus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/piscis-austrinus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/piscis-austrinus.png",
+    "sha256": "32697eddefcdada4cd27e234178265f63db9d185a99bcd14e9beae6703161a07"
+  },
+  "stellarium_art:illustrations/volans.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/volans.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/volans.png",
+    "sha256": "86971bc380c10c441f11b4590239043bb54a229c7c3eef96a9f770948e70bcaf"
+  },
+  "stellarium_art:illustrations/reticulum.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/reticulum.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/reticulum.png",
+    "sha256": "1f5c49e4ecb09046d731bad34af80b5d575430525a427cc3cea40284f51606b9"
+  },
+  "stellarium_art:illustrations/sagittarius.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/sagittarius.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/sagittarius.png",
+    "sha256": "0ee208629e5edf87be38fb008b41b5dd0fc4fc67ba49cbe6c57356e5182e9317"
+  },
+  "stellarium_art:illustrations/scorpius.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/scorpius.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/scorpius.png",
+    "sha256": "e681573f0d51cc934bf170fa4136396a78d234d5d0db3f778cc16ea0df6f2d64"
+  },
+  "stellarium_art:illustrations/sextans.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/sextans.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/sextans.png",
+    "sha256": "095c0747d7988485e544242bfbe6cdf8642e01e41ba88d2dd57a804b21ca450c"
+  },
+  "stellarium_art:illustrations/mensa.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/mensa.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/mensa.png",
+    "sha256": "3ee8230728c0ce50e8f6467ab07fc913aa647e9a2b910f65f0d31464f0b95a1c"
+  },
+  "stellarium_art:illustrations/taurus.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/taurus.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/taurus.png",
+    "sha256": "019f267b9fee7fe3188944c2fe265c58c216119a919fd72475a8cd3c1676162a"
+  },
+  "stellarium_art:illustrations/telescopium.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/telescopium.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/telescopium.png",
+    "sha256": "0a5410aebe16156f68ff6fe547abed74753301a0c3bbf9502078e93aa07e6ab7"
+  },
+  "stellarium_art:illustrations/tucana.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/tucana.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/tucana.png",
+    "sha256": "a5beec5ec85b19a5aad8a1e89da51c23c18b6200c4fb101bc8d9e68b3f224d2e"
+  },
+  "stellarium_art:illustrations/triangulum.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/triangulum.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/triangulum.png",
+    "sha256": "ae9ccd84362146b52a6f90764165d22a32dacb8cadec026d230ae05c7dc77448"
+  },
+  "stellarium_art:illustrations/triangulum-australe.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/triangulum-australe.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/triangulum-australe.png",
+    "sha256": "c283ccbe27b730d65a0ba0092c45668fba9d17452eaf4ffa19d43366fb94d7fd"
+  },
+  "stellarium_art:illustrations/aquarius.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/aquarius.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/aquarius.png",
+    "sha256": "775c2a9b2758e6b2dd4b9aee9c67ea9666021107f55f19eb58d4a49f66f81e6d"
+  },
+  "stellarium_art:illustrations/virgo.png": {
+    "url": "https://raw.githubusercontent.com/Stellarium/stellarium/v26.3/skycultures/modern/illustrations/virgo.png",
+    "version": "Stellarium v26.3 skycultures/modern",
+    "path": "stellarium/illustrations/virgo.png",
+    "sha256": "7f59ab17b11794e708cd30e0e638ec65ceb926842d0d6461ebfd2bb5b25c8353"
+  }
+}
