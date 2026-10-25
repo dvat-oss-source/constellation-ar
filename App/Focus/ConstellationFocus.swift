@@ -19,6 +19,7 @@ final class ConstellationFocus {
     }
 
     let resources = FocusResources()
+    let outlineAnimation = FocusOutlineAnimation()
     var tapMode: SkyTapMode = .explore
     private(set) var pinState: PinState = .auto
     private(set) var pinnedName: String?
@@ -35,11 +36,24 @@ final class ConstellationFocus {
     func dismissPin() {
         pinState = .auto
         pinnedName = nil
+        outlineAnimation.clear()
     }
 
     func pin(constellation id: String, name: String) {
         pinState = .pinned(id)
         pinnedName = name
+    }
+
+    func beginOutlineIfNeeded(id: String, displayTime: Double) {
+        guard resources.artworkOutlines?.hasOutline(for: id) == true else { return }
+        outlineAnimation.begin(id: id, at: displayTime)
+    }
+
+    func outlineConstellationID(engine: SkyEngine, layers: LayerSettings, context: OverlayContext) -> String? {
+        if let pinnedID { return pinnedID }
+        let night = context.lighting >= 0.5
+        guard layers.isOn(.artwork, night: night), let locked = engine.lockedID else { return nil }
+        return locked
     }
 
     /// Screen tap → IAU constellation id via boundary hit test.

@@ -9,7 +9,9 @@ final class FocusResources {
     private(set) var atlas: ConstellationAtlas?
     private(set) var bm25: BM25Index?
     private(set) var verifier: AnswerVerifier?
+    private(set) var artworkOutlines: ArtworkOutlines?
     private(set) var loadError: String?
+    private var skyOutlineCache: [String: SkyOutline] = [:]
 
     func load(from bundle: Bundle = .main) {
         Task.detached(priority: .userInitiated) { [weak self] in
@@ -23,6 +25,8 @@ final class FocusResources {
                     self.atlas = loaded.atlas
                     self.bm25 = loaded.bm25
                     self.verifier = loaded.verifier
+                    self.artworkOutlines = loaded.artworkOutlines
+                    self.skyOutlineCache = [:]
                 case .failure(let error):
                     self.loadError = "Focus data: \(error.localizedDescription)"
                 }
@@ -36,6 +40,15 @@ final class FocusResources {
         var atlas: ConstellationAtlas
         var bm25: BM25Index?
         var verifier: AnswerVerifier?
+        var artworkOutlines: ArtworkOutlines?
+    }
+
+    func skyOutline(for id: String, artwork: [String: ArtworkInfo], catalog: StarCatalog) -> SkyOutline? {
+        if let cached = skyOutlineCache[id] { return cached }
+        guard let artworkOutlines, artworkOutlines.hasOutline(for: id), let info = artwork[id] else { return nil }
+        guard let sky = try? artworkOutlines.skyOutline(for: id, artwork: [info], catalog: catalog) else { return nil }
+        skyOutlineCache[id] = sky
+        return sky
     }
 
     nonisolated private static func loadSync(bundle: Bundle) throws -> Loaded {
@@ -62,7 +75,9 @@ final class FocusResources {
             verifier = AnswerVerifier(library: library, stars: StarFactIndex(catalog: catalog, names: names,
                                                                              designations: designations, constellations: list))
         }
-        return Loaded(hitTest: hitTest, boundaryGeometry: geometry, atlas: atlas, bm25: bm25, verifier: verifier)
+        let artworkOutlines = try ArtworkOutlines(url: url("artwork_outlines", "json"))
+        return Loaded(hitTest: hitTest, boundaryGeometry: geometry, atlas: atlas, bm25: bm25, verifier: verifier,
+                      artworkOutlines: artworkOutlines)
     }
 }
 

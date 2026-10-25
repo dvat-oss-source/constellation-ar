@@ -182,8 +182,19 @@ final class AppModel {
 
         overlayProvider = { [weak self, engine] context in
             var frame = engine.frame(context)
-            guard let self, let id = self.focus.pinnedID, let geometry = self.focus.resources.boundaryGeometry else { return frame }
-            frame.add(FocusOverlay.boundarySegments(id: id, geometry: geometry, context: context, engine: engine))
+            guard let self else { return frame }
+            if let id = self.focus.pinnedID, let geometry = self.focus.resources.boundaryGeometry {
+                frame.add(FocusOverlay.boundarySegments(id: id, geometry: geometry, context: context, engine: engine))
+            }
+            if let outlineID = self.focus.outlineConstellationID(engine: engine, layers: self.layers, context: context),
+               self.focus.resources.artworkOutlines?.hasOutline(for: outlineID) == true,
+               let data = engine.dataForFocus,
+               let sky = self.focus.resources.skyOutline(for: outlineID, artwork: data.artwork, catalog: data.catalog) {
+                self.focus.beginOutlineIfNeeded(id: outlineID, displayTime: context.displayTime)
+                let progress = self.focus.outlineAnimation.progress(at: context.displayTime)
+                frame.add(FocusOverlay.outlineSegments(sky: sky, progress: progress, context: context, engine: engine,
+                                                       redTheme: self.redTheme))
+            }
             return frame
         }
         tapHandler = { [weak self] point, context in self?.handleFocusTap(at: point, context: context) }
@@ -410,6 +421,7 @@ final class AppModel {
         hideCardTask?.cancel()
         focus.pin(constellation: id, name: name)
         engine.applyFocusPin(id, context: context)
+        focus.beginOutlineIfNeeded(id: id, displayTime: context.displayTime)
         pinnedFacts = focus.facts(for: id, context: context, engine: engine)
         pinnedCard = ConstellationCardModel(id: id, name: name, narration: engine.narrationCard(id),
                                             catalogStars: engine.catalogStars(for: id))
@@ -498,6 +510,7 @@ final class AppModel {
     private func handle(_ event: SkyEvent) {
         switch event {
         case .locked(let id, let narrate):
+            if let t = driver?.lastContext?.displayTime { focus.beginOutlineIfNeeded(id: id, displayTime: t) }
             guard !focus.isPinned else { return }
             hideCardTask?.cancel()
             deepDiveTask?.cancel()

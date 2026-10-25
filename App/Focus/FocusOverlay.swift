@@ -34,4 +34,37 @@ enum FocusOverlay {
         }
         return dashes
     }
+
+    @MainActor
+    static func outlineSegments(sky: SkyOutline, progress: Double, context: OverlayContext, engine: SkyEngine,
+                                redTheme: Bool) -> [OverlaySegment] {
+        guard progress > 0, let observer = context.observer else { return [] }
+        let session = engine.session(for: context.skyDate, observer: observer)
+        let instant = AstroInstant(date: context.skyDate)
+        let icrsToENU = session.icrsToENU(at: instant)
+        let beta = session.earthVelocityOverC
+        let projector = context.projector
+        let refraction = engine.refractionForFocus
+        let style = SkyStyle(night: Float(context.lighting), px: Float(context.contentScale))
+        let palette = StyleTokens.blended(lighting: context.lighting, red: redTheme)
+        let encoded = StyleTokens.encode(palette.light)
+        let color = SIMD4<Float>(encoded.x, encoded.y, encoded.z, 0.42 + 0.28 * style.night)
+        let width = StyleTokens.restingLineWidth * 0.75 * style.px
+        let glow = StyleTokens.litLineGlow * 0.55
+        var segments: [OverlaySegment] = []
+        for path in sky.partialPaths(progress: progress) {
+            var enuPath: [SIMD3<Double>] = []
+            for v in path {
+                enuPath.append(refraction.apparent(enu: icrsToENU * SkySession.aberrate(v, beta: beta)))
+            }
+            for line in projector.clipPolyline(enuPath) {
+                for k in 0..<(line.count - 1) {
+                    let a = SIMD2<Float>(line[k]), b = SIMD2<Float>(line[k + 1])
+                    segments.append(OverlaySegment(a: a, b: b, width: width, color: color,
+                                                   outlineWidth: style.lineOutline * 0.35, glow: glow))
+                }
+            }
+        }
+        return segments
+    }
 }
