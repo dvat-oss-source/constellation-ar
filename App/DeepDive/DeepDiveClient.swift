@@ -89,15 +89,24 @@ struct DeepDiveClient: Sendable {
     var cache: DeepDiveCache
     var modelID: String?
     var apiKey: String?
+    var projectID: String?
+    var location: String?
 
-    static func endpoint(modelID: String) -> URL? {
+    /// Gemma MaaS is rejected by the plain express URL ("only available via global endpoint"); with a project ID the
+    /// project-scoped location URL is used instead, and the express URL is only the fallback.
+    static func endpoint(modelID: String, projectID: String? = nil, location: String? = nil) -> URL? {
         let allowed = CharacterSet.urlPathAllowed.subtracting(CharacterSet(charactersIn: "/:"))
-        guard let model = modelID.addingPercentEncoding(withAllowedCharacters: allowed) else { return nil }
+        func encode(_ value: String) -> String? { value.addingPercentEncoding(withAllowedCharacters: allowed) }
+        guard let model = encode(modelID) else { return nil }
+        if let projectID, !projectID.isEmpty, let project = encode(projectID),
+           let place = encode(location?.isEmpty == false ? location! : "global") {
+            return URL(string: "https://aiplatform.googleapis.com/v1/projects/\(project)/locations/\(place)/publishers/google/models/\(model):streamGenerateContent?alt=sse")
+        }
         return URL(string: "https://aiplatform.googleapis.com/v1/publishers/google/models/\(model):streamGenerateContent?alt=sse")
     }
 
     func request(prompt: String) -> URLRequest? {
-        guard let modelID, let apiKey, let url = Self.endpoint(modelID: modelID) else { return nil }
+        guard let modelID, let apiKey, let url = Self.endpoint(modelID: modelID, projectID: projectID, location: location) else { return nil }
         var request = URLRequest(url: url, timeoutInterval: 60)
         request.httpMethod = "POST"
         request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")

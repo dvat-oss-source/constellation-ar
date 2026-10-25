@@ -22,6 +22,10 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>GCPProjectID</key>
+	<string>$(GCP_PROJECT_ID)</string>
+	<key>GemmaLocation</key>
+	<string>$(GEMMA_LOCATION)</string>
 	<key>GemmaModelID</key>
 	<string>$(GEMMA_MODEL_ID)</string>
 	<key>NSCameraUsageDescription</key>

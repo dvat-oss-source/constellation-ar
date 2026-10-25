@@ -283,7 +283,8 @@ final class AppModel {
             card.deepDive = .failed("The sky is not ready yet (waiting for location or catalogs).")
             return
         }
-        let client = DeepDiveClient(cache: .applicationSupport(), modelID: AppInfo.gemmaModelID, apiKey: AppInfo.vertexAPIKey)
+        let client = DeepDiveClient(cache: .applicationSupport(), modelID: AppInfo.gemmaModelID, apiKey: AppInfo.vertexAPIKey,
+                                    projectID: AppInfo.gcpProjectID, location: AppInfo.gemmaLocation)
         let prompt = DeepDiveClient.prompt(facts: facts, question: Self.deepDiveQuestion)
         card.deepDive = .streaming("")
         deepDiveTask?.cancel()
@@ -356,7 +357,7 @@ final class AppModel {
         sections.append(DebugSection(title: "App", lines: [
             AppInfo.summary,
             "Vertex API key: \(AppInfo.hasVertexAPIKey ? "present" : "missing")",
-            "Gemma model: \(AppInfo.gemmaModelID ?? "unset")",
+            "Gemma model: \(AppInfo.gemmaModelID ?? "unset") (\(AppInfo.gcpProjectID == nil ? "express URL" : "project \(AppInfo.gemmaLocation ?? "global")"))",
         ]))
 
         var sky: [String] = []

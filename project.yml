@@ -91,6 +91,8 @@ targets:
         CADisableMinimumFrameDurationOnPhone: true
         VertexAPIKey: $(VERTEX_API_KEY)
         GemmaModelID: $(GEMMA_MODEL_ID)
+        GCPProjectID: $(GCP_PROJECT_ID)
+        GemmaLocation: $(GEMMA_LOCATION)
     scheme:
       testTargets:
         - ConstellationARTests

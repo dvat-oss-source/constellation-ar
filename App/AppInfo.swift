@@ -20,6 +20,8 @@ enum AppInfo {
     }
 
     static var gemmaModelID: String? { string("GemmaModelID") }
+    static var gcpProjectID: String? { string("GCPProjectID") }
+    static var gemmaLocation: String? { string("GemmaLocation") }
 
     /// The key itself; never log or display it.
     static var vertexAPIKey: String? { string("VertexAPIKey") }

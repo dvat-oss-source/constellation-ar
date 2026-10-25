@@ -50,6 +50,17 @@ final class SSEParserTests: XCTestCase {
         XCTAssertEqual(GeminiStream.decode(event: payload), [.text("Hello "), .text("sky"), .finished(reason: "STOP")])
     }
 
+    func testGemmaEventSequence() {
+        let first = #"{"candidates": [{"content": {"role": "assistant","parts": [{"text": ""}]}}],"usageMetadata": {}}"#
+        let middle = #"{"candidates": [{"content": {"role": "assistant","parts": [{"text": "Or"}]}}],"usageMetadata": {}}"#
+        let last = #"{"candidates": [{"content": {"role": "assistant","parts": [{"text": ""}]},"finishReason": "STOP"}],"usageMetadata": {}}"#
+        let usage = #"{"usageMetadata": {"promptTokenCount": 12,"candidatesTokenCount": 3,"totalTokenCount": 15}}"#
+        XCTAssertEqual(GeminiStream.decode(event: first), [])
+        XCTAssertEqual(GeminiStream.decode(event: middle), [.text("Or")])
+        XCTAssertEqual(GeminiStream.decode(event: last), [.finished(reason: "STOP")])
+        XCTAssertEqual(GeminiStream.decode(event: usage), [])
+    }
+
     func testDecodeErrorAndBlockedPrompt() {
         XCTAssertEqual(GeminiStream.decode(event: #"{"error":{"code":403,"message":"API key not valid.","status":"PERMISSION_DENIED"}}"#),
                        [.error("PERMISSION_DENIED: API key not valid.")])
@@ -113,10 +124,29 @@ final class DeepDiveClientTests: XCTestCase {
         XCTAssertTrue(reason.hasPrefix("Offline"), reason)
     }
 
+    func testGemmaStreamEndToEndThroughTheStub() async {
+        let lines = event(#"{"candidates": [{"content": {"role": "assistant","parts": [{"text": ""}]}}],"usageMetadata": {}}"#)
+            + event(#"{"candidates": [{"content": {"role": "assistant","parts": [{"text": "Or"}]}}],"usageMetadata": {}}"#)
+            + event(#"{"candidates": [{"content": {"role": "assistant","parts": [{"text": "ion"}]}}],"usageMetadata": {}}"#)
+            + event(#"{"candidates": [{"content": {"role": "assistant","parts": [{"text": ""}]},"finishReason": "STOP"}],"usageMetadata": {}}"#)
+            + event(#"{"usageMetadata": {"totalTokenCount": 15}}"#)
+        let updates = await collect(client(StubStreamer(lines: lines)))
+        XCTAssertEqual(updates, [.text("Or"), .text("Orion"), .finished])
+    }
+
     func testMissingKeyFailsClearlyWithoutRequesting() async {
         let updates = await collect(client(StubStreamer(lines: []), key: nil))
         guard case .failed(let message) = updates.last else { return XCTFail("expected a failure, got \(updates)") }
         XCTAssertTrue(message.contains("Secrets.xcconfig"), message)
+    }
+
+    func testEndpointUsesTheProjectScopedLocationWhenAProjectIsSet() {
+        XCTAssertEqual(DeepDiveClient.endpoint(modelID: "gemma-test", projectID: "my-proj", location: "global")?.absoluteString,
+                       "https://aiplatform.googleapis.com/v1/projects/my-proj/locations/global/publishers/google/models/gemma-test:streamGenerateContent?alt=sse")
+        XCTAssertEqual(DeepDiveClient.endpoint(modelID: "gemma-test", projectID: "my-proj", location: nil)?.path,
+                       "/v1/projects/my-proj/locations/global/publishers/google/models/gemma-test:streamGenerateContent")
+        XCTAssertEqual(DeepDiveClient.endpoint(modelID: "gemma-test", projectID: "", location: "global")?.path,
+                       "/v1/publishers/google/models/gemma-test:streamGenerateContent")
     }
 
     func testRequestKeepsTheKeyInTheHeaderOnly() throws {
