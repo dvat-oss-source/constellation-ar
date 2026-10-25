@@ -5,11 +5,14 @@ struct RootView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var showLaunchInfo = true
 
+    private var palette: StylePalette { StyleTokens.blended(lighting: model.lightingBlend, red: model.redTheme) }
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
             if let driver = model.driver {
                 SkyView(driver: driver).ignoresSafeArea()
+                focusEdgeArrow
             } else {
                 Text(model.setupError ?? "Starting…").foregroundStyle(.white)
             }
@@ -19,10 +22,9 @@ struct RootView: View {
                 if let status = model.autoAlign.status {
                     Text(status)
                         .font(.caption.monospacedDigit())
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(.black.opacity(0.5), in: Capsule())
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 5)
+                        .skyCapsule()
                         .transition(.opacity)
                 }
                 hints
@@ -34,7 +36,14 @@ struct RootView: View {
                 if model.showSatellites {
                     SatellitePanel(tracker: model.satellites) { model.showSatellites = false }.transition(.opacity)
                 }
-                if let card = model.card, !model.showDebug {
+                if model.focus.isPinned, let facts = model.pinnedFacts, let card = model.pinnedCard, !model.showDebug {
+                    FocusInfoSheet(constellationID: card.id, name: card.name, narration: card.narration, facts: facts,
+                                   chat: model.focusChat, card: card, hasDeepDiveKey: AppInfo.hasVertexAPIKey,
+                                   onTellMore: { model.askDeepDive() }, onSendChat: { model.sendFocusChat() },
+                                   onClose: { model.dismissFocusPin() })
+                    .id(card.id)
+                    .transition(.opacity)
+                } else if let card = model.card, !model.showDebug {
                     ConstellationCard(card: card, narrator: model.narrator, hasDeepDiveKey: AppInfo.hasVertexAPIKey) { model.askDeepDive() }
                         .id(card.id)
                         .transition(.opacity)
@@ -53,6 +62,9 @@ struct RootView: View {
                 DebugPanel(model: model)
             }
         }
+        .fontDesign(.rounded)
+        .tint(palette.lightColor)
+        .environment(\.stylePalette, palette)
         .statusBarHidden()
         .persistentSystemOverlays(.hidden)
         .onChange(of: scenePhase, initial: true) { _, phase in
@@ -64,7 +76,7 @@ struct RootView: View {
         }
         .task {
             try? await Task.sleep(for: .seconds(4))
-            withAnimation { showLaunchInfo = false }
+            withAnimation(StyleTokens.panelAnimation) { showLaunchInfo = false }
         }
     }
 
@@ -92,9 +104,8 @@ struct RootView: View {
             Text("\(AppInfo.version) (\(AppInfo.build)) \(AppInfo.configuration)").font(.footnote)
             Text("Vertex key \(AppInfo.hasVertexAPIKey ? "present" : "missing")").font(.footnote)
         }
-        .foregroundStyle(.white)
-        .padding(16)
-        .background(.black.opacity(0.6), in: RoundedRectangle(cornerRadius: 14))
+        .padding(18)
+        .skyPanel()
         .allowsHitTesting(false)
     }
 
@@ -113,13 +124,26 @@ struct RootView: View {
             Slider(value: $model.timeOffsetHours, in: -12...12, step: 0.25)
                 .disabled(model.attitudeSource == .fixed)
         }
-        .foregroundStyle(.white)
-        .padding(10)
-        .background(.black.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
+        .padding(12)
+        .skyPanel(cornerRadius: 18)
+    }
+
+    @ViewBuilder private var focusEdgeArrow: some View {
+        if model.focus.isPinned, let context = model.driver?.lastContext,
+           let point = model.focus.pinnedEdgeScreenPoint(context: context, engine: model.skyEngine) {
+            let size = context.camera.drawableSize
+            if FocusEdgeArrow.shouldShowArrow(point: point, in: size) {
+                FocusEdgeArrow(screenPoint: point, drawableSize: size).ignoresSafeArea()
+            }
+        }
     }
 
     private var controlBar: some View {
         HStack(spacing: 14) {
+            RoundButton(systemImage: model.focus.tapMode == .align ? "scope" : "hand.tap",
+                        label: model.focus.tapMode == .align ? "Align (next tap)" : "Explore") {
+                model.focus.tapMode = model.focus.tapMode == .align ? .explore : .align
+            }
             if model.cameraStatus == .running {
                 RoundButton(systemImage: model.skyOnly ? "camera" : "sparkles", label: model.skyOnly ? "Show camera" : "Sky only") {
                     model.skyOnly.toggle()
@@ -129,10 +153,10 @@ struct RootView: View {
                 model.redTheme.toggle()
             }
             RoundButton(systemImage: "square.3.layers.3d", label: "Layers") {
-                withAnimation { model.showLayers.toggle() }
+                withAnimation(StyleTokens.panelAnimation) { model.showLayers.toggle() }
             }
             RoundButton(systemImage: "dot.radiowaves.up.forward", label: "Satellites") {
-                withAnimation { model.showSatellites.toggle() }
+                withAnimation(StyleTokens.panelAnimation) { model.showSatellites.toggle() }
             }
             Spacer()
             RoundButton(systemImage: "ladybug", label: "Debug") {
@@ -152,10 +176,9 @@ private struct AccuracyBadge: View {
             Spacer()
             Text(String(format: "±%.1f°", alignment.accuracyDegrees) + (alignment.isAligned ? "" : " compass"))
                 .font(.footnote.monospacedDigit().weight(.semibold))
-                .foregroundStyle(.white)
-                .padding(.horizontal, 10)
+                .padding(.horizontal, 12)
                 .padding(.vertical, 5)
-                .background(.black.opacity(0.5), in: Capsule())
+                .skyCapsule()
         }
         .accessibilityIdentifier("accuracyReadout")
     }
@@ -168,11 +191,10 @@ private struct Banner: View {
     var body: some View {
         Label(text, systemImage: systemImage)
             .font(.footnote.weight(.medium))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.black.opacity(0.6), in: RoundedRectangle(cornerRadius: 10))
+            .skyPanel(cornerRadius: 16)
     }
 }
 
@@ -184,10 +206,9 @@ private struct RoundButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: systemImage)
-                .font(.title3)
-                .frame(width: 48, height: 48)
-                .background(.black.opacity(0.5), in: Circle())
-                .foregroundStyle(.white)
+                .font(.system(size: 20, weight: .light))
+                .frame(width: 50, height: 50)
+                .skyCircle()
         }
         .accessibilityLabel(label)
     }

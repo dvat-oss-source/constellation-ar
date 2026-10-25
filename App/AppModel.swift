@@ -78,7 +78,11 @@ final class AppModel {
     let layers: LayerSettings
     let satellites: SatelliteTracker
     let narrator = Narrator()
+    let focus = ConstellationFocus()
+    let focusChat = FocusChatModel()
     @ObservationIgnored let engine: SkyEngine
+    /// Sky engine for focus overlays (same module; not part of observation).
+    var skyEngine: SkyEngine { engine }
     @ObservationIgnored private(set) var driver: SceneDriver? = nil
     private(set) var setupError: String? = nil
 
@@ -117,6 +121,8 @@ final class AppModel {
     private(set) var lastTap: String? = nil
     private(set) var nightProbeRunning = false
     private(set) var card: ConstellationCardModel? = nil
+    private(set) var pinnedFacts: ConstellationFacts? = nil
+    private(set) var pinnedCard: ConstellationCardModel? = nil
     private(set) var objectInfo: ObjectInfo? = nil
     private(set) var skyDataError: String? = nil
     private(set) var skyDataLoaded = false
@@ -129,6 +135,7 @@ final class AppModel {
     @ObservationIgnored private var hideCardTask: Task<Void, Never>? = nil
     @ObservationIgnored private var infoTask: Task<Void, Never>? = nil
     @ObservationIgnored private var deepDiveTask: Task<Void, Never>? = nil
+    @ObservationIgnored private var pendingAutoPinID: String?
 
     init() {
         #if targetEnvironment(simulator)
@@ -171,8 +178,16 @@ final class AppModel {
             setupError = "Metal is not available"
         }
         if isSimulator { cameraStatus = .unavailable("simulator") }
+        if ProcessInfo.processInfo.arguments.contains("-autoPinOri") { pendingAutoPinID = "Ori" }
 
-        overlayProvider = { [engine] in engine.frame($0) }
+        overlayProvider = { [weak self, engine] context in
+            var frame = engine.frame(context)
+            guard let self, let id = self.focus.pinnedID, let geometry = self.focus.resources.boundaryGeometry else { return frame }
+            frame.add(FocusOverlay.boundarySegments(id: id, geometry: geometry, context: context, engine: engine))
+            return frame
+        }
+        tapHandler = { [weak self] point, context in self?.handleFocusTap(at: point, context: context) }
+        focus.load()
         sunLightingProvider = { [engine] date, observer in engine.nightFactor(date: date, observer: observer) }
         skyReadoutProvider = { [engine] in engine.readout($0) }
         engine.onEvent = { [weak self] in self?.handle($0) }
@@ -301,6 +316,12 @@ final class AppModel {
 
     var showsCamera: Bool { !skyOnly && cameraStatus == .running }
 
+    var focusEdgeTarget: (point: SIMD2<Double>, size: SIMD2<Double>)? {
+        guard focus.isPinned, let id = focus.pinnedID, let atlas = focus.resources.atlas, let context = driver?.lastContext,
+              let point = FocusEdgeArrow.referenceScreenPoint(id: id, atlas: atlas, engine: engine, context: context) else { return nil }
+        return (point, context.camera.drawableSize)
+    }
+
     var effectiveAttitudeSource: AttitudeSource {
         attitudeSource == .motion && !motion.isRunning ? .drag : attitudeSource
     }
@@ -356,8 +377,25 @@ final class AppModel {
             tapHandler(point, context)
             return
         }
+        handleFocusTap(at: point, context: context)
+    }
+
+    func handleFocusTap(at point: SIMD2<Double>, context: OverlayContext) {
+        if focus.tapMode == .align {
+            focus.tapMode = .explore
+            performAlignTap(at: point, context: context)
+            return
+        }
+        if let hit = focus.constellation(at: point, engine: engine, context: context) {
+            pinConstellation(id: hit.id, name: hit.name, context: context)
+            lastTap = String(format: "focus %@ at (%.0f, %.0f) px", hit.name, point.x, point.y)
+            return
+        }
         let (az, alt) = OverlayContext.horizontal(reference: context.referenceDirection(screen: point))
-        lastTap = String(format: "tap az %.1f° alt %.1f° at (%.0f, %.0f) px", az, alt, point.x, point.y)
+        lastTap = String(format: "tap az %.1f° alt %.1f° (no boundary hit)", az, alt)
+    }
+
+    private func performAlignTap(at point: SIMD2<Double>, context: OverlayContext) {
         let snap: (AlignmentCandidate.Kind, SIMD2<Double>) -> SIMD2<Double>? = { [weak driver] kind, p in
             driver?.snappedScreenPoint(kind: kind, near: p)
         }
@@ -366,6 +404,42 @@ final class AppModel {
         var info = outcome.info
         if let detail = outcome.detail { info?.alignmentNote = align(on: detail, context: context) }
         showInfo(info)
+    }
+
+    func pinConstellation(id: String, name: String, context: OverlayContext) {
+        hideCardTask?.cancel()
+        focus.pin(constellation: id, name: name)
+        engine.applyFocusPin(id, context: context)
+        pinnedFacts = focus.facts(for: id, context: context, engine: engine)
+        pinnedCard = ConstellationCardModel(id: id, name: name, narration: engine.narrationCard(id),
+                                            catalogStars: engine.catalogStars(for: id))
+        focusChat.reset()
+        if ProcessInfo.processInfo.arguments.contains("-autoPinOri"), id == "Ori" {
+            focusChat.messages = [
+                FocusChatMessage(role: .user, text: "Which star marks Orion's shoulder?"),
+                FocusChatMessage(role: .assistant, text: "Betelgeuse marks Orion's eastern shoulder — a red supergiant and one of the brightest stars in the sky [P:Ori-wiki-8].",
+                                 verificationLabel: "verified"),
+            ]
+        }
+        card = nil
+    }
+
+    func dismissFocusPin() {
+        if let context = driver?.lastContext {
+            engine.applyFocusPin(nil, context: context)
+        } else {
+            engine.focusOverrideID = nil
+        }
+        focus.dismissPin()
+        pinnedFacts = nil
+        pinnedCard = nil
+        focusChat.reset()
+    }
+
+    func sendFocusChat() {
+        guard let id = focus.pinnedID, let name = focus.pinnedName, let facts = pinnedFacts, let context = driver?.lastContext else { return }
+        focusChat.send(constellationID: id, constellationName: name, facts: facts,
+                       narration: engine.narrationCard(id), resources: focus.resources, context: context, engine: engine)
     }
 
     /// Turns a tap on a star into an orientation fix: with two or more recent stars the three-axis multi-star solve,
@@ -424,6 +498,7 @@ final class AppModel {
     private func handle(_ event: SkyEvent) {
         switch event {
         case .locked(let id, let narrate):
+            guard !focus.isPinned else { return }
             hideCardTask?.cancel()
             deepDiveTask?.cancel()
             narrator.stop()
@@ -432,6 +507,7 @@ final class AppModel {
             withAnimation(.easeOut(duration: 0.15)) { card = model }
             if narrate, let text = model.spokenText { narrator.speak(text) }
         case .unlocked:
+            guard !focus.isPinned else { return }
             hideCardTask?.cancel()
             hideCardTask = Task { [weak self] in
                 try? await Task.sleep(for: .seconds(2.5))
@@ -446,7 +522,7 @@ final class AppModel {
     static let deepDiveQuestion = "Tell me more about this constellation: its story, how to recognise it, and what is near it tonight."
 
     func askDeepDive() {
-        guard let card else { return }
+        guard let card = pinnedCard ?? card else { return }
         guard let context = driver?.lastContext, let facts = engine.deepDiveFacts(for: card.id, context: context) else {
             card.deepDive = .failed("The sky is not ready yet (waiting for location or catalogs).")
             return
@@ -517,6 +593,14 @@ final class AppModel {
             cameraStatus = snapshot?.status ?? cameraStatus
         }
         debugSections = makeDebugSections(snapshot: snapshot, latestMotion: latestMotion)
+        tryAutoPinIfNeeded()
+    }
+
+    private func tryAutoPinIfNeeded() {
+        guard let id = pendingAutoPinID, skyDataLoaded, focus.resources.hitTest != nil,
+              let context = driver?.lastContext else { return }
+        pendingAutoPinID = nil
+        pinConstellation(id: id, name: engine.constellationName(id), context: context)
     }
 
     private func makeDebugSections(snapshot: CaptureSnapshot?, latestMotion: MotionSample?) -> [DebugSection] {

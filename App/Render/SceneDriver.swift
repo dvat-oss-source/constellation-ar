@@ -125,7 +125,7 @@ final class SceneDriver {
         let overlay = model.overlayProvider(context)
         renderer.draw(to: update.drawable, background: background, geometry: geometry,
                       deviceFromReference: attitude, warp: warp, overlay: overlay, redTheme: model.redTheme,
-                      contentScale: context.contentScale)
+                      contentScale: context.contentScale, lighting: model.lightingBlend)
     }
 
     /// Warp when the camera cannot keep up (night exposures, below ~40 fps); stay frame-matched at the day rate, where
