@@ -16,7 +16,19 @@ struct RootView: View {
 
             VStack(spacing: 8) {
                 hints
+                if model.showLayers { LayerPanel(model: model).transition(.opacity) }
                 Spacer()
+                if let info = model.objectInfo {
+                    ObjectInfoCard(info: info) { model.showInfo(nil) }.transition(.opacity)
+                }
+                if model.showSatellites {
+                    SatellitePanel(tracker: model.satellites) { model.showSatellites = false }.transition(.opacity)
+                }
+                if let card = model.card, !model.showDebug {
+                    ConstellationCard(card: card, narrator: model.narrator, hasDeepDiveKey: AppInfo.hasVertexAPIKey) { model.askDeepDive() }
+                        .id(card.id)
+                        .transition(.opacity)
+                }
                 if model.effectiveAttitudeSource != .motion {
                     skyControls
                 }
@@ -50,8 +62,14 @@ struct RootView: View {
         if model.effectiveAttitudeSource == .motion, model.headingQuality.needsFigure8 {
             Banner(systemImage: "infinity", text: "Compass needs calibrating: wave the phone in a figure-8.")
         }
-        if model.alignment.suggestsRealign {
+        if model.alignment.suggestsRealign, !model.headingQuality.needsFigure8 {
             Banner(systemImage: "scope", text: "Heading accuracy dropped. Tap a bright star, the Moon or the Sun marker to re-align.")
+        }
+        if let error = model.skyDataError {
+            Banner(systemImage: "exclamationmark.triangle", text: error)
+        }
+        if model.observer == nil {
+            Banner(systemImage: "location.slash", text: "Waiting for your location to place the sky.")
         }
         if model.cameraStatus == .denied {
             Banner(systemImage: "camera.fill", text: "Camera access is off, so the sky is drawn without the camera. Allow it in Settings.")
@@ -99,6 +117,12 @@ struct RootView: View {
             }
             RoundButton(systemImage: model.redTheme ? "moon.fill" : "moon", label: "Red theme") {
                 model.redTheme.toggle()
+            }
+            RoundButton(systemImage: "square.3.layers.3d", label: "Layers") {
+                withAnimation { model.showLayers.toggle() }
+            }
+            RoundButton(systemImage: "dot.radiowaves.up.forward", label: "Satellites") {
+                withAnimation { model.showSatellites.toggle() }
             }
             Spacer()
             RoundButton(systemImage: "ladybug", label: "Debug") {

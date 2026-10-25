@@ -1,13 +1,16 @@
 import Foundation
 import Metal
+import SwiftUI
 import Observation
+import QuartzCore
+import SkyCore
 import simd
 
-/// Placeholders until SkyCore supplies real values through `AppModel.skyReadoutProvider`.
+/// Readouts of the screen centre for the debug panel, supplied through `AppModel.skyReadoutProvider`.
 struct SkyReadout: Sendable {
-    var raDec = "— (SkyCore)"
-    var siderealTime = "— (SkyCore)"
-    var constellation = "— (SkyCore)"
+    var raDec = "—"
+    var siderealTime = "—"
+    var constellation = "—"
 }
 
 struct DebugSection: Identifiable, Sendable {
@@ -58,6 +61,10 @@ final class AppModel {
     let alignment = HeadingAlignment()
     let look = LookController()
     @ObservationIgnored let capture: CameraCapture?
+    let layers: LayerSettings
+    let satellites: SatelliteTracker
+    let narrator = Narrator()
+    @ObservationIgnored let engine: SkyEngine
     @ObservationIgnored private(set) var driver: SceneDriver? = nil
     private(set) var setupError: String? = nil
 
@@ -87,9 +94,19 @@ final class AppModel {
     private(set) var debugSections: [DebugSection] = []
     private(set) var lastTap: String? = nil
     private(set) var nightProbeRunning = false
+    private(set) var card: ConstellationCardModel? = nil
+    private(set) var objectInfo: ObjectInfo? = nil
+    private(set) var skyDataError: String? = nil
+    private(set) var skyDataLoaded = false
+    private(set) var skyDataLoadSeconds: Double? = nil
+    var showLayers: Bool
+    var showSatellites: Bool
 
     @ObservationIgnored private var refreshTask: Task<Void, Never>? = nil
     @ObservationIgnored private var pushedLighting: Double? = nil
+    @ObservationIgnored private var hideCardTask: Task<Void, Never>? = nil
+    @ObservationIgnored private var infoTask: Task<Void, Never>? = nil
+    @ObservationIgnored private var deepDiveTask: Task<Void, Never>? = nil
 
     init() {
         #if targetEnvironment(simulator)
@@ -99,6 +116,12 @@ final class AppModel {
         #endif
         let defaults = UserDefaults.standard
         showDebug = defaults.bool(forKey: "debug")
+        showLayers = defaults.bool(forKey: "showLayers")
+        showSatellites = defaults.bool(forKey: "showSatellites")
+        let layers = LayerSettings(), satellites = SatelliteTracker()
+        self.layers = layers
+        self.satellites = satellites
+        engine = SkyEngine(layers: layers, satellites: satellites)
         if defaults.bool(forKey: "fixedSky") {
             attitudeSource = .fixed
         } else {
@@ -126,6 +149,12 @@ final class AppModel {
             setupError = "Metal is not available"
         }
         if isSimulator { cameraStatus = .unavailable("simulator") }
+
+        overlayProvider = { [engine] in engine.frame($0) }
+        sunLightingProvider = { [engine] date, observer in engine.nightFactor(date: date, observer: observer) }
+        skyReadoutProvider = { [engine] in engine.readout($0) }
+        engine.onEvent = { [weak self] in self?.handle($0) }
+        loadSkyData()
     }
 
     var showsCamera: Bool { !skyOnly && cameraStatus == .running }
@@ -148,13 +177,19 @@ final class AppModel {
     }
 
     var observer: ObserverLocation? {
-        attitudeSource == .fixed ? FixedSkyPreset.observer : location.observer
+        if attitudeSource == .fixed { return FixedSkyPreset.observer }
+        // The simulator has no GPS fix unless one is set, so it borrows the preset's place.
+        return location.observer ?? (isSimulator ? FixedSkyPreset.observer : nil)
     }
 
     func activate() async {
         location.start()
         motion.start()
         startRefreshing()
+        satellites.start { [weak self] in
+            guard let self, let o = self.observer else { return nil }
+            return (self.skyDate(now: Date()), GeoLocation(latitude: o.latitude, longitude: o.longitude, height: o.altitude))
+        }
         if let capture {
             cameraStatus = await capture.start()
             pushedLighting = nil
@@ -164,6 +199,8 @@ final class AppModel {
     func deactivate() {
         refreshTask?.cancel()
         refreshTask = nil
+        satellites.stop()
+        narrator.stop()
         motion.stop()
         location.stop()
         if let capture {
@@ -179,6 +216,89 @@ final class AppModel {
         }
         let (az, alt) = OverlayContext.horizontal(reference: context.referenceDirection(screen: point))
         lastTap = String(format: "tap az %.1f° alt %.1f° at (%.0f, %.0f) px", az, alt, point.x, point.y)
+        let accuracy = location.headingAccuracy
+        let outcome = engine.handleTap(at: point, context: context, canAlign: effectiveAttitudeSource != .fixed, headingAccuracy: accuracy)
+        if let yaw = outcome.yawDelta { alignment.align(yawDelta: yaw, headingAccuracy: accuracy) }
+        showInfo(outcome.info)
+    }
+
+    func showInfo(_ info: ObjectInfo?) {
+        infoTask?.cancel()
+        objectInfo = info
+        guard info != nil else { return }
+        infoTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(8))
+            if !Task.isCancelled { self?.objectInfo = nil }
+        }
+    }
+
+    // MARK: Sky data, lock card, deep dive
+
+    private func loadSkyData() {
+        Task { [weak self] in
+            let started = CACurrentMediaTime()
+            let result = await Task.detached(priority: .userInitiated) { () -> Result<SkyData, any Error> in
+                Result { try SkyData.load() }
+            }.value
+            guard let self else { return }
+            switch result {
+            case .success(let data):
+                engine.install(data)
+                driver?.setMilkyWay(levels: data.milkyWayLevels, width: SkyData.milkyWaySize.width, height: SkyData.milkyWaySize.height)
+                skyDataLoaded = true
+                skyDataLoadSeconds = CACurrentMediaTime() - started
+            case .failure(let error):
+                skyDataError = "Sky data: \(error)"
+            }
+        }
+    }
+
+    private func handle(_ event: SkyEvent) {
+        switch event {
+        case .locked(let id, let narrate):
+            hideCardTask?.cancel()
+            deepDiveTask?.cancel()
+            narrator.stop()
+            let model = ConstellationCardModel(id: id, name: engine.constellationName(id), narration: engine.narrationCard(id),
+                                               catalogStars: engine.catalogStars(for: id))
+            withAnimation(.easeOut(duration: 0.15)) { card = model }
+            if narrate, let text = model.spokenText { narrator.speak(text) }
+        case .unlocked:
+            hideCardTask?.cancel()
+            hideCardTask = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(2.5))
+                guard !Task.isCancelled, let self else { return }
+                withAnimation(.easeIn(duration: 0.25)) { card = nil }
+                deepDiveTask?.cancel()
+                narrator.stop()
+            }
+        }
+    }
+
+    static let deepDiveQuestion = "Tell me more about this constellation: its story, how to recognise it, and what is near it tonight."
+
+    func askDeepDive() {
+        guard let card else { return }
+        guard let context = driver?.lastContext, let facts = engine.deepDiveFacts(for: card.id, context: context) else {
+            card.deepDive = .failed("The sky is not ready yet (waiting for location or catalogs).")
+            return
+        }
+        let client = DeepDiveClient(cache: .applicationSupport(), modelID: AppInfo.gemmaModelID, apiKey: AppInfo.vertexAPIKey)
+        let prompt = DeepDiveClient.prompt(facts: facts, question: Self.deepDiveQuestion)
+        card.deepDive = .streaming("")
+        deepDiveTask?.cancel()
+        deepDiveTask = Task { [weak card] in
+            for await update in client.ask(constellationID: card?.id ?? "", question: Self.deepDiveQuestion, prompt: prompt) {
+                guard let card else { return }
+                switch update {
+                case .text(let text): card.deepDive = .streaming(text)
+                case .finished:
+                    if case .streaming(let text) = card.deepDive { card.deepDive = .done(text) }
+                case .cached(let text, let reason): card.deepDive = .cached(text: text, reason: reason)
+                case .failed(let message): card.deepDive = .failed(message)
+                }
+            }
+        }
     }
 
     func refocusFar() {
@@ -248,7 +368,11 @@ final class AppModel {
             sky.append("sidereal time \(readout.siderealTime)")
             sky.append("constellation \(readout.constellation)")
             sky.append("sky date \(context.skyDate.formatted(date: .abbreviated, time: .standard))")
+            sky.append(String(format: "overlay build %.2f ms, locked %@", engine.frameMilliseconds, engine.lockedID ?? "none"))
         }
+        if let skyDataError { sky.append(skyDataError) } else if let seconds = skyDataLoadSeconds { sky.append(String(format: "sky catalogs loaded in %.2f s", seconds)) } else { sky.append("sky catalogs loading…") }
+        if let status = satellites.dataStatus { sky.append("satellites: \(status.summary)") }
+        if let error = satellites.errorMessage { sky.append(error) }
         sky.append("source \(effectiveAttitudeSource.rawValue), lighting \(String(format: "%.2f", lightingBlend)) (\(LightingPhase(blend: lightingBlend).rawValue))")
         sections.append(DebugSection(title: "Sky", lines: sky))
 

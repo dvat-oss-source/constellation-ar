@@ -31,6 +31,7 @@ targets:
         excludes:
           - "Render/MetalSource/**"
           - "UITests/**"
+          - "UnitTests/**"
       # Copied verbatim (a folder reference is not run through the Metal compiler) and compiled at runtime with
       # MTLDevice.makeLibrary(source:), because the Metal Toolchain is a separate Xcode download.
       - path: App/Render/MetalSource
@@ -92,6 +93,7 @@ targets:
         GemmaModelID: $(GEMMA_MODEL_ID)
     scheme:
       testTargets:
+        - ConstellationARTests
         - ConstellationARUITests
 
   ConstellationARUITests:
@@ -109,3 +111,20 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
         TEST_TARGET_NAME: ConstellationAR
+
+  ConstellationARTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "27.0"
+    sources:
+      - path: App/UnitTests
+    dependencies:
+      - target: ConstellationAR
+      - package: SkyCore
+        product: SkyCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.constellationar.ConstellationARTests
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic

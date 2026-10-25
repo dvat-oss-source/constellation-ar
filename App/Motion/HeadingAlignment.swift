@@ -1,4 +1,6 @@
+import Foundation
 import Observation
+import SkyCore
 import simd
 
 /// Compass quality from CLHeading.headingAccuracy and the magnetometer calibration, with hysteresis.
@@ -22,48 +24,52 @@ struct HeadingQuality: Sendable, Equatable {
     }
 }
 
-/// Tap-to-align yaw correction. The correction is a rotation about the vertical (reference +Z) applied on the
-/// reference side, so it fixes compass heading without touching the gravity-derived tilt.
+/// Tap-to-align yaw correction (SkyCore's `HeadingCorrection`), persisted across launches. A rotation about the
+/// vertical (reference +Z) applied on the reference side, so it fixes compass heading without touching the
+/// gravity-derived tilt.
 @MainActor
 @Observable
 final class HeadingAlignment {
-    /// Radians, counter-clockwise seen from above (from north toward west).
-    private(set) var yawCorrection: Double = 0
-    private(set) var isAligned = false
-    private(set) var accuracyAtAlignment: Double? = nil
-    private(set) var suggestsRealign = false
+    private static let storageKey = "headingCorrection"
 
-    /// `tapDirection` is the reference-frame ray under the finger, computed with the currently corrected attitude;
-    /// `objectDirection` is where the chosen catalog object really is (reference frame).
-    func align(tapDirection t: SIMD3<Double>, objectDirection s: SIMD3<Double>, headingAccuracy: Double?) {
-        let delta = atan2(t.y, t.x) - atan2(s.y, s.x)
-        yawCorrection = remainder(yawCorrection + delta, 2 * .pi)
-        isAligned = true
-        accuracyAtAlignment = headingAccuracy
-        suggestsRealign = false
+    private(set) var correction: HeadingCorrection
+    private(set) var headingAccuracy: Double? = nil
+
+    init() {
+        if let data = UserDefaults.standard.data(forKey: Self.storageKey),
+           let stored = try? JSONDecoder().decode(HeadingCorrection.self, from: data) {
+            correction = stored
+        } else {
+            correction = .identity
+        }
+    }
+
+    /// Radians, counter-clockwise seen from above (from north toward west).
+    var yawCorrection: Double { correction.yaw }
+    var isAligned: Bool { correction.alignedAt != nil }
+    var suggestsRealign: Bool { isAligned && correction.shouldSuggestRealign(currentHeadingAccuracy: headingAccuracy) }
+
+    /// Adds the yaw `TapToAlign` computed for a tap; the delta is relative to the correction already applied.
+    func align(yawDelta: Double, headingAccuracy: Double?, date: Date = Date()) {
+        correction = correction.composed(withDelta: yawDelta, at: date, headingAccuracy: headingAccuracy)
+        persist()
     }
 
     func reset() {
-        yawCorrection = 0
-        isAligned = false
-        accuracyAtAlignment = nil
-        suggestsRealign = false
+        correction = .identity
+        UserDefaults.standard.removeObject(forKey: Self.storageKey)
     }
 
     func update(headingAccuracy current: Double?) {
-        guard isAligned else { return }
-        guard let current else {
-            suggestsRealign = true
-            return
-        }
-        let reference = accuracyAtAlignment ?? current
-        suggestsRealign = current > max(reference * 1.5, reference + 10)
+        headingAccuracy = current
     }
 
     func apply(to deviceFromReference: simd_double3x3) -> simd_double3x3 {
-        guard yawCorrection != 0 else { return deviceFromReference }
-        let c = cos(yawCorrection), s = sin(yawCorrection)
-        let rz = simd_double3x3(rows: [SIMD3(c, -s, 0), SIMD3(s, c, 0), SIMD3(0, 0, 1)])
-        return deviceFromReference * rz
+        guard correction.yaw != 0 else { return deviceFromReference }
+        return deviceFromReference * correction.matrix
+    }
+
+    private func persist() {
+        if let data = try? JSONEncoder().encode(correction) { UserDefaults.standard.set(data, forKey: Self.storageKey) }
     }
 }

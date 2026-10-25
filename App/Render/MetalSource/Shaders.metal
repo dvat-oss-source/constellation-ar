@@ -20,7 +20,7 @@ struct SkyUniforms {
 struct PointInstance {
     float2 position;
     float radius;
-    float padding;
+    float style;
     float4 color;
 };
 
@@ -92,6 +92,7 @@ struct PointOut {
     float4 position [[position]];
     float2 local;
     float radius [[flat]];
+    float style [[flat]];
     float4 color [[flat]];
 };
 
@@ -105,11 +106,29 @@ vertex PointOut pointVertex(uint vid [[vertex_id]], uint iid [[instance_id]],
     out.position = toClip(p.position + corner * extent, u.viewport);
     out.local = corner * extent;
     out.radius = p.radius;
+    out.style = p.style;
     out.color = p.color;
     return out;
 }
 
+// style = ±(1 + illuminated fraction): a Moon disc whose lit side is on the right (+, waxing) or left (−, waning).
+static float4 moonDisc(PointOut in, float red) {
+    float fraction = clamp(abs(in.style) - 1.0, 0.0, 1.0);
+    float2 p = in.local / max(in.radius, 1.0);
+    float edge = 1.0 / max(in.radius, 1.0);
+    float disc = saturate((1.0 - length(p)) / edge + 0.5);
+    float chord = sqrt(max(1.0 - p.y * p.y, 0.0));
+    float terminator = (1.0 - 2.0 * fraction) * chord;
+    float side = in.style > 0.0 ? (p.x - terminator) : (-p.x - terminator);
+    float lit = saturate(side / (2.0 * edge) + 0.5);
+    float3 rgb = mix(float3(0.16, 0.17, 0.2), in.color.rgb, lit);
+    float halo = 0.18 * exp(-pow(max(length(p) - 1.0, 0.0) * 2.2, 2.0)) * in.color.a;
+    float alpha = max(disc * mix(0.55, 1.0, lit), halo) * in.color.a;
+    return float4(applyTheme(rgb, red) * alpha, alpha);
+}
+
 fragment float4 pointFragment(PointOut in [[stage_in]], constant FrameUniforms &u [[buffer(0)]]) {
+    if (in.style != 0.0) { return moonDisc(in, u.redTheme); }
     float d = length(in.local);
     float core = saturate(in.radius + 0.5 - d);
     float sigma = max(in.radius * 1.1, 0.75);
@@ -180,4 +199,85 @@ fragment float4 segmentFragment(SegmentOut in [[stage_in]],
     float haloAlpha = halo * s.color.a * (1.0 - rimAlpha);
     float3 premultiplied = applyTheme(s.outlineColor.rgb, u.redTheme) * rimAlpha + applyTheme(s.color.rgb, u.redTheme) * haloAlpha;
     return float4(premultiplied, saturate(rimAlpha + haloAlpha));
+}
+
+struct LabelInstance {
+    float2 origin;
+    float2 size;
+    float4 uv;
+    float4 color;
+};
+
+struct LabelOut {
+    float4 position [[position]];
+    float2 uv;
+    float4 color [[flat]];
+};
+
+vertex LabelOut labelVertex(uint vid [[vertex_id]], uint iid [[instance_id]],
+                            constant FrameUniforms &u [[buffer(0)]],
+                            const device LabelInstance *labels [[buffer(1)]]) {
+    LabelInstance l = labels[iid];
+    float2 corner = float2(float(vid & 1), float((vid >> 1) & 1));
+    LabelOut out;
+    out.position = toClip(l.origin + corner * l.size, u.viewport);
+    out.uv = mix(l.uv.xy, l.uv.zw, corner);
+    out.color = l.color;
+    return out;
+}
+
+// The atlas holds premultiplied white text with a black outline; tinting the colour keeps the outline black.
+fragment float4 labelFragment(LabelOut in [[stage_in]], constant FrameUniforms &u [[buffer(0)]],
+                              texture2d<float> atlas [[texture(0)]]) {
+    constexpr sampler linearSampler(filter::linear, address::clamp_to_edge);
+    float4 t = atlas.sample(linearSampler, in.uv);
+    return float4(applyTheme(t.rgb * in.color.rgb, u.redTheme) * in.color.a, t.a * in.color.a);
+}
+
+struct MeshVertex {
+    float2 position;
+    float2 uv;
+};
+
+struct MeshOut {
+    float4 position [[position]];
+    float2 uv;
+};
+
+vertex MeshOut meshVertex(uint vid [[vertex_id]], constant FrameUniforms &u [[buffer(0)]],
+                          const device MeshVertex *vertices [[buffer(1)]]) {
+    MeshOut out;
+    out.position = toClip(vertices[vid].position, u.viewport);
+    out.uv = vertices[vid].uv;
+    return out;
+}
+
+// The artwork is greyscale on black (made for additive blending), so it adds light and never darkens the sky.
+fragment float4 meshFragment(MeshOut in [[stage_in]], constant FrameUniforms &u [[buffer(0)]],
+                             constant float &alpha [[buffer(1)]],
+                             texture2d<float> image [[texture(0)]]) {
+    constexpr sampler linearSampler(filter::linear, address::clamp_to_zero);
+    float luminance = image.sample(linearSampler, in.uv).r * alpha;
+    return float4(applyTheme(float3(0.72, 0.84, 1.0), u.redTheme) * luminance, 0.0);
+}
+
+struct MilkyWayUniforms {
+    float3x3 icrsFromScreen;
+    float intensity;
+    float3 padding;
+};
+
+// Level map: equirectangular ICRS, column 0 at RA 0 increasing with column, row 0 at Dec +90.
+fragment float4 milkyWayFragment(FullscreenOut in [[stage_in]], constant FrameUniforms &u [[buffer(0)]],
+                                 constant MilkyWayUniforms &mw [[buffer(1)]],
+                                 texture2d<float> levels [[texture(0)]]) {
+    constexpr sampler s(filter::linear, s_address::repeat, t_address::clamp_to_edge);
+    float3 ray = normalize(mw.icrsFromScreen * float3(in.screen, 1.0));
+    float ra = atan2(ray.y, ray.x);
+    if (ra < 0.0) { ra += 2.0 * M_PI_F; }
+    float2 uv = float2(ra / (2.0 * M_PI_F), 0.5 - asin(clamp(ray.z, -1.0, 1.0)) / M_PI_F);
+    float v = levels.sample(s, uv, level(0)).r;
+    float b = pow(v, 1.25) * mw.intensity;
+    float3 color = mix(float3(0.55, 0.66, 0.95), float3(0.95, 0.9, 0.85), smoothstep(0.55, 1.0, v));
+    return float4(applyTheme(color, u.redTheme) * b * 0.55, b * 0.3);
 }

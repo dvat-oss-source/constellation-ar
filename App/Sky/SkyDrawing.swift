@@ -1,0 +1,117 @@
+import SkyCore
+import simd
+
+/// Day/night look shared by the sky layers. `night` is 0 (day) … 1 (night); `px` is screen pixels per point.
+struct SkyStyle {
+    let night: Float
+    let px: Float
+
+    var lineWidth: Float { (1.1 + 1.3 * (1 - night)) * px }
+    /// Dark rim that keeps lines readable against a bright sky.
+    var lineOutline: Float { (1 - night) * 1.4 * px }
+    var restingLineColor: SIMD4<Float> { SIMD4(0.62, 0.76, 1.0, 0.38 + 0.52 * (1 - night)) }
+    var highlightColor: SIMD4<Float> { SIMD4(0.86, 0.94, 1.0, 1) }
+    var labelColor: SIMD4<Float> { SIMD4(0.86, 0.91, 1.0, 0.9) }
+}
+
+enum SkySymbols {
+    static func color(for kind: DeepSkyObject.Kind) -> SIMD4<Float> {
+        switch kind {
+        case .galaxy: SIMD4(1.0, 0.72, 0.5, 0.9)
+        case .openCluster, .starGroup: SIMD4(1.0, 0.92, 0.55, 0.9)
+        case .globularCluster: SIMD4(1.0, 0.85, 0.5, 0.9)
+        case .planetaryNebula: SIMD4(0.55, 0.95, 1.0, 0.9)
+        case .nebula, .clusterWithNebula: SIMD4(0.55, 1.0, 0.7, 0.9)
+        case .supernovaRemnant: SIMD4(1.0, 0.6, 0.75, 0.9)
+        case .other: SIMD4(0.8, 0.8, 0.8, 0.8)
+        }
+    }
+
+    /// Type symbol centred on `c` (pixels): galaxy = tilted ellipse, open cluster = dashed circle, globular = circle
+    /// with a cross, planetary nebula = circle with four ticks, nebula = square, remnant = diamond.
+    /// `majorAxis` is the unit screen direction of the galaxy's long axis.
+    static func segments(kind: DeepSkyObject.Kind, center c: SIMD2<Float>, radius r: Float, axisRatio: Float,
+                         majorAxis: SIMD2<Float>, width: Float, color: SIMD4<Float>) -> [OverlaySegment] {
+        func seg(_ a: SIMD2<Float>, _ b: SIMD2<Float>, dashed: Bool = false) -> OverlaySegment {
+            OverlaySegment(a: a, b: b, width: width, color: color, outlineWidth: 0, dashed: dashed)
+        }
+        func ring(radiusX: Float, radiusY: Float, axis: SIMD2<Float>, dashed: Bool) -> [OverlaySegment] {
+            let n = 20
+            let minor = SIMD2<Float>(-axis.y, axis.x)
+            let points = (0...n).map { k -> SIMD2<Float> in
+                let t = Float(k) / Float(n) * 2 * .pi
+                return c + axis * (cos(t) * radiusX) + minor * (sin(t) * radiusY)
+            }
+            return (0..<n).map { seg(points[$0], points[$0 + 1], dashed: dashed) }
+        }
+        let axis = majorAxis
+        switch kind {
+        case .galaxy:
+            return ring(radiusX: r, radiusY: r * max(axisRatio, 0.35), axis: axis, dashed: false)
+        case .openCluster, .starGroup:
+            return ring(radiusX: r, radiusY: r, axis: SIMD2(1, 0), dashed: true)
+        case .globularCluster:
+            return ring(radiusX: r, radiusY: r, axis: SIMD2(1, 0), dashed: false)
+                + [seg(c - SIMD2(r * 1.4, 0), c + SIMD2(r * 1.4, 0)), seg(c - SIMD2(0, r * 1.4), c + SIMD2(0, r * 1.4))]
+        case .planetaryNebula:
+            var out = ring(radiusX: r * 0.7, radiusY: r * 0.7, axis: SIMD2(1, 0), dashed: false)
+            for d in [SIMD2<Float>(1, 0), SIMD2(-1, 0), SIMD2(0, 1), SIMD2(0, -1)] {
+                out.append(seg(c + d * (r * 0.9), c + d * (r * 1.5)))
+            }
+            return out
+        case .nebula, .clusterWithNebula, .other:
+            let h = r * 0.9
+            let p = [c + SIMD2(-h, -h), c + SIMD2(h, -h), c + SIMD2(h, h), c + SIMD2(-h, h)]
+            return (0..<4).map { seg(p[$0], p[($0 + 1) % 4]) }
+        case .supernovaRemnant:
+            let p = [c + SIMD2(0, -r), c + SIMD2(r, 0), c + SIMD2(0, r), c + SIMD2(-r, 0)]
+            return (0..<4).map { seg(p[$0], p[($0 + 1) % 4]) }
+        }
+    }
+}
+
+/// Greedy label placement: higher priority first, anything overlapping an already placed label is dropped.
+struct LabelPlacer {
+    private struct Candidate {
+        var label: OverlayLabel
+        var priority: Float
+        /// Offsets (points) to try, in order, when the label does not fit where it is anchored.
+        var fallbacks: [SIMD2<Float>]
+    }
+
+    private var candidates: [Candidate] = []
+    private let viewport: SIMD2<Float>
+    private let scale: Float
+
+    init(viewport: SIMD2<Double>, contentScale: Double) {
+        self.viewport = SIMD2<Float>(viewport)
+        scale = Float(contentScale)
+    }
+
+    mutating func add(_ label: OverlayLabel, priority: Float, fallbacks: [SIMD2<Float>] = []) {
+        candidates.append(Candidate(label: label, priority: priority, fallbacks: fallbacks))
+    }
+
+    func place() -> [OverlayLabel] {
+        var placed: [(min: SIMD2<Float>, max: SIMD2<Float>)] = []
+        var result: [OverlayLabel] = []
+        for candidate in candidates.sorted(by: { $0.priority > $1.priority }) {
+            var l = candidate.label
+            let size = SIMD2(Float(l.text.count) * l.fontSize * 0.56 + 6, l.fontSize * 1.3) * scale
+            let home = l.position
+            for offset in [SIMD2<Float>.zero] + candidate.fallbacks {
+                l.position = home + offset * scale
+                let origin = l.position - size * l.anchor
+                guard origin.x > -size.x, origin.y > -size.y, origin.x < viewport.x, origin.y < viewport.y else { continue }
+                let box = (min: origin, max: origin + size)
+                if placed.contains(where: { $0.min.x < box.max.x && $0.max.x > box.min.x && $0.min.y < box.max.y && $0.max.y > box.min.y }) {
+                    continue
+                }
+                placed.append(box)
+                result.append(l)
+                break
+            }
+        }
+        return result
+    }
+}

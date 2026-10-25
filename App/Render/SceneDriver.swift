@@ -79,17 +79,24 @@ final class SceneDriver {
             attitudeSampleAge = nil
         }
 
-        if model.effectiveAttitudeSource == .motion {
+        // The fixed-sky preset must stay repeatable, so it never takes the persisted heading correction.
+        if model.effectiveAttitudeSource != .fixed {
             attitude = model.alignment.apply(to: attitude)
         }
         let geometry = CameraGeometry(intrinsics: intrinsics, drawableSize: drawableSize)
-        let context = OverlayContext(hostTime: hostTime, skyDate: model.skyDate(now: Date()), observer: model.observer,
-                                     deviceFromReference: attitude, camera: geometry, lighting: model.lightingBlend,
-                                     isSkyOnly: cameraFrame == nil, contentScale: Double(layer.contentsScale))
+        let context = OverlayContext(hostTime: hostTime, displayTime: displayTime, skyDate: model.skyDate(now: Date()),
+                                     observer: model.observer, deviceFromReference: attitude, camera: geometry,
+                                     lighting: model.lightingBlend, isSkyOnly: cameraFrame == nil,
+                                     contentScale: Double(layer.contentsScale))
         lastContext = context
         let overlay = model.overlayProvider(context)
         renderer.draw(to: update.drawable, background: background, geometry: geometry,
-                      deviceFromReference: attitude, overlay: overlay, redTheme: model.redTheme)
+                      deviceFromReference: attitude, overlay: overlay, redTheme: model.redTheme,
+                      contentScale: context.contentScale)
+    }
+
+    func setMilkyWay(levels: [UInt8], width: Int, height: Int) {
+        renderer.setMilkyWay(levels: levels, width: width, height: height)
     }
 
     private func skyOnlyAttitude(at time: Double) -> simd_double3x3 {

@@ -1,5 +1,6 @@
 import Foundation
 import Metal
+import MetalKit
 import QuartzCore
 import simd
 
@@ -49,6 +50,13 @@ final class Renderer {
     private let skyPipeline: any MTLRenderPipelineState
     private let pointPipeline: any MTLRenderPipelineState
     private let segmentPipeline: any MTLRenderPipelineState
+    private let labelPipeline: any MTLRenderPipelineState
+    private let meshPipeline: any MTLRenderPipelineState
+    private let milkyWayPipeline: any MTLRenderPipelineState
+    private let labelAtlas: LabelAtlas?
+    private var milkyWayTexture: (any MTLTexture)?
+    private var artworkTextures: [String: any MTLTexture] = [:]
+    private var missingArtwork: Set<String> = []
     private let inFlight = DispatchSemaphore(value: Renderer.maxFramesInFlight)
     private var instanceBuffers: [(any MTLBuffer)?] = Array(repeating: nil, count: Renderer.maxFramesInFlight)
     private var bufferIndex = 0
@@ -83,10 +91,38 @@ final class Renderer {
         skyPipeline = try pipeline("fullscreenVertex", "skyFragment", blended: false)
         pointPipeline = try pipeline("pointVertex", "pointFragment", blended: true)
         segmentPipeline = try pipeline("segmentVertex", "segmentFragment", blended: true)
+        labelPipeline = try pipeline("labelVertex", "labelFragment", blended: true)
+        meshPipeline = try pipeline("meshVertex", "meshFragment", blended: true)
+        milkyWayPipeline = try pipeline("fullscreenVertex", "milkyWayFragment", blended: true)
+        labelAtlas = LabelAtlas(device: device)
+    }
+
+    /// Equirectangular ICRS level map (row 0 at Dec +90, column 0 at RA 0°), one byte per texel.
+    func setMilkyWay(levels: [UInt8], width: Int, height: Int) {
+        let descriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .r8Unorm, width: width, height: height, mipmapped: false)
+        descriptor.usage = .shaderRead
+        guard levels.count == width * height, let texture = device.makeTexture(descriptor: descriptor) else { return }
+        levels.withUnsafeBytes {
+            texture.replace(region: MTLRegionMake2D(0, 0, width, height), mipmapLevel: 0, withBytes: $0.baseAddress!, bytesPerRow: width)
+        }
+        milkyWayTexture = texture
+    }
+
+    private func artworkTexture(_ file: String) -> (any MTLTexture)? {
+        if let texture = artworkTextures[file] { return texture }
+        guard !missingArtwork.contains(file), let base = Bundle.main.resourceURL else { return nil }
+        let loader = MTKTextureLoader(device: device)
+        let options: [MTKTextureLoader.Option: Any] = [.SRGB: false, .origin: MTKTextureLoader.Origin.topLeft, .generateMipmaps: false]
+        guard let texture = try? loader.newTexture(URL: base.appendingPathComponent(file), options: options) else {
+            missingArtwork.insert(file)
+            return nil
+        }
+        artworkTextures[file] = texture
+        return texture
     }
 
     func draw(to drawable: any CAMetalDrawable, background: RenderBackground, geometry: CameraGeometry,
-              deviceFromReference: simd_double3x3, overlay: OverlayFrame, redTheme: Bool) {
+              deviceFromReference: simd_double3x3, overlay: OverlayFrame, redTheme: Bool, contentScale: Double) {
         inFlight.wait()
         guard let commandBuffer = queue.makeCommandBuffer() else {
             inFlight.signal()
@@ -131,61 +167,128 @@ final class Renderer {
             encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
         }
 
-        encodeOverlay(overlay, encoder: encoder, uniforms: &uniforms)
+        encodeOverlay(overlay, encoder: encoder, uniforms: &uniforms, contentScale: Float(contentScale))
         encoder.endEncoding()
         commandBuffer.present(drawable)
         commandBuffer.commit()
     }
 
-    private func encodeOverlay(_ overlay: OverlayFrame, encoder: any MTLRenderCommandEncoder, uniforms: inout FrameUniforms) {
-        var layout: [(offset: Int, count: Int, isSegments: Bool, hasUnderlay: Bool)] = []
+    private struct LabelInstance {
+        var origin: SIMD2<Float>
+        var size: SIMD2<Float>
+        var uv: SIMD4<Float>
+        var color: SIMD4<Float>
+    }
+
+    private struct MilkyWayUniforms {
+        var icrsFromScreen: simd_float3x3
+        var intensity: Float
+        var padding: SIMD3<Float> = .zero
+    }
+
+    private enum Prepared {
+        case points(offset: Int, array: [OverlayPoint])
+        case segments(offset: Int, array: [OverlaySegment], hasUnderlay: Bool)
+        case labels(offset: Int, array: [LabelInstance])
+        case mesh(offset: Int, mesh: OverlayMesh, texture: any MTLTexture)
+        case milkyWay(OverlayMilkyWay, texture: any MTLTexture)
+    }
+
+    private func encodeOverlay(_ overlay: OverlayFrame, encoder: any MTLRenderCommandEncoder, uniforms: inout FrameUniforms,
+                               contentScale: Float) {
+        var prepared: [Prepared] = []
         var cursor = 0
+        func reserve<T>(_ count: Int, of type: T.Type) -> Int {
+            cursor = Self.align(cursor)
+            defer { cursor += count * MemoryLayout<T>.stride }
+            return cursor
+        }
         for batch in overlay.batches {
             switch batch {
             case .points(let points):
-                cursor = Self.align(cursor)
-                layout.append((cursor, points.count, false, false))
-                cursor += points.count * MemoryLayout<OverlayPoint>.stride
+                prepared.append(.points(offset: reserve(points.count, of: OverlayPoint.self), array: points))
             case .segments(let segments):
-                cursor = Self.align(cursor)
-                layout.append((cursor, segments.count, true, segments.contains { $0.outlineWidth > 0 || $0.glow > 0 }))
-                cursor += segments.count * MemoryLayout<OverlaySegment>.stride
-            case .labels:
-                continue
+                prepared.append(.segments(offset: reserve(segments.count, of: OverlaySegment.self), array: segments,
+                                          hasUnderlay: segments.contains { $0.outlineWidth > 0 || $0.glow > 0 }))
+            case .labels(let labels):
+                let instances = labelInstances(labels, contentScale: contentScale)
+                if !instances.isEmpty { prepared.append(.labels(offset: reserve(instances.count, of: LabelInstance.self), array: instances)) }
+            case .mesh(let mesh):
+                if let texture = artworkTexture(mesh.textureID) {
+                    prepared.append(.mesh(offset: reserve(mesh.vertices.count, of: OverlayMeshVertex.self), mesh: mesh, texture: texture))
+                }
+            case .milkyWay(let params):
+                if let milkyWayTexture { prepared.append(.milkyWay(params, texture: milkyWayTexture)) }
             }
         }
-        guard cursor > 0, let buffer = instanceBuffer(minimumLength: cursor) else { return }
+        guard !prepared.isEmpty else { return }
+        let buffer = cursor > 0 ? instanceBuffer(minimumLength: cursor) : nil
+        if cursor > 0, buffer == nil { return }
 
-        var slot = 0
-        for batch in overlay.batches {
-            switch batch {
-            case .points(let points):
-                points.withUnsafeBytes { buffer.contents().advanced(by: layout[slot].offset).copyMemory(from: $0.baseAddress!, byteCount: $0.count) }
-                slot += 1
-            case .segments(let segments):
-                segments.withUnsafeBytes { buffer.contents().advanced(by: layout[slot].offset).copyMemory(from: $0.baseAddress!, byteCount: $0.count) }
-                slot += 1
-            case .labels:
-                continue
-            }
+        func upload<T>(_ array: [T], at offset: Int) {
+            guard let buffer else { return }
+            array.withUnsafeBytes { buffer.contents().advanced(by: offset).copyMemory(from: $0.baseAddress!, byteCount: $0.count) }
         }
-
-        for entry in layout where entry.count > 0 {
-            encoder.setRenderPipelineState(entry.isSegments ? segmentPipeline : pointPipeline)
+        func bindUniforms(_ pipeline: any MTLRenderPipelineState) {
+            encoder.setRenderPipelineState(pipeline)
             encoder.setVertexBytes(&uniforms, length: MemoryLayout<FrameUniforms>.stride, index: 0)
             encoder.setFragmentBytes(&uniforms, length: MemoryLayout<FrameUniforms>.stride, index: 0)
-            encoder.setVertexBuffer(buffer, offset: entry.offset, index: 1)
-            guard entry.isSegments else {
-                encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: entry.count)
-                continue
-            }
-            encoder.setFragmentBuffer(buffer, offset: entry.offset, index: 1)
-            for pass: UInt32 in entry.hasUnderlay ? [0, 1] : [1] {
-                var pass = pass
-                encoder.setFragmentBytes(&pass, length: MemoryLayout<UInt32>.stride, index: 2)
-                encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: entry.count)
+        }
+
+        for item in prepared {
+            switch item {
+            case .points(let offset, let array):
+                guard !array.isEmpty else { continue }
+                upload(array, at: offset)
+                bindUniforms(pointPipeline)
+                encoder.setVertexBuffer(buffer, offset: offset, index: 1)
+                encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: array.count)
+            case .segments(let offset, let array, let hasUnderlay):
+                guard !array.isEmpty else { continue }
+                upload(array, at: offset)
+                bindUniforms(segmentPipeline)
+                encoder.setVertexBuffer(buffer, offset: offset, index: 1)
+                encoder.setFragmentBuffer(buffer, offset: offset, index: 1)
+                for pass: UInt32 in hasUnderlay ? [0, 1] : [1] {
+                    var pass = pass
+                    encoder.setFragmentBytes(&pass, length: MemoryLayout<UInt32>.stride, index: 2)
+                    encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: array.count)
+                }
+            case .labels(let offset, let array):
+                upload(array, at: offset)
+                bindUniforms(labelPipeline)
+                encoder.setVertexBuffer(buffer, offset: offset, index: 1)
+                encoder.setFragmentTexture(labelAtlas?.texture, index: 0)
+                encoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4, instanceCount: array.count)
+            case .mesh(let offset, let mesh, let texture):
+                upload(mesh.vertices, at: offset)
+                bindUniforms(meshPipeline)
+                var alpha = mesh.alpha
+                encoder.setVertexBuffer(buffer, offset: offset, index: 1)
+                encoder.setFragmentBytes(&alpha, length: MemoryLayout<Float>.stride, index: 1)
+                encoder.setFragmentTexture(texture, index: 0)
+                encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: mesh.vertices.count)
+            case .milkyWay(let params, let texture):
+                bindUniforms(milkyWayPipeline)
+                var mw = MilkyWayUniforms(icrsFromScreen: params.icrsFromScreen, intensity: params.intensity)
+                encoder.setFragmentBytes(&mw, length: MemoryLayout<MilkyWayUniforms>.stride, index: 1)
+                encoder.setFragmentTexture(texture, index: 0)
+                encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
             }
         }
+    }
+
+    private func labelInstances(_ labels: [OverlayLabel], contentScale: Float) -> [LabelInstance] {
+        guard let labelAtlas else { return [] }
+        var instances: [LabelInstance] = []
+        instances.reserveCapacity(labels.count)
+        for label in labels where label.color.w > 0.01 {
+            let pixelSize = max(6, Int((label.fontSize * contentScale).rounded()))
+            guard let entry = labelAtlas.entry(text: label.text, pixelSize: pixelSize, bold: label.bold) else { continue }
+            let origin = label.position - entry.size * label.anchor
+            instances.append(LabelInstance(origin: origin.rounded(.toNearestOrAwayFromZero), size: entry.size, uv: entry.uv, color: label.color))
+        }
+        return instances
     }
 
     /// One buffer per in-flight frame; the semaphore guarantees the GPU is done with the slot being reused.

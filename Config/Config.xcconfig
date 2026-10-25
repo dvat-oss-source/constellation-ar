@@ -1,8 +1,12 @@
 GEMMA_MODEL_ID = gemma-4-26b-a4b-it-maas
 NARRATION_MODEL_ID = gemini-3-flash-preview
 
+// Gemma MaaS is only served from the global location, which needs the project-scoped URL.
+GCP_PROJECT_ID = 
+GEMMA_LOCATION = global
+
 // Personal Team ID (10 characters, the OU of the "Apple Development" certificate). Empty until Xcode is signed in.
-DEVELOPMENT_TEAM =
+DEVELOPMENT_TEAM = 
 
 // Last so a local Secrets.xcconfig can also override DEVELOPMENT_TEAM.
 #include? "Secrets.xcconfig"
