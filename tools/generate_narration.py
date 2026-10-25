@@ -21,6 +21,7 @@ import json
 import math
 import re
 import sys
+import time
 import unicodedata
 from html.parser import HTMLParser
 from pathlib import Path
@@ -432,6 +433,8 @@ def request_body(prompt, keys, history):
         "contents": contents,
         "generationConfig": {
             "temperature": 0.4,
+            # default thinking spent ~60k thought tokens / ~4 min per card; "low" is plenty for copy-from-sources prose
+            "thinkingConfig": {"thinkingLevel": "low"},
             "responseMimeType": "application/json",
             "responseSchema": response_schema(keys),
         },
@@ -448,11 +451,16 @@ def call_model(model, key, body, cid):
     cache = RAW_DIR / cid / f"{digest}.json"
     if cache.exists():
         return json.loads(cache.read_text(encoding="utf-8"))["response"], True
-    try:
-        r = requests.post(ENDPOINT.format(model=model), data=payload.encode("utf-8"), timeout=300,
-                          headers={"x-goog-api-key": key, "Content-Type": "application/json; charset=utf-8"})
-    except requests.RequestException as e:
-        raise ApiError(redact(f"request failed: {e}", key)) from None
+    for backoff in (10, 30, 60, 120, 0):
+        try:
+            r = requests.post(ENDPOINT.format(model=model), data=payload.encode("utf-8"), timeout=300,
+                              headers={"x-goog-api-key": key, "Content-Type": "application/json; charset=utf-8"})
+        except requests.RequestException as e:
+            raise ApiError(redact(f"request failed: {e}", key)) from None
+        if r.status_code not in (429, 503) or not backoff:
+            break
+        print(f"  {cid}: HTTP {r.status_code}, retrying in {backoff}s", flush=True)
+        time.sleep(backoff)
     if r.status_code != 200:
         raise ApiError(redact(f"HTTP {r.status_code}: {r.text[:2000]}", key))
     data = r.json()
