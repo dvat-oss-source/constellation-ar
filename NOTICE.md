@@ -211,3 +211,11 @@ These are pinned in `tools/requirements.txt`:
 | jplephem | 2.24 | MIT |
 | sgp4 | 2.27 | MIT |
 | Requests | 2.34.2 | Apache-2.0 |
+
+## Constellation focus data (added)
+
+- `Data/boundaries.json`: IAU constellation boundaries, Davenhall & Leggett, VizieR VI/49 (B1875), as already pinned in `tools/sources.json`.
+- `Data/designations.json`: Bayer/Flamsteed designations from the Yale Bright Star Catalogue, 5th revised ed. (Hoffleit & Warren, CDS V/50, `catalog.gz` dated 1993-10-04, sha256 `3dc44b1e90be8fbe5bcc7656032560f51275f985c7e3f783c9028e1838ec7bed`), joined to Hipparcos by HD number. The CDS ReadMe states no licence.
+- `Data/passages.json`: full Wikipedia articles at the pinned revisions listed in `tools/sources.json` (`wikipedia_full:*`, CC BY-SA 4.0, authors per each article's history), R. H. Allen, *Star-Names and Their Meanings* (1899, public domain), Aratus tr. G. R. Mair (public domain).
+- `Data/artwork_outlines.json`: silhouettes traced from the Stellarium constellation art (Free Art License) already credited above.
+- `Data/test/` and `Data/fixtures/` are test-only and are not bundled in the app.

@@ -5,6 +5,7 @@ Usage (from the repo root):
     .venv/bin/python tools/build_catalog.py            # core + extras
     .venv/bin/python tools/build_catalog.py --core     # stars.bin, lines, names, roman1875, constellations, test bounds
     .venv/bin/python tools/build_catalog.py --extras   # asterisms, milkyway, dso, artwork
+    .venv/bin/python tools/build_catalog.py --focus    # boundaries.json, designations.json, test/bsc_records.json
     .venv/bin/python tools/build_catalog.py --offline  # never touch the network; fail if a cached file is missing
 
 Downloads go to tools/.cache/. tools/sources.json pins every source (URL, version) and records
@@ -159,7 +160,7 @@ def parse_hipparcos(path):
         s = line[first - 1:last].strip()
         return float(s) if s else math.nan
 
-    hip, ra, de, vmag, plx, e_plx, pmra, pmde, bv, fallback = [], [], [], [], [], [], [], [], [], []
+    hip, ra, de, vmag, plx, e_plx, pmra, pmde, bv, fallback, hd = [], [], [], [], [], [], [], [], [], [], []
     with open(path, encoding="ascii") as f:
         for line in f:
             hip.append(int(line[8:14]))
@@ -176,10 +177,11 @@ def parse_hipparcos(path):
             pmra.append(num(line, 88, 95))
             pmde.append(num(line, 97, 104))
             bv.append(num(line, 246, 251))
+            hd.append(int(line[390:396]) if line[390:396].strip() else 0)
     arr = lambda x, t=np.float64: np.array(x, dtype=t)
     return {
         "hip": arr(hip, np.int64), "ra": arr(ra), "de": arr(de), "vmag": arr(vmag), "plx": arr(plx), "e_plx": arr(e_plx),
-        "pmra": arr(pmra), "pmde": arr(pmde), "bv": arr(bv), "hms_fallback": set(fallback),
+        "pmra": arr(pmra), "pmde": arr(pmde), "bv": arr(bv), "hd": arr(hd, np.int64), "hms_fallback": set(fallback),
     }
 
 
@@ -670,15 +672,149 @@ def build_artwork(src, star_hips):
 
 
 # ---------------------------------------------------------------------------
+# Focus data: boundaries for the app, Yale BSC designations
+
+
+GREEK = {
+    "Alp": "\u03b1", "Bet": "\u03b2", "Gam": "\u03b3", "Del": "\u03b4", "Eps": "\u03b5", "Zet": "\u03b6",
+    "Eta": "\u03b7", "The": "\u03b8", "Iot": "\u03b9", "Kap": "\u03ba", "Lam": "\u03bb", "Mu": "\u03bc",
+    "Nu": "\u03bd", "Xi": "\u03be", "Omi": "\u03bf", "Pi": "\u03c0", "Rho": "\u03c1", "Sig": "\u03c3",
+    "Tau": "\u03c4", "Ups": "\u03c5", "Phi": "\u03c6", "Chi": "\u03c7", "Psi": "\u03c8", "Ome": "\u03c9",
+}
+SUPERSCRIPT = str.maketrans("0123456789", "\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079")
+
+
+def bsc_designation(name_field, constellation_ids):
+    """BSC 'Name' (bytes 5-14: Flamsteed number, Bayer letter, superscript digit, constellation) ->
+    'α¹ Cen' / '58 Ori' (Bayer preferred), or None for entries without a Bayer or Flamsteed name."""
+    name = name_field.ljust(10)[:10]
+    flam, greek, sup, con = name[0:3].strip(), name[3:6].strip(), name[6:7].strip(), name[7:10].strip()
+    if con not in constellation_ids or (name[0:3].strip() and not name[0:3].strip().isdigit()):
+        return None
+    if greek:
+        if greek not in GREEK or (sup and not sup.isdigit()):
+            return None
+        return f"{GREEK[greek]}{sup.translate(SUPERSCRIPT)} {con}"
+    return f"{flam} {con}" if flam else None
+
+
+def parse_bsc(path):
+    """V/50 catalog.gz -> [{hr, name (raw 10 chars), hd, vmag}]."""
+    import gzip
+
+    rows = []
+    with gzip.open(path, "rt", encoding="ascii") as f:
+        for line in f:
+            if len(line.rstrip("\n")) < 107 or not line[0:4].strip():
+                continue
+            v = line[102:107].strip()
+            rows.append({
+                "hr": int(line[0:4]), "name": line[4:14], "hd": int(line[25:31]) if line[25:31].strip() else 0,
+                "vmag": float(v) if v else math.nan,
+            })
+    return rows
+
+
+def join_bsc_to_hip(bsc_rows, hd_by_hip, vmag_by_hip):
+    """HD join (Hipparcos I/239 HD column -> BSC HD). When several Hipparcos entries share an HD number the one whose V
+    is closest to the BSC V wins (variables such as Mira differ by several magnitudes, so V is never a reject rule)."""
+    by_hd = {}
+    for hip, hd in hd_by_hip.items():
+        if hd:
+            by_hd.setdefault(hd, []).append(hip)
+    joined, ambiguous = {}, 0
+    for row in bsc_rows:
+        cands = by_hd.get(row["hd"], []) if row["hd"] else []
+        if len(cands) > 1:
+            ambiguous += 1
+        best = min(cands, key=lambda h: (abs(vmag_by_hip[h] - row["vmag"]) if row["vmag"] == row["vmag"] else 0.0, h), default=None)
+        if best is None:
+            continue
+        joined.setdefault(best, []).append(row)
+    # a Hipparcos entry claimed by several BSC rows keeps the closest-V one
+    out = {h: min(rows, key=lambda r: (abs(vmag_by_hip[h] - r["vmag"]) if r["vmag"] == r["vmag"] else 0.0, r["hr"]))
+           for h, rows in joined.items()}
+    return out, {"hdSharedByManyHip": ambiguous, "hipClaimedByManyHr": sum(len(r) > 1 for r in joined.values())}
+
+
+def boundaries_payload(bounds, ids, source):
+    return {
+        "version": 1,
+        "source": source,
+        "equinox": "B1875",
+        "format": (
+            "constellations[]: {id, polygons[]}; polygon: {enclosesPole: null|'N'|'S', vertices: [[raHours, decDeg], ...]}, "
+            "closed, B1875. Edges are meridians or parallels; a parallel runs along the shorter RA arc. Same data and rule "
+            "as test/vi49_bounds.json."
+        ),
+        "constellations": [{"id": i, "polygons": bounds[i]} for i in ids],
+    }
+
+
+def build_focus(src):
+    report = {}
+    table = parse_constellation_table(src.get("iau_constellations_wiki"))
+    ids = [t[0] for t in table]
+    bounds = parse_bound18(src.get("vi49_bound18"), ids)
+    write_json(DATA / "boundaries.json", boundaries_payload(bounds, ids, src.entry("vi49_bound18")["version"]), compact=True)
+    report["boundariesBytes"] = (DATA / "boundaries.json").stat().st_size
+
+    hip = parse_hipparcos(src.get("hip_main"))
+    src.get("hip_readme")
+    star_hips = {r[0]: r for r in read_stars_bin(DATA / "stars.bin")["records"]}
+    hd_by_hip = {h: d for h, d in zip(hip["hip"].tolist(), hip["hd"].tolist()) if h in star_hips}
+    bsc = parse_bsc(src.get("bsc5_catalog"))
+    src.get("bsc5_readme")
+    vmag_all = dict(zip(hip["hip"].tolist(), hip["vmag"].tolist()))
+    joined, join_report = join_bsc_to_hip(bsc, hd_by_hip, vmag_all)
+
+    idset = set(ids)
+    designations, kinds = {}, {"bayer": 0, "flamsteed": 0, "hr": 0}
+    for h, row in joined.items():
+        d = bsc_designation(row["name"], idset)
+        if d is None:
+            d = f"HR {row['hr']}"
+            kinds["hr"] += 1
+        else:
+            kinds["bayer" if d[0].isalpha() else "flamsteed"] += 1
+        designations[h] = d
+    write_json(DATA / "designations.json", {
+        "version": 1,
+        "source": src.entry("bsc5_catalog")["version"] + "; joined to Hipparcos I/239 by HD number",
+        "format": "designations: {hip: 'α Ori' (Bayer) | '58 Ori' (Flamsteed) | 'HR 1234' (Bright Star number, no Bayer/Flamsteed)}; "
+                  "IAU constellation abbreviations; Bayer superscripts as Unicode.",
+        "designations": {str(h): designations[h] for h in sorted(designations)},
+    }, compact=True)
+    write_json(DATA / "test" / "bsc_records.json", {
+        "version": 1,
+        "source": src.entry("bsc5_catalog")["version"],
+        "format": "records: {hip: [HR, raw 10-character Name field (bytes 5-14), Vmag]} for stars.bin stars joined by HD.",
+        "records": {str(h): [row["hr"], row["name"], row["vmag"]] for h, row in sorted(joined.items())},
+    }, compact=True)
+
+    brighter = [h for h, r in star_hips.items() if r[4] < 6.0]
+    covered = [h for h in brighter if h in designations]
+    named = [h for h in covered if not designations[h].startswith("HR ")]
+    report.update({
+        "bscRows": len(bsc), "bscJoinedToStarsBin": len(joined), "designationKinds": kinds, "bscJoin": join_report,
+        "starsBrighterThanV6": len(brighter), "withAnyDesignation": len(covered),
+        "withBayerOrFlamsteed": len(named),
+        "withoutDesignation": sorted(h for h in brighter if h not in designations)[:20],
+    })
+    return report
+
+
+# ---------------------------------------------------------------------------
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--core", action="store_true", help="build only the core (Phase 1) files")
     ap.add_argument("--extras", action="store_true", help="build only the extras (Phase 5) files; needs Data/stars.bin")
+    ap.add_argument("--focus", action="store_true", help="build only boundaries.json, designations.json and the BSC test records")
     ap.add_argument("--offline", action="store_true", help="use cached downloads only")
     args = ap.parse_args()
-    both = not args.core and not args.extras
+    both = not args.core and not args.extras and not args.focus
     src = Sources(offline=args.offline)
     report = {}
     try:
@@ -687,6 +823,8 @@ def main():
         if args.extras or both:
             star_hips = {r[0] for r in read_stars_bin(DATA / "stars.bin")["records"]}
             report.update(build_extras(src, star_hips))
+        if args.focus or both:
+            report.update(build_focus(src))
     finally:
         src.save()
     sizes = {str(p.relative_to(ROOT)): p.stat().st_size for p in sorted(DATA.rglob("*")) if p.is_file() and "artwork/" not in str(p.relative_to(DATA))}

@@ -592,5 +592,545 @@
     "version": "Stellarium v26.3 skycultures/modern",
     "path": "stellarium/illustrations/virgo.png",
     "sha256": "7f59ab17b11794e708cd30e0e638ec65ceb926842d0d6461ebfd2bb5b25c8353"
+  },
+  "bsc5_catalog": {
+    "url": "https://cdsarc.cds.unistra.fr/ftp/V/50/catalog.gz",
+    "version": "CDS VizieR V/50 (Hoffleit & Warren 1991, Bright Star Catalogue 5th rev.), catalog.gz dated 1993-10-04",
+    "path": "vizier/v50_catalog.gz",
+    "sha256": "3dc44b1e90be8fbe5bcc7656032560f51275f985c7e3f783c9028e1838ec7bed"
+  },
+  "bsc5_readme": {
+    "url": "https://cdsarc.cds.unistra.fr/ftp/V/50/ReadMe",
+    "version": "CDS VizieR V/50 ReadMe dated 2022-04-04",
+    "path": "vizier/v50_ReadMe",
+    "sha256": "44fd9c73e2eecad0beb47bdfa3f01c60fd43f93d6964198e31fcd48732de5b33"
+  },
+  "wikipedia_full:Antlia": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Antlia&oldid=1370773070&action=render",
+    "version": "Wikipedia 'Antlia' revision 1370773070, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Antlia.html",
+    "sha256": "2283d690876686fea5f396ba4d87ec27e0bcbbd81ea0578fb721630b29f403c6"
+  },
+  "wikipedia_full:Orion_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Orion_(constellation)&oldid=1380320977&action=render",
+    "version": "Wikipedia 'Orion (constellation)' revision 1380320977, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Orion_(constellation).html",
+    "sha256": "dafd7d36fa5868ce266235ca93601fd857237f1107df014af102592169e4db23"
+  },
+  "wikipedia_full:Andromeda_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Andromeda_(constellation)&oldid=1380994959&action=render",
+    "version": "Wikipedia 'Andromeda (constellation)' revision 1380994959, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Andromeda_(constellation).html",
+    "sha256": "fab53206be2de7ebef23414ca62788a10852a6270c791b53828f3edd27583f16"
+  },
+  "wikipedia_full:Apus": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Apus&oldid=1373929451&action=render",
+    "version": "Wikipedia 'Apus' revision 1373929451, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Apus.html",
+    "sha256": "7b16e42854ab0df8dbea541d97f3ae409d137ea03b11ee1b0cc3075f8556e90e"
+  },
+  "wikipedia_full:Aquarius_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Aquarius_(constellation)&oldid=1381719183&action=render",
+    "version": "Wikipedia 'Aquarius (constellation)' revision 1381719183, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Aquarius_(constellation).html",
+    "sha256": "444021b29918912d292bbd6c8d39901d9b655a63c072cde735a420f335330b62"
+  },
+  "wikipedia_full:Aquila_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Aquila_(constellation)&oldid=1380900355&action=render",
+    "version": "Wikipedia 'Aquila (constellation)' revision 1380900355, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Aquila_(constellation).html",
+    "sha256": "201977ad9906df19eabca5422e57e61c2bd1ec40537d94fe3367adbd74990de3"
+  },
+  "wikipedia_full:Ara_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Ara_(constellation)&oldid=1370773116&action=render",
+    "version": "Wikipedia 'Ara (constellation)' revision 1370773116, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Ara_(constellation).html",
+    "sha256": "dcc06d0ec926bd20801b017dc20db9ba93ff215a313a2d9781ff3c3b05fddba7"
+  },
+  "wikipedia_full:Aries_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Aries_(constellation)&oldid=1380736621&action=render",
+    "version": "Wikipedia 'Aries (constellation)' revision 1380736621, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Aries_(constellation).html",
+    "sha256": "5dece9e21867f7758408970ec4b4e3938ba039e320025dc90459eaf0d68ed422"
+  },
+  "wikipedia_full:Auriga_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Auriga_(constellation)&oldid=1380735863&action=render",
+    "version": "Wikipedia 'Auriga (constellation)' revision 1380735863, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Auriga_(constellation).html",
+    "sha256": "5a70e942216591249c926b1289ed7eaaf94a68ef3e94bf0059a17c737782cfe1"
+  },
+  "wikipedia_full:Boötes": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Bo%C3%B6tes&oldid=1380995058&action=render",
+    "version": "Wikipedia 'Boötes' revision 1380995058, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Boötes.html",
+    "sha256": "d8dff756d4d1f2314341e6d34fc3bb778a5f577c000d9cee7a47f5b1daff90a1"
+  },
+  "wikipedia_full:Caelum": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Caelum&oldid=1380318652&action=render",
+    "version": "Wikipedia 'Caelum' revision 1380318652, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Caelum.html",
+    "sha256": "508194d6fee9c7a21bab331b10461fe567d6d29a6043a28171e2f340bf95fe44"
+  },
+  "wikipedia_full:Camelopardalis": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Camelopardalis&oldid=1379494087&action=render",
+    "version": "Wikipedia 'Camelopardalis' revision 1379494087, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Camelopardalis.html",
+    "sha256": "40b2b4f0aa3076c64a87792769149abbc11f04c1e30df38e7771f8f5a1d5d224"
+  },
+  "wikipedia_full:Cancer_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Cancer_(constellation)&oldid=1380737124&action=render",
+    "version": "Wikipedia 'Cancer (constellation)' revision 1380737124, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Cancer_(constellation).html",
+    "sha256": "ea658a1985e6b69374945463426f2750d37e05a0d6646e3a42b56e23e65ac677"
+  },
+  "wikipedia_full:Canes_Venatici": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Canes_Venatici&oldid=1369679674&action=render",
+    "version": "Wikipedia 'Canes Venatici' revision 1369679674, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Canes_Venatici.html",
+    "sha256": "8a2c06517103f2868a82824b74d3970342adce175e86961b8cfe17a88ab8ee27"
+  },
+  "wikipedia_full:Canis_Major": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Canis_Major&oldid=1375700656&action=render",
+    "version": "Wikipedia 'Canis Major' revision 1375700656, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Canis_Major.html",
+    "sha256": "b5fcabe03b2fe151ad9c5451f1b73824cee178c52346f5f2b1254e0ce5c0fe65"
+  },
+  "wikipedia_full:Canis_Minor": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Canis_Minor&oldid=1370774102&action=render",
+    "version": "Wikipedia 'Canis Minor' revision 1370774102, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Canis_Minor.html",
+    "sha256": "f4b15c9baaff15a3ee666d6f601329f9827d31a29cd707409383a900a1adfa4d"
+  },
+  "wikipedia_full:Capricornus": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Capricornus&oldid=1380738100&action=render",
+    "version": "Wikipedia 'Capricornus' revision 1380738100, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Capricornus.html",
+    "sha256": "4b897e56bf946df831da8420d558e8ed34e73e821981532eccd267c784b655ef"
+  },
+  "wikipedia_full:Carina_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Carina_(constellation)&oldid=1380021340&action=render",
+    "version": "Wikipedia 'Carina (constellation)' revision 1380021340, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Carina_(constellation).html",
+    "sha256": "4208c7eef15353e04206c031d53ebd3ba8c9c04db024a3a156850b3519149dec"
+  },
+  "wikipedia_full:Cassiopeia_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Cassiopeia_(constellation)&oldid=1370774178&action=render",
+    "version": "Wikipedia 'Cassiopeia (constellation)' revision 1370774178, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Cassiopeia_(constellation).html",
+    "sha256": "77bb04a204b7e58e16386891a3a14f343f016534020fef42fbf25a4fff253c1d"
+  },
+  "wikipedia_full:Centaurus": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Centaurus&oldid=1361204637&action=render",
+    "version": "Wikipedia 'Centaurus' revision 1361204637, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Centaurus.html",
+    "sha256": "341efc08391a2fe9e9caa9c0d3cddb1ce4c8b26ca806d6dfdec2c6b628dd8ab9"
+  },
+  "wikipedia_full:Cepheus_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Cepheus_(constellation)&oldid=1381415550&action=render",
+    "version": "Wikipedia 'Cepheus (constellation)' revision 1381415550, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Cepheus_(constellation).html",
+    "sha256": "4ec09873cd23aa5631883612f637d388f5ee43ae29ba527db164883b65552c2d"
+  },
+  "wikipedia_full:Cetus_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Cetus_(constellation)&oldid=1381529529&action=render",
+    "version": "Wikipedia 'Cetus (constellation)' revision 1381529529, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Cetus_(constellation).html",
+    "sha256": "b35e64cb5733e14a4ed30c2cb306b21fa4315756fbd2f9912edbc177abd92bfb"
+  },
+  "wikipedia_full:Chamaeleon": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Chamaeleon&oldid=1367566064&action=render",
+    "version": "Wikipedia 'Chamaeleon' revision 1367566064, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Chamaeleon.html",
+    "sha256": "b092b06bf796bb744f15aba20ca2a450ae1821baf36fb783dbf735874e586ad2"
+  },
+  "wikipedia_full:Circinus": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Circinus&oldid=1370774321&action=render",
+    "version": "Wikipedia 'Circinus' revision 1370774321, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Circinus.html",
+    "sha256": "d17ebb71221e9ae15c8bf70c79f9853ccd05753989ca497f0259636c38a1f990"
+  },
+  "wikipedia_full:Columba_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Columba_(constellation)&oldid=1356252065&action=render",
+    "version": "Wikipedia 'Columba (constellation)' revision 1356252065, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Columba_(constellation).html",
+    "sha256": "2dcbfe395609e8db5052470321a1eddbcb4bc85689c35c705733a77333872917"
+  },
+  "wikipedia_full:Coma_Berenices": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Coma_Berenices&oldid=1377880611&action=render",
+    "version": "Wikipedia 'Coma Berenices' revision 1377880611, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Coma_Berenices.html",
+    "sha256": "0d5884b3b08c462adbe7152c27a8d2ee835206702255faedef50ccf11ebade63"
+  },
+  "wikipedia_full:Corona_Australis": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Corona_Australis&oldid=1376872877&action=render",
+    "version": "Wikipedia 'Corona Australis' revision 1376872877, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Corona_Australis.html",
+    "sha256": "ba8b3c63aa2043be7602e9ba8295d5750b306ba436de397059e2bafab0e1ce0a"
+  },
+  "wikipedia_full:Corona_Borealis": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Corona_Borealis&oldid=1379395940&action=render",
+    "version": "Wikipedia 'Corona Borealis' revision 1379395940, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Corona_Borealis.html",
+    "sha256": "4290a99a1ffa7f9530003810eecc02e6af7dcf9f98f3c7376f68a6048ec5563b"
+  },
+  "wikipedia_full:Corvus_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Corvus_(constellation)&oldid=1375125108&action=render",
+    "version": "Wikipedia 'Corvus (constellation)' revision 1375125108, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Corvus_(constellation).html",
+    "sha256": "e014c66de57b13951572ad9c653ab95292d1882e578ed1fff049eccffce0936f"
+  },
+  "wikipedia_full:Crater_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Crater_(constellation)&oldid=1370774580&action=render",
+    "version": "Wikipedia 'Crater (constellation)' revision 1370774580, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Crater_(constellation).html",
+    "sha256": "36d0ced6ae8d48e243b9a38acc06d396961274085991fa600b71e524ca653074"
+  },
+  "wikipedia_full:Crux": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Crux&oldid=1381255716&action=render",
+    "version": "Wikipedia 'Crux' revision 1381255716, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Crux.html",
+    "sha256": "c4eb6799c64de800a08c21c3ce6b5480f4e6062c7ba79dbe1d4dacef9f8ad244"
+  },
+  "wikipedia_full:Cygnus_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Cygnus_(constellation)&oldid=1381803762&action=render",
+    "version": "Wikipedia 'Cygnus (constellation)' revision 1381803762, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Cygnus_(constellation).html",
+    "sha256": "6b6e4bd0f6714bdd1c63867e097fa8316272413f1d0141ffafe9b4e5bbd44bf7"
+  },
+  "wikipedia_full:Delphinus": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Delphinus&oldid=1360647193&action=render",
+    "version": "Wikipedia 'Delphinus' revision 1360647193, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Delphinus.html",
+    "sha256": "eb83cd44cf61e961daf83dc8386596bfb8936700257dc5e7e6563524ade2f40b"
+  },
+  "wikipedia_full:Dorado": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Dorado&oldid=1367565850&action=render",
+    "version": "Wikipedia 'Dorado' revision 1367565850, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Dorado.html",
+    "sha256": "65a1f561cdbf451abd3271bc1b1678295226f843e3d807dcf54ad4db7c9969bc"
+  },
+  "wikipedia_full:Draco_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Draco_(constellation)&oldid=1380945921&action=render",
+    "version": "Wikipedia 'Draco (constellation)' revision 1380945921, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Draco_(constellation).html",
+    "sha256": "c0237a863ac98d4f54065acb175089a93249086db0537919ebbdac72b74511d0"
+  },
+  "wikipedia_full:Equuleus": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Equuleus&oldid=1356000513&action=render",
+    "version": "Wikipedia 'Equuleus' revision 1356000513, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Equuleus.html",
+    "sha256": "f6c5ed8dc04d81c910adec68c8f162c1bbc788422ae6e237d50b6ae600407040"
+  },
+  "wikipedia_full:Eridanus": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Eridanus&oldid=1380318277&action=render",
+    "version": "Wikipedia 'Eridanus' revision 1380318277, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Eridanus.html",
+    "sha256": "7f9e892dea7b16b4e2c9cebdd04d4504f6dc2cedd07eed4dd5f29d4dded79392"
+  },
+  "wikipedia_full:Fornax": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Fornax&oldid=1380319099&action=render",
+    "version": "Wikipedia 'Fornax' revision 1380319099, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Fornax.html",
+    "sha256": "761814de2866349f04cf1524653ec0cecc0428f25a144e6674ec2d22743f7df7"
+  },
+  "wikipedia_full:Gemini_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Gemini_(constellation)&oldid=1380736983&action=render",
+    "version": "Wikipedia 'Gemini (constellation)' revision 1380736983, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Gemini_(constellation).html",
+    "sha256": "6eb2e578f8ddd8bd85afc66188a467ded08c06d4fa66775ffe70f81acf71bb38"
+  },
+  "wikipedia_full:Grus_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Grus_(constellation)&oldid=1378225760&action=render",
+    "version": "Wikipedia 'Grus (constellation)' revision 1378225760, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Grus_(constellation).html",
+    "sha256": "c938dc189e21e056e37b8ee9bff1febf6e5f4cdba821b1e1b290df56455721e5"
+  },
+  "wikipedia_full:Hercules_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Hercules_(constellation)&oldid=1379045049&action=render",
+    "version": "Wikipedia 'Hercules (constellation)' revision 1379045049, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Hercules_(constellation).html",
+    "sha256": "061e55a66c4b9b80c52fd19381fc8123eca5fa9b2a4fcd8ed9b034b4129cec29"
+  },
+  "wikipedia_full:Horologium_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Horologium_(constellation)&oldid=1381927410&action=render",
+    "version": "Wikipedia 'Horologium (constellation)' revision 1381927410, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Horologium_(constellation).html",
+    "sha256": "65807fd0823aace040afb92990c24bad959837aa5c6e18804a347494bae76c27"
+  },
+  "wikipedia_full:Hydra_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Hydra_(constellation)&oldid=1379337538&action=render",
+    "version": "Wikipedia 'Hydra (constellation)' revision 1379337538, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Hydra_(constellation).html",
+    "sha256": "5d67e008cc61b79f1c4f11eb6b76fb291571471e3a44fc5055136963175be1d9"
+  },
+  "wikipedia_full:Hydrus": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Hydrus&oldid=1380319540&action=render",
+    "version": "Wikipedia 'Hydrus' revision 1380319540, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Hydrus.html",
+    "sha256": "030e978f0ff81b72bd97125acf2a057c1d56c5885c43567ebaf6d9c20c5bd689"
+  },
+  "wikipedia_full:Indus_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Indus_(constellation)&oldid=1377881066&action=render",
+    "version": "Wikipedia 'Indus (constellation)' revision 1377881066, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Indus_(constellation).html",
+    "sha256": "ea7d81723433eccbbffc8e7e5d3fd5ae9e707564186a2e19acb79ae8181b2d42"
+  },
+  "wikipedia_full:Lacerta": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Lacerta&oldid=1380991220&action=render",
+    "version": "Wikipedia 'Lacerta' revision 1380991220, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Lacerta.html",
+    "sha256": "40505d0054b6e9b2e094028d899ffaf85f5c7a5c1e894db33b483c300b842d1c"
+  },
+  "wikipedia_full:Leo_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Leo_(constellation)&oldid=1380737679&action=render",
+    "version": "Wikipedia 'Leo (constellation)' revision 1380737679, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Leo_(constellation).html",
+    "sha256": "64d4e4ec682bc4bc5df03f02595b7c0fa437c44dd9c08de4b001855ae0646aac"
+  },
+  "wikipedia_full:Leo_Minor": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Leo_Minor&oldid=1347621346&action=render",
+    "version": "Wikipedia 'Leo Minor' revision 1347621346, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Leo_Minor.html",
+    "sha256": "66827c44562e027114b58a606297df34dc6c6453a97333109c325c09e98a251a"
+  },
+  "wikipedia_full:Lepus_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Lepus_(constellation)&oldid=1380319647&action=render",
+    "version": "Wikipedia 'Lepus (constellation)' revision 1380319647, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Lepus_(constellation).html",
+    "sha256": "646a0e503484d3eb003e8e130f0c61c05040b0efb0e78e2c3c0dec6a72f4ba95"
+  },
+  "wikipedia_full:Libra_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Libra_(constellation)&oldid=1380737950&action=render",
+    "version": "Wikipedia 'Libra (constellation)' revision 1380737950, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Libra_(constellation).html",
+    "sha256": "3efe622873dd7a5d7a3e56c72e78e32bd738b870977df8e7d3e6c3ef0370b4f1"
+  },
+  "wikipedia_full:Lupus_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Lupus_(constellation)&oldid=1373879560&action=render",
+    "version": "Wikipedia 'Lupus (constellation)' revision 1373879560, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Lupus_(constellation).html",
+    "sha256": "9d2246f42b19dcc800c0517670cc281fb4c6a979dd71f6d77ec3438c9b2a972c"
+  },
+  "wikipedia_full:Lynx_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Lynx_(constellation)&oldid=1370869253&action=render",
+    "version": "Wikipedia 'Lynx (constellation)' revision 1370869253, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Lynx_(constellation).html",
+    "sha256": "1ca16b31785e2d9bbdcdd5ef10f2f64455b36cfdc02abe67601bda5e672b3f41"
+  },
+  "wikipedia_full:Lyra": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Lyra&oldid=1381004410&action=render",
+    "version": "Wikipedia 'Lyra' revision 1381004410, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Lyra.html",
+    "sha256": "7cffd8c5311a58910e29aa224b56bfbeab74580a906f87c07167b03e48d9656a"
+  },
+  "wikipedia_full:Mensa_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Mensa_(constellation)&oldid=1370788196&action=render",
+    "version": "Wikipedia 'Mensa (constellation)' revision 1370788196, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Mensa_(constellation).html",
+    "sha256": "e80acf0e03c76a5aad4f2d74366e5281bfa796186c0c7152856a7f38bea01ac9"
+  },
+  "wikipedia_full:Microscopium": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Microscopium&oldid=1381738592&action=render",
+    "version": "Wikipedia 'Microscopium' revision 1381738592, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Microscopium.html",
+    "sha256": "a1a0e12dd6888bc195c5daac06168c5de0e5399457543e67b9461f01b317abcb"
+  },
+  "wikipedia_full:Monoceros": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Monoceros&oldid=1346424708&action=render",
+    "version": "Wikipedia 'Monoceros' revision 1346424708, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Monoceros.html",
+    "sha256": "a865d5b3b612392b214cf91f0e0d481fd9d7c5b20d4006500d2015f3552d0346"
+  },
+  "wikipedia_full:Musca": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Musca&oldid=1370784091&action=render",
+    "version": "Wikipedia 'Musca' revision 1370784091, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Musca.html",
+    "sha256": "dc2c0457e859f6c801a3178b27a19fb6872efaa47968cd76085e8323f00de47d"
+  },
+  "wikipedia_full:Norma_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Norma_(constellation)&oldid=1370787173&action=render",
+    "version": "Wikipedia 'Norma (constellation)' revision 1370787173, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Norma_(constellation).html",
+    "sha256": "ae138206ac514f569c0932c557258912048dec4b7f9c570686477d8e47c1aa84"
+  },
+  "wikipedia_full:Octans": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Octans&oldid=1373983753&action=render",
+    "version": "Wikipedia 'Octans' revision 1373983753, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Octans.html",
+    "sha256": "f6e0b8977d17f5e1df0ae7771ef3f4d6d0ba14823209d7184bff51fd46955c00"
+  },
+  "wikipedia_full:Ophiuchus": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Ophiuchus&oldid=1379279947&action=render",
+    "version": "Wikipedia 'Ophiuchus' revision 1379279947, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Ophiuchus.html",
+    "sha256": "9cc39eea0f82db3506b9b53f4d46db731e7dc3b88e69b9001d27b25633159fb1"
+  },
+  "wikipedia_full:Pavo_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Pavo_(constellation)&oldid=1370787188&action=render",
+    "version": "Wikipedia 'Pavo (constellation)' revision 1370787188, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Pavo_(constellation).html",
+    "sha256": "266a5d1ef05e4b80053d91d22a72e5b1079f9db808c07d25c7167e51a69b1a38"
+  },
+  "wikipedia_full:Pegasus_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Pegasus_(constellation)&oldid=1378892597&action=render",
+    "version": "Wikipedia 'Pegasus (constellation)' revision 1378892597, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Pegasus_(constellation).html",
+    "sha256": "e95e884403b30f5f643b1eb3fe2160a842a8500a5ed9ff88a6de3f491ca567cd"
+  },
+  "wikipedia_full:Perseus_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Perseus_(constellation)&oldid=1379853834&action=render",
+    "version": "Wikipedia 'Perseus (constellation)' revision 1379853834, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Perseus_(constellation).html",
+    "sha256": "48b2255466f876bcb27efe90073fd33f748e4381bbf528f64f6ea5d8860b2353"
+  },
+  "wikipedia_full:Phoenix_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Phoenix_(constellation)&oldid=1380321035&action=render",
+    "version": "Wikipedia 'Phoenix (constellation)' revision 1380321035, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Phoenix_(constellation).html",
+    "sha256": "782ab31a46c2f68601a863786947aa2d50127a8e566724fc9d9b55bcad3c8e4c"
+  },
+  "wikipedia_full:Pictor": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Pictor&oldid=1370787480&action=render",
+    "version": "Wikipedia 'Pictor' revision 1370787480, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Pictor.html",
+    "sha256": "00b7bbb5717562ba274665dfae6a4896b200be8a64e426cf768c65e97009ba22"
+  },
+  "wikipedia_full:Pisces_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Pisces_(constellation)&oldid=1380739412&action=render",
+    "version": "Wikipedia 'Pisces (constellation)' revision 1380739412, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Pisces_(constellation).html",
+    "sha256": "11e49a569b58358e938b5bd0f346d6782fc761a810a5a9d0d0e4ebcc14014bdd"
+  },
+  "wikipedia_full:Piscis_Austrinus": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Piscis_Austrinus&oldid=1380753145&action=render",
+    "version": "Wikipedia 'Piscis Austrinus' revision 1380753145, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Piscis_Austrinus.html",
+    "sha256": "6aab1aa8a34852d897da5e0791b39074696b51a5e2b4137c83c35357de396196"
+  },
+  "wikipedia_full:Puppis": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Puppis&oldid=1377100253&action=render",
+    "version": "Wikipedia 'Puppis' revision 1377100253, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Puppis.html",
+    "sha256": "1c49c0e3994c22367034ee40fca4546257f1b5b5c526f40723e822e704c98a37"
+  },
+  "wikipedia_full:Pyxis": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Pyxis&oldid=1381778520&action=render",
+    "version": "Wikipedia 'Pyxis' revision 1381778520, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Pyxis.html",
+    "sha256": "411085c9b5f161817a09c3fd2dc128ce8fb259248e1073d2954560c676ababa3"
+  },
+  "wikipedia_full:Reticulum": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Reticulum&oldid=1374401333&action=render",
+    "version": "Wikipedia 'Reticulum' revision 1374401333, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Reticulum.html",
+    "sha256": "0348e0117f5737072a7f4bb62b42c3a3b6594a3e46c91d0a34ce2ce427bdbe60"
+  },
+  "wikipedia_full:Sagitta": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Sagitta&oldid=1381076032&action=render",
+    "version": "Wikipedia 'Sagitta' revision 1381076032, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Sagitta.html",
+    "sha256": "24272edf117734036a782757bdb7233ba7f4497a0a8fb2a74b93e5f856783d9a"
+  },
+  "wikipedia_full:Sagittarius_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Sagittarius_(constellation)&oldid=1381076308&action=render",
+    "version": "Wikipedia 'Sagittarius (constellation)' revision 1381076308, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Sagittarius_(constellation).html",
+    "sha256": "ec030996acb01cac360eea72b8127fabda4c25e9a9aaecd9917ba7011309babe"
+  },
+  "wikipedia_full:Scorpius": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Scorpius&oldid=1381809905&action=render",
+    "version": "Wikipedia 'Scorpius' revision 1381809905, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Scorpius.html",
+    "sha256": "c72c9e1d564f57a6f95395363ae7c2f1d4de39b27394ebc4c536c563ff744a81"
+  },
+  "wikipedia_full:Sculptor_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Sculptor_(constellation)&oldid=1370789008&action=render",
+    "version": "Wikipedia 'Sculptor (constellation)' revision 1370789008, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Sculptor_(constellation).html",
+    "sha256": "cd8121814ed7936ec0496ab4473bc322add0b3ce6f5d72df064cda80b6d09dcd"
+  },
+  "wikipedia_full:Scutum_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Scutum_(constellation)&oldid=1372356867&action=render",
+    "version": "Wikipedia 'Scutum (constellation)' revision 1372356867, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Scutum_(constellation).html",
+    "sha256": "1f1df28e3116f60551bd433823b2810bdc493523653f4e6e143abdf552937ba9"
+  },
+  "wikipedia_full:Serpens": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Serpens&oldid=1380334908&action=render",
+    "version": "Wikipedia 'Serpens' revision 1380334908, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Serpens.html",
+    "sha256": "9c1d90d5bb90093e66e4cdcb582d000c5337abc2a49a93414d3f1bbc137f32e3"
+  },
+  "wikipedia_full:Sextans": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Sextans&oldid=1371328433&action=render",
+    "version": "Wikipedia 'Sextans' revision 1371328433, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Sextans.html",
+    "sha256": "ea3f0f771688535e05ff3f4a7557eb6807342537a32fd4c5de0a6e567118943a"
+  },
+  "wikipedia_full:Taurus_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Taurus_(constellation)&oldid=1380736787&action=render",
+    "version": "Wikipedia 'Taurus (constellation)' revision 1380736787, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Taurus_(constellation).html",
+    "sha256": "5f0f5be96f03a49b1f477af915c5d9ad22e43912e124dadbbe7f2a7b2bed7d78"
+  },
+  "wikipedia_full:Telescopium": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Telescopium&oldid=1370790158&action=render",
+    "version": "Wikipedia 'Telescopium' revision 1370790158, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Telescopium.html",
+    "sha256": "ee4f8ab3d3acff553b9fd277c468093c96247e59d74b68313a94fd2919b97983"
+  },
+  "wikipedia_full:Triangulum": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Triangulum&oldid=1370790420&action=render",
+    "version": "Wikipedia 'Triangulum' revision 1370790420, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Triangulum.html",
+    "sha256": "76ca68ce81ae342ffaef784ffe13ed858c44d5213abc61ee6ba4a83bc2461573"
+  },
+  "wikipedia_full:Triangulum_Australe": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Triangulum_Australe&oldid=1380028096&action=render",
+    "version": "Wikipedia 'Triangulum Australe' revision 1380028096, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Triangulum_Australe.html",
+    "sha256": "c4acdd98d8e8b45c047b9a09b96c2f8abb873bcc54a2145f89f09d8b03462a24"
+  },
+  "wikipedia_full:Tucana": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Tucana&oldid=1380321600&action=render",
+    "version": "Wikipedia 'Tucana' revision 1380321600, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Tucana.html",
+    "sha256": "58018d643f06dd8fb476f135b0883c689eec6461ab4b3fdd918949eb249080d0"
+  },
+  "wikipedia_full:Ursa_Major": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Ursa_Major&oldid=1379555724&action=render",
+    "version": "Wikipedia 'Ursa Major' revision 1379555724, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Ursa_Major.html",
+    "sha256": "c22bdc7934b28d8ae037b4fe999f728727f3bc7c28303cbad88fdec795838ff6"
+  },
+  "wikipedia_full:Ursa_Minor": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Ursa_Minor&oldid=1370790757&action=render",
+    "version": "Wikipedia 'Ursa Minor' revision 1370790757, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Ursa_Minor.html",
+    "sha256": "be9b8731fa9a14153bdeb7eb229f5e89114083ec6745af94dc31ce79ba22a122"
+  },
+  "wikipedia_full:Vela_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Vela_(constellation)&oldid=1365891436&action=render",
+    "version": "Wikipedia 'Vela (constellation)' revision 1365891436, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Vela_(constellation).html",
+    "sha256": "6625c08ec6368120ea241ba7b3bcbe590d41ee5ac8eca487e17fb939e9437154"
+  },
+  "wikipedia_full:Virgo_(constellation)": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Virgo_(constellation)&oldid=1380737838&action=render",
+    "version": "Wikipedia 'Virgo (constellation)' revision 1380737838, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Virgo_(constellation).html",
+    "sha256": "f31dfbeb004324a76ba5b1e8faf118697012d6d64c809a69d3a3467ad07a1d5b"
+  },
+  "wikipedia_full:Volans": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Volans&oldid=1376375139&action=render",
+    "version": "Wikipedia 'Volans' revision 1376375139, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Volans.html",
+    "sha256": "441881bc724f66fb9f76bb03540d0b75203e7cae783302f06dcfa3d173261f97"
+  },
+  "wikipedia_full:Vulpecula": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Vulpecula&oldid=1380991518&action=render",
+    "version": "Wikipedia 'Vulpecula' revision 1380991518, rendered HTML (action=render&oldid)",
+    "path": "wikipedia_full/Vulpecula.html",
+    "sha256": "ea2ed10a7afc723d0de8e43f93b5088d3a9789a45559c51c6eaac965597a347a"
   }
 }

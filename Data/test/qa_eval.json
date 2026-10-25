@@ -1,0 +1,432 @@
+{
+ "version": 1,
+ "format": "questions[]: {id, constellation, question, answerable, keywords (answerable: case-insensitive, each occurs in the supporting passages), supportingPassages (ids in passages.json), expected ('not in sources' when not answerable), absentTerms (none occurs in any passage of the constellation)}.",
+ "constellations": [
+  "Ori",
+  "UMa",
+  "Cas",
+  "Sco",
+  "Ant"
+ ],
+ "questions": [
+  {
+   "id": "Ori-1",
+   "constellation": "Ori",
+   "question": "Which star marks Orion's left shoulder?",
+   "answerable": true,
+   "keywords": [
+    "Bellatrix"
+   ],
+   "supportingPassages": [
+    "Ori-wiki-7"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Ori-2",
+   "constellation": "Ori",
+   "question": "What does the name Alnilam mean?",
+   "answerable": true,
+   "keywords": [
+    "string of pearls"
+   ],
+   "supportingPassages": [
+    "Ori-wiki-8"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Ori-3",
+   "constellation": "Ori",
+   "question": "Which meteor shower peaks around 20 October, and what is its parent body?",
+   "answerable": true,
+   "keywords": [
+    "Orionid",
+    "Halley"
+   ],
+   "supportingPassages": [
+    "Ori-wiki-17"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Ori-4",
+   "constellation": "Ori",
+   "question": "Which star of Orion's Belt is the easternmost?",
+   "answerable": true,
+   "keywords": [
+    "Alnitak"
+   ],
+   "supportingPassages": [
+    "Ori-wiki-9"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Ori-5",
+   "constellation": "Ori",
+   "question": "How far away is the nebula M78 in Orion?",
+   "answerable": true,
+   "keywords": [
+    "1600"
+   ],
+   "supportingPassages": [
+    "Ori-wiki-19"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Ori-6",
+   "constellation": "Ori",
+   "question": "How many exoplanets orbit Betelgeuse?",
+   "answerable": false,
+   "keywords": [],
+   "supportingPassages": [],
+   "expected": "not in sources",
+   "absentTerms": [
+    "exoplanet",
+    "planets orbit"
+   ]
+  },
+  {
+   "id": "UMa-1",
+   "constellation": "UMa",
+   "question": "What is the Big Dipper called in the United Kingdom?",
+   "answerable": true,
+   "keywords": [
+    "Plough"
+   ],
+   "supportingPassages": [
+    "UMa-wiki-3"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "UMa-2",
+   "constellation": "UMa",
+   "question": "What is the name of Mizar's optical companion?",
+   "answerable": true,
+   "keywords": [
+    "Alcor"
+   ],
+   "supportingPassages": [
+    "UMa-wiki-5"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "UMa-3",
+   "constellation": "UMa",
+   "question": "Which two stars are known as the pointer stars?",
+   "answerable": true,
+   "keywords": [
+    "Merak",
+    "Dubhe"
+   ],
+   "supportingPassages": [
+    "UMa-wiki-6"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "UMa-4",
+   "constellation": "UMa",
+   "question": "What is the apparent magnitude of Dubhe?",
+   "answerable": true,
+   "keywords": [
+    "1.79"
+   ],
+   "supportingPassages": [
+    "UMa-wiki-4"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "UMa-5",
+   "constellation": "UMa",
+   "question": "What did the Norse pagans call the Big Dipper?",
+   "answerable": true,
+   "keywords": [
+    "Woden's wagon"
+   ],
+   "supportingPassages": [
+    "UMa-wiki-28"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "UMa-6",
+   "constellation": "UMa",
+   "question": "What is the radius of Alioth in solar radii?",
+   "answerable": false,
+   "keywords": [],
+   "supportingPassages": [],
+   "expected": "not in sources",
+   "absentTerms": [
+    "solar radii",
+    "solar radius"
+   ]
+  },
+  {
+   "id": "Cas-1",
+   "constellation": "Cas",
+   "question": "What does the name Caph mean?",
+   "answerable": true,
+   "keywords": [
+    "hand"
+   ],
+   "supportingPassages": [
+    "Cas-wiki-11"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Cas-2",
+   "constellation": "Cas",
+   "question": "What shape do the five brightest stars of Cassiopeia form?",
+   "answerable": true,
+   "keywords": [
+    "W-shaped"
+   ],
+   "supportingPassages": [
+    "Cas-wiki-9"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Cas-3",
+   "constellation": "Cas",
+   "question": "What does the name Ruchbah, for Delta Cassiopeiae, mean?",
+   "answerable": true,
+   "keywords": [
+    "knee"
+   ],
+   "supportingPassages": [
+    "Cas-wiki-13"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Cas-4",
+   "constellation": "Cas",
+   "question": "Who observed the supernova of 1572 in Cassiopeia?",
+   "answerable": true,
+   "keywords": [
+    "Tycho Brahe"
+   ],
+   "supportingPassages": [
+    "Cas-wiki-21"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Cas-5",
+   "constellation": "Cas",
+   "question": "What is the parent body of the December Phi Cassiopeiids meteor shower?",
+   "answerable": true,
+   "keywords": [
+    "Biela"
+   ],
+   "supportingPassages": [
+    "Cas-wiki-24"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Cas-6",
+   "constellation": "Cas",
+   "question": "What is the rotation period of Schedar?",
+   "answerable": false,
+   "keywords": [],
+   "supportingPassages": [],
+   "expected": "not in sources",
+   "absentTerms": [
+    "rotation period",
+    "rotational period"
+   ]
+  },
+  {
+   "id": "Sco-1",
+   "constellation": "Sco",
+   "question": "What does the name Antares mean?",
+   "answerable": true,
+   "keywords": [
+    "rival"
+   ],
+   "supportingPassages": [
+    "Sco-wiki-1"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Sco-2",
+   "constellation": "Sco",
+   "question": "For how many days is the Sun inside the IAU boundaries of Scorpius?",
+   "answerable": true,
+   "keywords": [
+    "six days"
+   ],
+   "supportingPassages": [
+    "Sco-wiki-13"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Sco-3",
+   "constellation": "Sco",
+   "question": "Which star in Scorpius flared from magnitude 2.3 to 1.9 in July 2000?",
+   "answerable": true,
+   "keywords": [
+    "Dschubba"
+   ],
+   "supportingPassages": [
+    "Sco-wiki-1",
+    "Sco-wiki-2"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Sco-4",
+   "constellation": "Sco",
+   "question": "What does the Babylonian name MUL.GIR.TAB mean?",
+   "answerable": true,
+   "keywords": [
+    "burning sting"
+   ],
+   "supportingPassages": [
+    "Sco-wiki-10"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Sco-5",
+   "constellation": "Sco",
+   "question": "What region of Brazil does Scorpius represent on the Brazilian flag?",
+   "answerable": true,
+   "keywords": [
+    "Northeast"
+   ],
+   "supportingPassages": [
+    "Sco-wiki-12"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Sco-6",
+   "constellation": "Sco",
+   "question": "What is the surface temperature of Antares in kelvin?",
+   "answerable": false,
+   "keywords": [],
+   "supportingPassages": [],
+   "expected": "not in sources",
+   "absentTerms": [
+    "surface temperature",
+    "kelvin"
+   ]
+  },
+  {
+   "id": "Ant-1",
+   "constellation": "Ant",
+   "question": "Who established the constellation Antlia?",
+   "answerable": true,
+   "keywords": [
+    "Lacaille"
+   ],
+   "supportingPassages": [
+    "Ant-wiki-0"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Ant-2",
+   "constellation": "Ant",
+   "question": "What object does Antlia represent?",
+   "answerable": true,
+   "keywords": [
+    "air pump"
+   ],
+   "supportingPassages": [
+    "Ant-wiki-0"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Ant-3",
+   "constellation": "Ant",
+   "question": "What is the brightest star in Antlia?",
+   "answerable": true,
+   "keywords": [
+    "Alpha Antliae"
+   ],
+   "supportingPassages": [
+    "Ant-wiki-1"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Ant-4",
+   "constellation": "Ant",
+   "question": "Which galaxy is the brightest in Antlia, and at what magnitude?",
+   "answerable": true,
+   "keywords": [
+    "NGC 2997",
+    "10.6"
+   ],
+   "supportingPassages": [
+    "Ant-wiki-14"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Ant-5",
+   "constellation": "Ant",
+   "question": "Where does Antlia rank by area among the 88 constellations?",
+   "answerable": true,
+   "keywords": [
+    "62nd"
+   ],
+   "supportingPassages": [
+    "Ant-wiki-5"
+   ],
+   "expected": null,
+   "absentTerms": []
+  },
+  {
+   "id": "Ant-6",
+   "constellation": "Ant",
+   "question": "What is the radius of Alpha Antliae in kilometres?",
+   "answerable": false,
+   "keywords": [],
+   "supportingPassages": [],
+   "expected": "not in sources",
+   "absentTerms": [
+    "kilometre",
+    "radius"
+   ]
+  }
+ ]
+}

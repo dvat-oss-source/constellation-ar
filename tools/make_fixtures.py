@@ -7,8 +7,9 @@ Writes Data/fixtures/*.json:
   horizons.json            JPL Horizons airless apparent topocentric RA/Dec of date for Sun, Moon, planets
   omm_snapshot.json        CelesTrak OMM JSON snapshot (ISS + a few bright satellites)
   satellite_passes.json    Skyfield passes and samples for the snapshot
+  constellation_events.json  Skyfield rise/transit/set of 20 constellation reference points for 3 observers (focus)
 
-Usage: .venv/bin/python tools/make_fixtures.py [stars|orientation|horizons|satellites|all] [--refresh-omm]
+Usage: .venv/bin/python tools/make_fixtures.py [stars|orientation|horizons|satellites|focus|all] [--refresh-omm]
 Network: Horizons (ssd.jpl.nasa.gov), CelesTrak, and the first de421.bsp download.
 """
 import argparse
@@ -24,6 +25,7 @@ import requests
 import skyfield
 from skyfield import nutationlib
 from skyfield.framelib import ICRS_to_J2000
+from skyfield import almanac
 from skyfield.api import EarthSatellite, Loader, Star, wgs84
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -339,13 +341,74 @@ def make_satellites(eph, refresh):
     })
 
 
+FOCUS_CONSTELLATIONS = ["UMi", "UMa", "Cas", "Cep", "Dra", "Cyg", "Ori", "Tau", "Gem", "Leo",
+                        "Vir", "Sco", "Sgr", "Cru", "Cen", "Car", "Oct", "Hyi", "Pav", "Lyr"]
+FOCUS_OBSERVERS = [STAR_OBSERVERS[0], STAR_OBSERVERS[1], STAR_OBSERVERS[3]]
+FOCUS_TIMES = ["2026-11-15T12:30:00Z", "2027-06-20T03:00:00Z"]
+# Airless (geometric) altitude of the reference point at rise/set: 34' of standard refraction at the horizon, no
+# semidiameter (it is a point), i.e. apparent altitude 0 under standard refraction.
+FOCUS_HORIZON_DEG = -0.5667
+
+
+def figure_reference_point(cid, lines, vectors):
+    """Normalised mean of the unit vectors of the stick-figure stars (unique HIPs), ICRS at the stars.bin epoch.
+    Must match ConstellationAtlas.referencePoint(of:) in SkyCore."""
+    hips = sorted({h for seg in next(c for c in lines["constellations"] if c["id"] == cid)["segments"] for h in seg})
+    v = np.sum([vectors[h] for h in hips], axis=0)
+    return v / np.linalg.norm(v)
+
+
+def make_focus(eph):
+    sys.path.insert(0, str(ROOT / "tools"))
+    import build_catalog as bc
+
+    lines = json.loads((ROOT / "Data" / "lines.json").read_text())
+    vectors = {r[0]: np.array(r[1:4], dtype=float) for r in bc.read_stars_bin(ROOT / "Data" / "stars.bin")["records"]}
+    times = [parse_utc(s) for s in FOCUS_TIMES]
+    cases = []
+    for oi, o in enumerate(FOCUS_OBSERVERS):
+        observer = eph["earth"] + wgs84.latlon(o["lat"], o["lon"], elevation_m=o["height_m"])
+        for cid in FOCUS_CONSTELLATIONS:
+            ref = figure_reference_point(cid, lines, vectors)
+            ra = math.degrees(math.atan2(ref[1], ref[0])) % 360.0
+            dec = math.degrees(math.asin(ref[2]))
+            star = Star(ra_hours=ra / 15.0, dec_degrees=dec)
+            for ti, t0 in enumerate(times):
+                t1 = ts.tt_jd(float(t0.tt) + 1.0)
+                events = {}
+                for name, finder in (("rise", almanac.find_risings), ("set", almanac.find_settings), ("transit", almanac.find_transits)):
+                    if name == "transit":
+                        found = finder(observer, star, t0, t1)
+                    else:
+                        found = finder(observer, star, t0, t1, horizon_degrees=FOCUS_HORIZON_DEG)
+                        found = found[0][found[1]]
+                    events[name] = jd_utc(found[0]) if len(found) else None
+                lat = math.radians(o["lat"])
+                x = (math.sin(math.radians(FOCUS_HORIZON_DEG)) - math.sin(lat) * ref[2]) / (math.cos(lat) * math.sqrt(1 - ref[2] ** 2))
+                status = "circumpolar" if x < -1 else ("neverRises" if x > 1 else "risesAndSets")
+                if (status == "risesAndSets") != (events["rise"] is not None and events["set"] is not None):
+                    raise SystemExit(f"{cid} {o['name']}: geometry says {status} but Skyfield found {events}")
+                cases.append({"constellation": cid, "observer": oi, "time": ti, "ref": [float(v) for v in ref],
+                              "status": status, **events})
+    write("constellation_events.json", {
+        "generator": "tools/make_fixtures.py focus", "skyfield": skyfield.__version__,
+        "horizon_deg": FOCUS_HORIZON_DEG,
+        "notes": "Reference point = normalised mean of the unit vectors of the stick-figure stars (lines.json, stars.bin "
+                 "epoch). Skyfield find_risings/find_settings (airless altitude = horizon_deg) and find_transits (upper "
+                 "culmination) for the Star at that RA/Dec; the first event within 24 h (TT) after the start time; "
+                 "values are UTC Julian dates, null when the event does not happen.",
+        "observers": FOCUS_OBSERVERS, "times": [time_record(t, s) for t, s in zip(times, FOCUS_TIMES)],
+        "cases": cases,
+    })
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("what", nargs="?", default="all",
-                    choices=["stars", "orientation", "horizons", "satellites", "all"])
+                    choices=["stars", "orientation", "horizons", "satellites", "focus", "all"])
     ap.add_argument("--refresh-omm", action="store_true", help="re-download the OMM snapshot")
     args = ap.parse_args()
-    eph = load(EPHEMERIS) if args.what in ("stars", "satellites", "all") else None
+    eph = load(EPHEMERIS) if args.what in ("stars", "satellites", "focus", "all") else None
     if args.what in ("stars", "all"):
         make_stars(eph)
     if args.what in ("orientation", "all"):
@@ -354,6 +417,8 @@ def main():
         make_horizons()
     if args.what in ("satellites", "all"):
         make_satellites(eph, args.refresh_omm)
+    if args.what in ("focus", "all"):
+        make_focus(eph)
     return 0
 
 
