@@ -384,7 +384,7 @@ Rules:
   mythology: 2-5 sentences retelling the lore found in the sources. If the sources contain no myth for this figure (for example a constellation invented in the 17th-18th century), say so plainly and say who introduced it if the sources state it. Do not borrow myths from other constellations.
 - Never write star magnitudes, brightness numbers, or distances; the app inserts those from its catalogue.
 - Text inside double quotation marks in summary, howToFind or mythology must be copied exactly, word for word, from one source. Do not use quotation marks (single or double) for anything else: no scare quotes, no quoted nicknames.
-- quotes: 0 to 3 short excerpts (at most 40 words each) copied character for character from ONE source each, as contiguous text, giving that source's key. Prefer Allen or Aratus passages about the figure's lore. Do not join separate passages, do not add or drop words, do not modernise spelling.
+- quotes: 0 to 3 short excerpts (at most 40 words each) copied character for character from ONE source each, as contiguous text, giving that source's key. Prefer Allen or Aratus passages about the figure's lore. Do not join separate passages, do not add or drop words, do not modernise spelling. Never quote a passage that itself contains quotation marks: pick a shorter span that has none, or a different passage.
 """
 
 

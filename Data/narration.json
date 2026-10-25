@@ -1,7 +1,7 @@
 {
  "version": 1,
  "model": "gemini-3-flash-preview",
- "generated": "2026-10-25T22:30:47+00:00",
+ "generated": "2026-10-25T22:32:05+00:00",
  "cards": [
   {
    "id": "And",
@@ -5730,6 +5730,67 @@
     {
      "title": "Richard Hinckley Allen, Star-Names and Their Meanings (1899): Piscis Volans",
      "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Piscis_Volans*.html",
+     "licence": "Public domain (1899 text; LacusCurtius transcription by Bill Thayer of the 1963 Dover reprint)"
+    }
+   ]
+  },
+  {
+   "id": "Vul",
+   "name": "Vulpecula",
+   "summary": "Vulpecula is a faint constellation in the Northern Sky that represents a little fox. It was identified in the 17th century and is located in the middle of the Summer Triangle.",
+   "howToFind": "Look for the constellation between the Arrow and the Swan in the region where the Milky Way divides into two branches. It is highest in the sky around September and is visible to observers between latitudes 90 degrees North and 61 degrees South. Its brightest star is Anser, which is located just west of the Fox's head.",
+   "mythology": "There is no ancient mythology for this figure as it is a modern constellation. It was introduced by Hevelius, who placed a fox and a goose in this space because he considered the animal to be very cunning, voracious and fierce. He chose this placement because the nearby constellations of the Eagle and the Vultur Cadens were of a similarly rapacious and greedy nature.",
+   "quotes": [
+    {
+     "text": "Aquila and Vultur are of the same nature, rapacious and greedy.",
+     "source": "Richard Hinckley Allen, Star-Names and Their Meanings (1899): Vulpecula"
+    },
+    {
+     "text": "a small star in the constellation of the Fox and the Goose;",
+     "source": "Richard Hinckley Allen, Star-Names and Their Meanings (1899): Vulpecula"
+    }
+   ],
+   "brightestStars": [
+    {
+     "hip": 95771,
+     "name": "Anser",
+     "vmag": 4.44,
+     "distanceLy": 297
+    },
+    {
+     "hip": 99874,
+     "name": null,
+     "vmag": 4.5,
+     "distanceLy": 328
+    },
+    {
+     "hip": 103004,
+     "name": null,
+     "vmag": 4.56,
+     "distanceLy": 217
+    },
+    {
+     "hip": 97886,
+     "name": null,
+     "vmag": 4.57,
+     "distanceLy": 359
+    },
+    {
+     "hip": 98543,
+     "name": null,
+     "vmag": 4.66,
+     "distanceLy": 222
+    }
+   ],
+   "sources": [
+    {
+     "title": "Wikipedia: Vulpecula",
+     "url": "https://en.wikipedia.org/w/index.php?title=Vulpecula&oldid=1380991518",
+     "licence": "CC BY-SA 4.0"
+    },
+    {
+     "title": "Richard Hinckley Allen, Star-Names and Their Meanings (1899): Vulpecula",
+     "url": "https://penelope.uchicago.edu/Thayer/E/Gazetteer/Topics/astronomy/_Texts/secondary/ALLSTA/Vulpecula*.html",
      "licence": "Public domain (1899 text; LacusCurtius transcription by Bill Thayer of the 1963 Dover reprint)"
     }
    ]
