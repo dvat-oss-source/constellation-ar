@@ -71,6 +71,7 @@ final class AppModel {
     let motion = MotionTracker()
     let location = LocationProvider()
     let alignment = HeadingAlignment()
+    let autoAlign = AutoAligner()
     let look = LookController()
     @ObservationIgnored let capture: CameraCapture?
     @ObservationIgnored let recorder = SessionRecorder()
@@ -179,6 +180,7 @@ final class AppModel {
         capture?.receiver?.setRecorder(recorder)
         reloadCalibration()
         loadSkyData()
+        autoAlign.configure(model: self)
     }
 
     // MARK: Precision
@@ -208,6 +210,28 @@ final class AppModel {
         if recorder.isRecording, let line = (try? JSONEncoder().encode(fix)).flatMap({ try? JSONSerialization.jsonObject(with: $0) }) as? [String: Any] {
             recorder.recordTap(line.merging(["accuracyAfter": alignment.accuracyDegrees]) { _, new in new })
         }
+    }
+
+    /// Cross-check data: every plate-solve fix, and every outcome on a frame the recorder stored at full resolution.
+    func recordPlateSolve(_ frame: AutoAligner.Frame, _ outcome: AutoAligner.Outcome) {
+        guard recorder.isRecording else { return }
+        var line: [String: Any] = ["seq": frame.sequence, "t": frame.hostTime, "full": frame.forced]
+        if let exposure = frame.exposureDuration { line["exposure"] = exposure }
+        switch outcome {
+        case .fix(let fix, let detected, _):
+            guard let encoded = (try? JSONEncoder().encode(fix)).flatMap({ try? JSONSerialization.jsonObject(with: $0) }) as? [String: Any] else { return }
+            line.merge(encoded) { _, new in new }
+            line["outcome"] = "fix"
+            line["detected"] = detected
+        case .skipped(let reason), .rejected(let reason):
+            guard frame.forced else { return }
+            line["outcome"] = reason
+        case .noSolution(let detected, _):
+            guard frame.forced else { return }
+            line["outcome"] = "no solution"
+            line["detected"] = detected
+        }
+        recorder.recordPlateSolve(line)
     }
 
     func startRecording() {
@@ -590,6 +614,7 @@ final class AppModel {
             precision.append(String(format: "multi-star: %d stars, rms %.2f°, σ %.2f°", m.count, m.rmsResidualDegrees, m.sigmaDegrees))
         }
         if let lastFix { precision.append("last fix \(lastFix)") }
+        precision.append("auto-align: \(autoAlign.diagnostics.lastLine)")
         precision.append("frame path: " + (driver?.isWarping == true ? "gyro warp to display time" : "frame-matched") + " (\(warpMode.rawValue))")
         precision.append("calibration: \(calibrationSource)")
         if let t = calibration.timing { precision.append(String(format: "timing offset %+.1f ms, rolling shutter %+.1f ms", t.offsetSeconds * 1000, t.readoutSeconds * 1000)) }

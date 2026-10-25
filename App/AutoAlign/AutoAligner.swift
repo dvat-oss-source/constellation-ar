@@ -10,8 +10,8 @@ struct AutoAlignEnvironment: Sendable {
     var instant: AstroInstant
     /// 0 = day … 1 = night.
     var nightFactor: Double
-    /// Fraction of the exposure added to the frame timestamp to get the instant the attitude belongs to.
-    var captureTimeFraction: Double
+    /// Host time the frame's attitude belongs to (`AppModel.captureTime(frameHostTime:exposure:)`).
+    var captureTime: Double
     /// Raw Core Motion attitude (no heading correction) at a host time; nil when motion is not the attitude source.
     var motionAttitude: (@Sendable (Double) -> simd_quatd?)?
 }
@@ -26,6 +26,9 @@ final class AutoAligner {
         var exposureDuration: Double?
         var intrinsics: SkyCore.CameraIntrinsics
         var luminance: @Sendable () -> LuminanceImage?
+        var sequence: UInt64 = 0
+        /// Attempt regardless of the pacing interval (frames the session recorder stores at full resolution).
+        var forced = false
     }
 
     struct Diagnostics: Sendable {
@@ -46,9 +49,11 @@ final class AutoAligner {
     private(set) var diagnostics = Diagnostics()
     private(set) var lastFix: StarFix?
 
-    @ObservationIgnored var environment: (@MainActor (_ hostTime: Double) -> AutoAlignEnvironment?)?
+    @ObservationIgnored var environment: (@MainActor (Frame) -> AutoAlignEnvironment?)?
     /// Delivery point for the heading filter: wire to the app's `ingest(_ fix: StarFix)`.
     @ObservationIgnored var ingestStarFix: (@MainActor (StarFix) -> Void)?
+    /// Every finished attempt with the frame it was made on (for the session recorder's cross-check).
+    @ObservationIgnored var didFinish: (@MainActor (Frame, Outcome) -> Void)?
     /// Current attitude uncertainty in degrees, if the filter has one; fixes are requested more often while it is large.
     @ObservationIgnored var accuracyDegrees: (@MainActor () -> Double?)?
 
@@ -85,14 +90,14 @@ final class AutoAligner {
         guard !busy, let solver, let environment, let exposure = frame.exposureDuration, exposure >= Self.minimumExposure else { return }
         let now = CACurrentMediaTime()
         let degraded = (accuracyDegrees?() ?? .infinity) > 0.5
-        guard now - lastAttempt >= (degraded ? 2 : 5) else { return }
-        guard let env = environment(frame.hostTime), env.nightFactor >= Self.nightThreshold else { return }
+        guard frame.forced || now - lastAttempt >= (degraded ? 2 : 5) else { return }
+        guard let env = environment(frame), env.nightFactor >= Self.nightThreshold else { return }
         lastAttempt = now
         busy = true
         diagnostics.attempts += 1
         Task.detached(priority: .utility) { [weak self] in
             let outcome = Self.process(frame, exposure: exposure, environment: env, solver: solver)
-            await self?.finish(outcome)
+            await self?.finish(outcome, frame: frame)
         }
     }
 
@@ -124,7 +129,7 @@ final class AutoAligner {
               let attitude = PlateSolveAttitude.deviceFromReference(solution, session: env.session, instant: env.instant) else {
             return .rejected("residual \(String(format: "%.1f", solution.rmsPixels)) px")
         }
-        let time = frame.hostTime + env.captureTimeFraction * exposure
+        let time = env.captureTime
         if let motion = env.motionAttitude, let reference = motion(time) {
             let up = SIMD3<Double>(0, 0, 1)
             let tilt = Angle.degrees(Angle.separation(reference.act(up), attitude.deviceFromReference.act(up)))
@@ -140,8 +145,9 @@ final class AutoAligner {
         2 * acos(min(1, abs(simd_dot(a.vector, b.vector))))
     }
 
-    private func finish(_ outcome: Outcome) {
+    private func finish(_ outcome: Outcome, frame: Frame) {
         busy = false
+        didFinish?(frame, outcome)
         switch outcome {
         case .fix(let fix, let detected, let milliseconds):
             diagnostics.solved += 1
@@ -167,17 +173,17 @@ final class AutoAligner {
 
 extension AutoAligner {
     /// Offers a camera frame; the pixels are read back only if an attempt is actually made.
-    func submit(_ frame: CameraFrame) {
+    func submit(_ frame: CameraFrame, forced: Bool = false) {
         guard let k = frame.intrinsics else { return }
         submit(Frame(hostTime: frame.hostTime, exposureDuration: frame.exposureDuration,
                      intrinsics: SkyCore.CameraIntrinsics(fx: k.fx, fy: k.fy, cx: k.cx, cy: k.cy,
                                                           bufferWidth: k.referenceSize.x, bufferHeight: k.referenceSize.y),
-                     luminance: { frame.luminance() }))
+                     luminance: { frame.luminance() }, sequence: frame.sequence, forced: forced))
     }
 
     /// Environment for the live app: the sky session and lighting from the model, motion from the attitude buffer.
     func configure(model: AppModel) {
-        environment = { @MainActor [weak model] (_: Double) -> AutoAlignEnvironment? in
+        environment = { @MainActor [weak model] (frame: Frame) -> AutoAlignEnvironment? in
             guard let model, let observer = model.observer else { return nil }
             let date = model.skyDate(now: Date())
             let buffer = model.motion.buffer
@@ -187,8 +193,12 @@ extension AutoAligner {
                 : nil
             return AutoAlignEnvironment(
                 session: model.engine.session(for: date, observer: observer), instant: AstroInstant(date: date),
-                nightFactor: model.lightingBlend, captureTimeFraction: model.captureTimeReference.rawValue,
+                nightFactor: model.lightingBlend,
+                captureTime: model.captureTime(frameHostTime: frame.hostTime, exposure: frame.exposureDuration),
                 motionAttitude: motionAttitude)
         }
+        ingestStarFix = { @MainActor [weak model] (fix: StarFix) in model?.ingest(fix) }
+        accuracyDegrees = { @MainActor [weak model] () -> Double? in model?.alignment.accuracyDegrees }
+        didFinish = { @MainActor [weak model] (frame: Frame, outcome: Outcome) in model?.recordPlateSolve(frame, outcome) }
     }
 }

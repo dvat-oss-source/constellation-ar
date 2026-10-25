@@ -42,6 +42,7 @@ struct SessionConfig: Sendable, Equatable {
 /// - `motion.f64`: little-endian Float64 rows of `SessionRecorder.motionColumns`, one per CMDeviceMotion.
 /// - `frames.jsonl`: one JSON object per camera frame (host time, PTS, exposure, ISO, lens position, intrinsics, stored files).
 /// - `location.jsonl`, `predictions.jsonl` (overlay star positions in full-resolution buffer pixels), `taps.jsonl`.
+/// - `platesolves.jsonl`: the in-app plate solver's result per frame (StarFix fields plus `seq`, `t`, `full`, `outcome`).
 /// - `frames/s<seq>.y8` (4× downsampled luminance) and `frames/f<seq>.y8` + `.png` (full resolution).
 final class SessionRecorder: Sendable {
     static let motionColumns = ["t", "qx", "qy", "qz", "qw", "rotX", "rotY", "rotZ", "gravX", "gravY", "gravZ", "accX", "accY", "accZ",
@@ -62,6 +63,7 @@ final class SessionRecorder: Sendable {
         var firstFrameHost: Double?
         var lastFrameHost: Double?
         var pending: [PredictionRequest] = []
+        var recentFull: [UInt64] = []
     }
 
     /// A stored frame that still needs the overlay's predicted star positions (computed on the main actor).
@@ -113,7 +115,7 @@ final class SessionRecorder: Sendable {
         fresh.config = config
         fresh.startedAt = Date()
         fresh.startHost = CACurrentMediaTime()
-        for name in ["motion.f64", "frames.jsonl", "location.jsonl", "predictions.jsonl", "taps.jsonl"] {
+        for name in ["motion.f64", "frames.jsonl", "location.jsonl", "predictions.jsonl", "taps.jsonl", "platesolves.jsonl"] {
             let url = folder.appending(path: name)
             FileManager.default.createFile(atPath: url.path, contents: nil)
             fresh.handles[name] = try FileHandle(forWritingTo: url)
@@ -200,7 +202,11 @@ final class SessionRecorder: Sendable {
             let small = s.config.smallEvery > 0 && n % s.config.smallEvery == 0
             let full = s.config.fullEvery > 0 && n % s.config.fullEvery == 0
             if small { s.storedSmall += 1 }
-            if full { s.storedFull += 1 }
+            if full {
+                s.storedFull += 1
+                s.recentFull.append(f.sequence)
+                if s.recentFull.count > 16 { s.recentFull.removeFirst() }
+            }
             if small || full {
                 s.pending.append(PredictionRequest(sequence: f.sequence, hostTime: f.hostTime, exposure: f.exposureDuration, intrinsics: f.intrinsics,
                                                    width: CVPixelBufferGetWidth(f.pixelBuffer), height: CVPixelBufferGetHeight(f.pixelBuffer), isFull: full))
@@ -247,6 +253,10 @@ final class SessionRecorder: Sendable {
     func recordLocation(_ line: [String: Any]) { append(line, to: "location.jsonl") }
     func recordPredictions(_ line: [String: Any]) { append(line, to: "predictions.jsonl") }
     func recordTap(_ line: [String: Any]) { append(line, to: "taps.jsonl") }
+    func recordPlateSolve(_ line: [String: Any]) { append(line, to: "platesolves.jsonl") }
+
+    /// Whether the frame with this sequence number was just stored at full resolution.
+    func storedFull(sequence: UInt64) -> Bool { state.withLock { $0.recentFull.contains(sequence) } }
 
     // MARK: Helpers
 

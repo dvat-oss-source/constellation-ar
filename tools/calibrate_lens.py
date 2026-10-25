@@ -18,11 +18,15 @@ folder (or --solutions) for, in this order:
   so it constrains only the boresight and yaw.
 astrometry.net writes pixel coordinates with the FITS (bottom-left) origin; --flip-y auto tries both and keeps the
 one that fits.
+--astrometry runs the local astrometry.net (tools/astrometry/solve.sh) on every frames/f*.png that has no .wcs yet,
+writing the .wcs/.corr next to the frames, before fitting.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import os
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -311,6 +315,36 @@ def load_starfixes(path: Path) -> list[dict]:
     return out
 
 
+SOLVE_SCRIPT = Path(__file__).resolve().parent / "astrometry" / "solve.sh"
+
+
+def solve_with_astrometry(folder: Path, frames: list[dict], verbose: bool = False) -> dict[int, str]:
+    """Plate-solves the session's full-resolution PNGs that have no .wcs yet; returns {seq: 'SOLVED …' | 'FAILED' | 'cached'}."""
+    results: dict[int, str] = {}
+    for frame in frames:
+        png = frame.get("png")
+        if not png:
+            continue
+        seq = int(frame["seq"])
+        image = folder / png
+        if not image.exists():
+            continue
+        if image.with_suffix(".wcs").exists():
+            results[seq] = "cached"
+            continue
+        env = dict(os.environ)
+        if "K" in frame:  # bound the field width from Apple's intrinsics so solve-field tries far fewer scales
+            width = frame["size"][0]
+            fov = np.degrees(2 * np.arctan(width / (2 * frame["K"][0])))
+            env.setdefault("SCALE_LOW", f"{fov * 0.8:.2f}")
+            env.setdefault("SCALE_HIGH", f"{fov * 1.2:.2f}")
+        run = subprocess.run([str(SOLVE_SCRIPT), str(image), str(image.parent)], capture_output=True, text=True, env=env)
+        results[seq] = (run.stdout.strip().splitlines() or ["FAILED"])[-1]
+        if verbose:
+            print(f"{folder.name} f{seq:06d}: {results[seq]}", file=sys.stderr)
+    return results
+
+
 def collect(sessions: list[Path], solutions: Path | None, flip: str, timing_offset: float | None, verbose: bool) -> tuple[list[Observation], int]:
     """Builds the observations for one flip hypothesis."""
     obs: list[Observation] = []
@@ -415,6 +449,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("sessions", nargs="+", type=Path)
     parser.add_argument("--solutions", type=Path, default=None, help="directory of .wcs/.corr files, or a StarFix JSON file")
+    parser.add_argument("--astrometry", action="store_true", help="run the local astrometry.net on unsolved frames/f*.png first")
     parser.add_argument("--flip-y", choices=["auto", "yes", "no"], default="auto")
     parser.add_argument("--fit", default=",".join(PARAMETERS), help="comma-separated subset of: " + ", ".join(PARAMETERS))
     parser.add_argument("--timing-offset", type=float, default=None, help="camera-vs-gyro offset in seconds (default: from the recording)")
@@ -425,6 +460,11 @@ def main(argv: list[str] | None = None) -> int:
     unknown = set(free) - set(PARAMETERS)
     if unknown:
         parser.error(f"unknown parameters: {sorted(unknown)}")
+    if args.astrometry:
+        for folder in args.sessions:
+            results = solve_with_astrometry(folder, load_session(folder)[2], args.verbose)
+            solved = sum(1 for r in results.values() if r != "FAILED")
+            print(f"{folder.name}: astrometry.net solved {solved}/{len(results)} full frames", file=sys.stderr)
     values, _, info = calibrate(args.sessions, args.solutions, args.flip_y, free, args.timing_offset, args.verbose)
     print(json.dumps({"lens": lens_json(values), "fit": info}, indent=2))
     degrees = np.degrees(values[6:9])

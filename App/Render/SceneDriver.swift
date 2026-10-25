@@ -65,6 +65,7 @@ final class SceneDriver {
                 cameraFrame = frame
                 cameraRate.tick(at: frame.hostTime)
                 if let measured = frame.intrinsics { measuredIntrinsics = measured }
+                model.autoAlign.submit(frame, forced: model.recorder.storedFull(sequence: frame.sequence))
             }
             updateWarpState(deliveredFPS: receiver.statistics.framesPerSecond)
         } else {

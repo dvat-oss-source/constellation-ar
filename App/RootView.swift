@@ -16,6 +16,15 @@ struct RootView: View {
 
             VStack(spacing: 8) {
                 if model.effectiveAttitudeSource == .motion { AccuracyBadge(model: model) }
+                if let status = model.autoAlign.status {
+                    Text(status)
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(.black.opacity(0.5), in: Capsule())
+                        .transition(.opacity)
+                }
                 hints
                 if model.showLayers { LayerPanel(model: model).transition(.opacity) }
                 Spacer()

@@ -49,7 +49,7 @@ final class AutoAlignTests: XCTestCase {
         let session = engine.session(for: FixedSkyPreset.date, observer: FixedSkyPreset.observer)
         return Scene(engine: engine, truth: truth, image: LuminanceImage(pixels: bytes, width: 1920, height: 1080),
                      environment: AutoAlignEnvironment(session: session, instant: AstroInstant(date: FixedSkyPreset.date), nightFactor: 1,
-                                                       captureTimeFraction: 0, motionAttitude: nil))
+                                                       captureTime: 100, motionAttitude: nil))
     }
 
     private func aligner(for scene: Scene) async throws -> AutoAligner {
