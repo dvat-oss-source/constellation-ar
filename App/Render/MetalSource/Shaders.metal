@@ -30,6 +30,18 @@ struct SkyUniforms {
     float3 padding;
 };
 
+struct StyleUniforms {
+    float4 skyZenith;
+    float4 skyHorizon;
+    float4 ground;
+    float4 light;
+    float4 core;
+    float4 line;
+    float4 params;
+    float4 sparkle;
+    float4 lines;
+};
+
 struct PointInstance {
     float2 position;
     float radius;
@@ -96,20 +108,14 @@ fragment float4 cameraFragment(FullscreenOut in [[stage_in]],
 
 fragment float4 skyFragment(FullscreenOut in [[stage_in]],
                             constant FrameUniforms &u [[buffer(0)]],
-                            constant SkyUniforms &sky [[buffer(1)]]) {
+                            constant SkyUniforms &sky [[buffer(1)]],
+                            constant StyleUniforms &st [[buffer(3)]]) {
     float3 ray = normalize(sky.referenceFromScreen * float3(in.screen, 1.0));
     float altitude = ray.z;
-    float3 nightZenith = float3(0.004, 0.008, 0.025);
-    float3 nightHorizon = float3(0.025, 0.04, 0.08);
-    float3 dayZenith = float3(0.12, 0.32, 0.68);
-    float3 dayHorizon = float3(0.55, 0.70, 0.88);
     float t = sqrt(saturate(altitude));
-    float3 night = mix(nightHorizon, nightZenith, t);
-    float3 day = mix(dayHorizon, dayZenith, t);
-    float3 color = mix(day, night, sky.lighting);
-    float3 ground = mix(float3(0.16, 0.15, 0.13), float3(0.012, 0.012, 0.014), sky.lighting);
-    color = mix(color, ground, smoothstep(0.0, -0.01, altitude));
-    return float4(applyTheme(color, u.redTheme), 1.0);
+    float3 color = mix(st.skyHorizon.rgb, st.skyZenith.rgb, t);
+    color = mix(color, st.ground.rgb, smoothstep(0.0, -0.01, altitude));
+    return float4(color, 1.0);
 }
 
 struct PointOut {
@@ -118,13 +124,15 @@ struct PointOut {
     float radius [[flat]];
     float style [[flat]];
     float4 color [[flat]];
+    float phase [[flat]];
 };
 
 vertex PointOut pointVertex(uint vid [[vertex_id]], uint iid [[instance_id]],
                             constant FrameUniforms &u [[buffer(0)]],
-                            const device PointInstance *points [[buffer(1)]]) {
+                            const device PointInstance *points [[buffer(1)]],
+                            constant StyleUniforms &st [[buffer(3)]]) {
     PointInstance p = points[iid];
-    float extent = p.radius * 3.0 + 1.5;
+    float extent = p.style == 0.0 ? max(p.radius * st.sparkle.x, p.radius * 3.0) + 2.0 : p.radius * 3.0 + 1.5;
     float2 corner = float2((vid & 1) ? 1.0 : -1.0, (vid & 2) ? 1.0 : -1.0);
     PointOut out;
     out.position = toClip(p.position + corner * extent, u.viewport);
@@ -132,6 +140,7 @@ vertex PointOut pointVertex(uint vid [[vertex_id]], uint iid [[instance_id]],
     out.radius = p.radius;
     out.style = p.style;
     out.color = p.color;
+    out.phase = fract(sin(dot(p.position, float2(12.9898, 78.233))) * 43758.5453);
     return out;
 }
 
@@ -151,14 +160,35 @@ static float4 moonDisc(PointOut in, float red) {
     return float4(applyTheme(rgb, red) * alpha, alpha);
 }
 
-fragment float4 pointFragment(PointOut in [[stage_in]], constant FrameUniforms &u [[buffer(0)]]) {
+// Sparkle: a soft core, a Gaussian halo and four tapered rays whose length and strength follow the radius (magnitude).
+fragment float4 pointFragment(PointOut in [[stage_in]], constant FrameUniforms &u [[buffer(0)]],
+                              constant StyleUniforms &st [[buffer(3)]]) {
     if (in.style != 0.0) { return moonDisc(in, u.redTheme); }
-    float d = length(in.local);
-    float core = saturate(in.radius + 0.5 - d);
-    float sigma = max(in.radius * 1.1, 0.75);
-    float halo = 0.45 * exp(-(d * d) / (2.0 * sigma * sigma));
-    float alpha = max(core, halo) * in.color.a;
-    return float4(applyTheme(in.color.rgb, u.redTheme) * alpha, alpha);
+    float2 p = in.local;
+    float r = in.radius;
+    float d = length(p);
+    float twinkle = 1.0 + st.sparkle.w * sin(st.params.y * st.lines.x * (1.0 + in.phase) + in.phase * 6.2831853);
+
+    float core = saturate((r + 0.5 - d) / max(r * 0.55 + 0.5, 1.0));
+    core = pow(core, 1.0 / 1.25);
+    float sigma = max(r * 1.1, 0.75);
+    float halo = 0.5 * exp(-(d * d) / (2.0 * sigma * sigma));
+
+    float len = r * st.sparkle.x;
+    float thin = r * st.sparkle.y + 0.55;
+    float2 a = abs(p);
+    float rayX = exp(-pow(a.y / thin, 2.0)) * pow(saturate(1.0 - a.x / len), 2.2);
+    float rayY = exp(-pow(a.x / thin, 2.0)) * pow(saturate(1.0 - a.y / len), 2.2);
+    float rays = (rayX + rayY) * smoothstep(1.8, 6.0, r) * 0.85;
+
+    float3 base = in.color.rgb;
+    float highlight = step(0.99, min(base.r, min(base.g, base.b)));
+    float3 coreColor = mix(base, st.core.rgb, st.sparkle.z);
+    float3 glowColor = mix(base, st.light.rgb, 0.2 + 0.6 * highlight);
+    float3 rgb = coreColor * (core + rays) + glowColor * halo;
+    float a0 = in.color.a * twinkle;
+    float alpha = saturate(core) * (1.0 - st.params.x) * 0.6 * a0;
+    return float4(applyTheme(rgb, u.redTheme) * a0, alpha);
 }
 
 struct SegmentOut {
@@ -170,7 +200,7 @@ struct SegmentOut {
 };
 
 static float glowRadius(SegmentInstance s) {
-    return s.glow * max(s.width, 1.0) * 4.0;
+    return s.glow * max(s.width, 1.0) * 3.5;
 }
 
 vertex SegmentOut segmentVertex(uint vid [[vertex_id]], uint iid [[instance_id]],
@@ -199,7 +229,8 @@ vertex SegmentOut segmentVertex(uint vid [[vertex_id]], uint iid [[instance_id]]
 fragment float4 segmentFragment(SegmentOut in [[stage_in]],
                                 constant FrameUniforms &u [[buffer(0)]],
                                 const device SegmentInstance *segments [[buffer(1)]],
-                                constant uint &pass [[buffer(2)]]) {
+                                constant uint &pass [[buffer(2)]],
+                                constant StyleUniforms &st [[buffer(3)]]) {
     SegmentInstance s = segments[in.instance];
     float clamped = clamp(in.along, 0.0, in.length);
     float d = length(float2(in.along - clamped, in.across));
@@ -214,15 +245,19 @@ fragment float4 segmentFragment(SegmentOut in [[stage_in]],
 
     if (pass == 1) {
         float alpha = saturate(halfWidth + 0.5 - d) * dash * s.color.a;
-        return float4(applyTheme(s.color.rgb, u.redTheme) * alpha, alpha);
+        float3 coreColor = mix(s.color.rgb, st.core.rgb, 0.7);
+        return float4(applyTheme(coreColor, u.redTheme) * alpha, alpha);
     }
 
-    float rimAlpha = s.outline > 0.0 ? saturate(halfWidth + s.outline + 0.5 - d) * dash * s.outlineColor.a : 0.0;
+    float rimAlpha = s.outline > 0.0 ? saturate(halfWidth + s.outline + 0.5 - d) * dash * s.outlineColor.a * 0.55 : 0.0;
     float radius = glowRadius(s);
-    float halo = radius > 0.0 ? s.glow * 0.55 * exp(-pow(max(d - halfWidth, 0.0) / (radius * 0.5), 2.0)) : 0.0;
-    float haloAlpha = halo * s.color.a * (1.0 - rimAlpha);
-    float3 premultiplied = applyTheme(s.outlineColor.rgb, u.redTheme) * rimAlpha + applyTheme(s.color.rgb, u.redTheme) * haloAlpha;
-    return float4(premultiplied, saturate(rimAlpha + haloAlpha));
+    float halo = radius > 0.0 ? s.glow * 0.8 * exp(-pow(max(d - halfWidth, 0.0) / (radius * 0.5), 2.0)) : 0.0;
+    // Lit lines (strong glow) bloom gold; resting lines glow cool white. The halo adds light (alpha 0); only the rim darkens.
+    float warm = smoothstep(0.4, 0.75, s.glow);
+    float3 glowColor = mix(s.color.rgb, st.light.rgb, 0.85 * warm);
+    float haloStrength = halo * s.color.a;
+    float3 premultiplied = applyTheme(s.outlineColor.rgb, u.redTheme) * rimAlpha + applyTheme(glowColor, u.redTheme) * haloStrength * (1.0 - rimAlpha);
+    return float4(premultiplied, rimAlpha);
 }
 
 struct LabelInstance {

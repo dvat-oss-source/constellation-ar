@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct DebugPanel: View {
+    @Environment(\.stylePalette) private var palette
     @Bindable var model: AppModel
 
     var body: some View {
@@ -30,8 +31,7 @@ struct DebugPanel: View {
                 .padding(.bottom, 14)
             }
         }
-        .foregroundStyle(.white)
-        .background(.black.opacity(0.72), in: RoundedRectangle(cornerRadius: 16))
+        .skyPanel()
         .frame(maxHeight: 520)
         .frame(maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 8)
@@ -120,7 +120,7 @@ struct DebugPanel: View {
                 }
                 .pickerStyle(.segmented)
                 Text("Small = 4× downsampled luminance; full = raw luminance + PNG. Sessions land in Files › ConstellationAR › Sessions.")
-                    .font(.caption2).foregroundStyle(.secondary)
+                    .font(.caption2).foregroundStyle(palette.secondaryColor)
             }
         }
     }

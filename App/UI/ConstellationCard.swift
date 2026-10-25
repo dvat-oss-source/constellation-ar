@@ -37,6 +37,7 @@ final class ConstellationCardModel: Identifiable {
 }
 
 struct ConstellationCard: View {
+    @Environment(\.stylePalette) private var palette
     let card: ConstellationCardModel
     @Bindable var narrator: Narrator
     let hasDeepDiveKey: Bool
@@ -45,12 +46,13 @@ struct ConstellationCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(card.name).font(.title3.bold())
+                Text(card.name).font(.title2.weight(.semibold))
                 Spacer()
                 Button {
                     narrator.isMuted.toggle()
                 } label: {
-                    Image(systemName: narrator.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                    Image(systemName: narrator.isMuted ? "speaker.slash" : "speaker.wave.2")
+                        .font(.system(size: 17, weight: .light))
                         .frame(width: 36, height: 36)
                 }
                 .accessibilityLabel(narrator.isMuted ? "Unmute narration" : "Mute narration")
@@ -62,7 +64,7 @@ struct ConstellationCard: View {
                         Text("How to find it").font(.footnote.bold())
                         Text(narration.howToFind).font(.footnote)
                     } else {
-                        Text("Narration not generated yet. Showing catalog facts only.").font(.footnote.italic()).foregroundStyle(.secondary)
+                        Text("Narration not generated yet. Showing catalog facts only.").font(.footnote.italic()).foregroundStyle(palette.secondaryColor)
                     }
                     if !card.stars.isEmpty {
                         Text("Brightest stars").font(.footnote.bold())
@@ -70,7 +72,7 @@ struct ConstellationCard: View {
                             HStack {
                                 Text(star.name)
                                 Spacer()
-                                Text(Self.detail(star)).foregroundStyle(.secondary)
+                                Text(Self.detail(star)).foregroundStyle(palette.secondaryColor)
                             }
                             .font(.footnote.monospacedDigit())
                         }
@@ -81,9 +83,8 @@ struct ConstellationCard: View {
             }
             .frame(maxHeight: 250)
         }
-        .foregroundStyle(.white)
-        .padding(14)
-        .background(.black.opacity(0.72), in: RoundedRectangle(cornerRadius: 16))
+        .padding(16)
+        .skyPanel()
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("constellationCard")
     }
@@ -93,7 +94,7 @@ struct ConstellationCard: View {
         case .idle:
             Button("Tell me more", action: onTellMore).buttonStyle(.bordered).padding(.top, 4)
             if !hasDeepDiveKey {
-                Text("No Vertex API key is set, so Tell me more can only show a saved answer.").font(.caption2).foregroundStyle(.secondary)
+                Text("No Vertex API key is set, so Tell me more can only show a saved answer.").font(.caption2).foregroundStyle(palette.secondaryColor)
             }
         case .streaming(let text):
             Text(text.isEmpty ? "Asking Gemma…" : text).font(.footnote)
@@ -101,9 +102,9 @@ struct ConstellationCard: View {
             Text(text).font(.footnote)
         case .cached(let text, let reason):
             Text(text).font(.footnote)
-            Text("\(reason). Showing the saved answer.").font(.caption2).foregroundStyle(.orange)
+            Text("\(reason). Showing the saved answer.").font(.caption2).foregroundStyle(palette.lightColor)
         case .failed(let message):
-            Text(message).font(.footnote).foregroundStyle(.orange)
+            Text(message).font(.footnote).foregroundStyle(palette.lightColor)
             Button("Try again", action: onTellMore).buttonStyle(.bordered)
         }
     }
@@ -117,6 +118,7 @@ struct ConstellationCard: View {
 }
 
 struct ObjectInfoCard: View {
+    @Environment(\.stylePalette) private var palette
     let info: ObjectInfo
     let onClose: () -> Void
 
@@ -128,17 +130,17 @@ struct ObjectInfoCard: View {
                 Button("Close", action: onClose).font(.footnote)
             }
             ForEach(info.lines, id: \.self) { Text($0).font(.footnote) }
-            if let note = info.alignmentNote { Text(note).font(.footnote).foregroundStyle(.mint) }
+            if let note = info.alignmentNote { Text(note).font(.footnote).foregroundStyle(palette.lightColor) }
         }
-        .foregroundStyle(.white)
-        .padding(12)
+        .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.black.opacity(0.72), in: RoundedRectangle(cornerRadius: 14))
+        .skyPanel()
         .accessibilityIdentifier("objectInfoCard")
     }
 }
 
 struct SatellitePanel: View {
+    @Environment(\.stylePalette) private var palette
     let tracker: SatelliteTracker
     let onClose: () -> Void
 
@@ -163,14 +165,13 @@ struct SatellitePanel: View {
                     .font(.footnote)
             }
             if let status = tracker.dataStatus {
-                Text("Orbit data: \(status.summary)").font(.caption2).foregroundStyle(status.isStale ? .orange : .secondary)
+                Text("Orbit data: \(status.summary)").font(.caption2).foregroundStyle(status.isStale ? palette.lightColor : palette.secondaryColor)
             }
-            if let error = tracker.errorMessage { Text(error).font(.caption2).foregroundStyle(.orange) }
+            if let error = tracker.errorMessage { Text(error).font(.caption2).foregroundStyle(palette.lightColor) }
         }
-        .foregroundStyle(.white)
-        .padding(12)
+        .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.black.opacity(0.72), in: RoundedRectangle(cornerRadius: 14))
+        .skyPanel()
         .accessibilityIdentifier("satellitePanel")
     }
 }

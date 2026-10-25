@@ -6,12 +6,16 @@ struct SkyStyle {
     let night: Float
     let px: Float
 
-    var lineWidth: Float { (1.1 + 1.3 * (1 - night)) * px }
+    private var palette: StylePalette { StyleTokens.blended(lighting: Double(night), red: false) }
+    private func encoded(_ c: SIMD3<Float>, _ alpha: Float) -> SIMD4<Float> { SIMD4(StyleTokens.encode(c), alpha) }
+
+    var lineWidth: Float { (StyleTokens.restingLineWidth + 0.35 * (1 - night)) * px }
+    var litLineWidth: Float { (StyleTokens.litLineWidth + 0.35 * (1 - night)) * px }
     /// Dark rim that keeps lines readable against a bright sky.
-    var lineOutline: Float { (1 - night) * 1.4 * px }
-    var restingLineColor: SIMD4<Float> { SIMD4(0.62, 0.76, 1.0, 0.38 + 0.52 * (1 - night)) }
-    var highlightColor: SIMD4<Float> { SIMD4(0.86, 0.94, 1.0, 1) }
-    var labelColor: SIMD4<Float> { SIMD4(0.86, 0.91, 1.0, 0.9) }
+    var lineOutline: Float { (1 - night) * StyleTokens.dayUnderglowWidth * px }
+    var restingLineColor: SIMD4<Float> { encoded(palette.line, 0.42 + 0.5 * (1 - night)) }
+    var highlightColor: SIMD4<Float> { encoded(palette.core, 1) }
+    var labelColor: SIMD4<Float> { encoded(palette.label, 0.9) }
 }
 
 enum SkySymbols {

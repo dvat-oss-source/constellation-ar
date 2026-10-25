@@ -3,6 +3,7 @@ import Metal
 import MetalKit
 import QuartzCore
 import SkyCore
+import UIKit
 import simd
 
 enum RenderBackground {
@@ -44,6 +45,39 @@ final class Renderer {
         var lighting: Float
         var padding: SIMD3<Float> = .zero
     }
+
+    /// Mirrors StyleUniforms in Shaders.metal. Colours are display-encoded; params = (lighting, time, reduceMotion, redNight);
+    /// sparkle = (ray length, ray width, tint mix, twinkle); lines = (twinkle speed, halo multiple, 0, 0).
+    private struct StyleUniforms {
+        var skyZenith = SIMD4<Float>.zero
+        var skyHorizon = SIMD4<Float>.zero
+        var ground = SIMD4<Float>.zero
+        var light = SIMD4<Float>.zero
+        var core = SIMD4<Float>.zero
+        var line = SIMD4<Float>.zero
+        var params = SIMD4<Float>.zero
+        var sparkle = SIMD4<Float>.zero
+        var lines = SIMD4<Float>.zero
+
+        init() {}
+
+        init(lighting: Double, red: Bool, time: Double, reduceMotion: Bool) {
+            let palette = StyleTokens.blended(lighting: lighting, red: red)
+            func color(_ c: SIMD3<Float>) -> SIMD4<Float> { SIMD4(StyleTokens.encode(c), 1) }
+            skyZenith = color(palette.skyZenith)
+            skyHorizon = color(palette.skyHorizon)
+            ground = color(palette.ground)
+            light = color(palette.light)
+            core = color(palette.core)
+            line = color(palette.line)
+            params = SIMD4(Float(lighting), Float(time.truncatingRemainder(dividingBy: 3600)), reduceMotion ? 1 : 0, red ? 1 : 0)
+            sparkle = SIMD4(StyleTokens.sparkleRayLength, StyleTokens.sparkleRayWidth, StyleTokens.sparkleTintMix,
+                            reduceMotion ? 0 : StyleTokens.twinkleAmount)
+            lines = SIMD4(StyleTokens.twinkleSpeed, 3.5, 0, 0)
+        }
+    }
+
+    private var style = StyleUniforms()
 
     static let maxFramesInFlight = 3
     private static let batchAlignment = 256
@@ -126,7 +160,9 @@ final class Renderer {
     }
 
     func draw(to drawable: any CAMetalDrawable, background: RenderBackground, geometry: CameraGeometry,
-              deviceFromReference: simd_double3x3, warp: FrameWarp? = nil, overlay: OverlayFrame, redTheme: Bool, contentScale: Double) {
+              deviceFromReference: simd_double3x3, warp: FrameWarp? = nil, overlay: OverlayFrame, redTheme: Bool, contentScale: Double, lighting: Double) {
+        style = StyleUniforms(lighting: lighting, red: redTheme, time: CACurrentMediaTime(),
+                              reduceMotion: UIAccessibility.isReduceMotionEnabled)
         inFlight.wait()
         guard let commandBuffer = queue.makeCommandBuffer() else {
             inFlight.signal()
@@ -173,6 +209,7 @@ final class Renderer {
             encoder.setVertexBytes(&uniforms, length: MemoryLayout<FrameUniforms>.stride, index: 0)
             encoder.setFragmentBytes(&uniforms, length: MemoryLayout<FrameUniforms>.stride, index: 0)
             encoder.setFragmentBytes(&sky, length: MemoryLayout<SkyUniforms>.stride, index: 1)
+            encoder.setFragmentBytes(&style, length: MemoryLayout<StyleUniforms>.stride, index: 3)
             encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
         }
 
@@ -242,6 +279,8 @@ final class Renderer {
             encoder.setRenderPipelineState(pipeline)
             encoder.setVertexBytes(&uniforms, length: MemoryLayout<FrameUniforms>.stride, index: 0)
             encoder.setFragmentBytes(&uniforms, length: MemoryLayout<FrameUniforms>.stride, index: 0)
+            encoder.setVertexBytes(&style, length: MemoryLayout<StyleUniforms>.stride, index: 3)
+            encoder.setFragmentBytes(&style, length: MemoryLayout<StyleUniforms>.stride, index: 3)
         }
 
         for item in prepared {

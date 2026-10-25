@@ -28,6 +28,8 @@ final class SkyEngine {
     /// Apparent (refracted) ENU of every figure star for the current frame, indexed by catalog index.
     private var figureENU: [SIMD3<Double>] = []
     private var coordinator: ConstellationLockCoordinator<SplitMix64>?
+    /// User-pinned constellation; overrides automatic lock scoring until cleared.
+    var focusOverrideID: String?
     private var solar: (snapshot: SolarSystemSnapshot, date: Date, latitude: Double, longitude: Double)?
     private var nightCache: (date: Date, latitude: Double, longitude: Double, factor: Double)?
     private var artworkVertices: [String: [ArtworkPlacement.Vertex]] = [:]
@@ -141,7 +143,8 @@ final class SkyEngine {
                     if pa.z < -0.02 && pb.z < -0.02 { continue }
                     guard let c = projector.clipSegment(pa, pb) else { continue }
                     resting.append(OverlaySegment(a: SIMD2<Float>(c.start), b: SIMD2<Float>(c.end), width: style.lineWidth,
-                                                  color: style.restingLineColor, outlineWidth: style.lineOutline))
+                                                  color: style.restingLineColor, outlineWidth: style.lineOutline,
+                                                  glow: StyleTokens.restingLineGlow))
                 }
             }
             frame.add(resting)
@@ -154,8 +157,8 @@ final class SkyEngine {
                     guard let c = projector.drawnPart(of: seg, from: from, to: to) else { continue }
                     var color = style.highlightColor
                     color.w = Float(seg.alpha)
-                    lit.append(OverlaySegment(a: SIMD2<Float>(c.start), b: SIMD2<Float>(c.end), width: style.lineWidth * 1.6, color: color,
-                                              outlineWidth: style.lineOutline, glow: Float(0.3 * seg.alpha + 0.7 * seg.glow)))
+                    lit.append(OverlaySegment(a: SIMD2<Float>(c.start), b: SIMD2<Float>(c.end), width: style.litLineWidth, color: color,
+                                              outlineWidth: style.lineOutline, glow: StyleTokens.litLineGlow * Float(0.45 * seg.alpha + 0.55 * seg.glow)))
                     if seg.glow > 0.05 {
                         let tip = simd_normalize(simd_normalize(from) + seg.glowPosition * (simd_normalize(to) - simd_normalize(from)))
                         if let p = projector.screenPoint(enu: tip), projector.isOnScreen(p, margin: 30) {
@@ -271,7 +274,11 @@ final class SkyEngine {
         coordinator.timeline.reduceMotion = UIAccessibility.isReduceMotionEnabled
         let official = ConstellationScorer.officialConstellation(enu: projector.ray(screenPoint: projector.viewCenter),
                                                                  session: session, at: instant, roman: data.roman)
-        let scores = data.scorer.scores(projector: projector, skyToENU: icrsToENU, officialID: official)
+        var scores = data.scorer.scores(projector: projector, skyToENU: icrsToENU, officialID: official)
+        if let override = focusOverrideID {
+            for key in scores.keys { scores[key] = key == override ? 1.0 : 0.0 }
+            if scores[override] == nil { scores[override] = 1.0 }
+        }
         let update = coordinator.update(time: context.displayTime, scores: scores)
         let visuals = coordinator.frame(at: context.displayTime)
         self.coordinator = coordinator
@@ -284,6 +291,27 @@ final class SkyEngine {
             }
         }
         return visuals
+    }
+
+    /// Immediate draw-in for a user-pinned constellation.
+    func applyFocusPin(_ id: String?, context: OverlayContext) {
+        focusOverrideID = id
+        guard let id, var coordinator, let data else { return }
+        var scores: [String: Double] = [:]
+        for figure in data.figures { scores[figure.id] = figure.id == id ? 1.0 : 0.0 }
+        let t = context.displayTime
+        _ = coordinator.update(time: t, scores: scores)
+        let update = coordinator.update(time: t + 0.35, scores: scores)
+        self.coordinator = coordinator
+        lockedID = coordinator.currentLock
+        for event in update.events {
+            switch event {
+            case .locked(let lid), .changed(from: _, to: let lid):
+                onEvent?(.locked(id: lid, narrate: false))
+            case .unlocked: break
+            }
+        }
+        if coordinator.currentLock == nil { onEvent?(.locked(id: id, narrate: false)) }
     }
 
     // MARK: Pieces

@@ -40,14 +40,15 @@ final class LayerSettings {
 }
 
 struct LayerPanel: View {
+    @Environment(\.stylePalette) private var palette
     @Bindable var model: AppModel
 
     var body: some View {
         let night = model.lightingBlend >= 0.5
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("Layers").font(.headline)
-                Text(night ? "night defaults" : "day defaults").font(.caption).foregroundStyle(.secondary)
+                Text("Layers").font(.title3.weight(.semibold))
+                Text(night ? "night defaults" : "day defaults").font(.caption).foregroundStyle(palette.secondaryColor)
                 Spacer()
                 Button("Close") { model.showLayers = false }
             }
@@ -63,9 +64,8 @@ struct LayerPanel: View {
                     .padding(.top, 4)
             }
         }
-        .foregroundStyle(.white)
-        .padding(14)
-        .background(.black.opacity(0.78), in: RoundedRectangle(cornerRadius: 16))
+        .padding(16)
+        .skyPanel()
         .padding(.horizontal, 8)
     }
 }
