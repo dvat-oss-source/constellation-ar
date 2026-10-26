@@ -51,6 +51,7 @@ struct RootView: View {
                 if model.effectiveAttitudeSource != .motion {
                     skyControls
                 }
+                LensPickerControl(model: model)
                 controlBar
             }
             .padding()

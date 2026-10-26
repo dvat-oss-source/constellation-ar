@@ -38,15 +38,70 @@ final class ConstellationCardModel: Identifiable {
 
 struct ConstellationCard: View {
     @Environment(\.stylePalette) private var palette
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let card: ConstellationCardModel
     @Bindable var narrator: Narrator
     let hasDeepDiveKey: Bool
     let onTellMore: () -> Void
 
+    @State private var isExpanded = false
+
     var body: some View {
+        Group {
+            if isExpanded {
+                expandedCard
+                    .transition(reduceMotion ? .opacity : .scale(scale: 0.96, anchor: .bottom).combined(with: .opacity))
+            } else {
+                compactCard
+                    .transition(reduceMotion ? .opacity : .scale(scale: 0.96, anchor: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(expansionAnimation, value: isExpanded)
+        .onChange(of: card.id) { _, _ in isExpanded = false }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("constellationCard")
+    }
+
+    private var expansionAnimation: Animation {
+        reduceMotion ? .easeInOut(duration: 0.2) : StyleTokens.panelAnimation
+    }
+
+    private var compactCard: some View {
+        Button {
+            withAnimation(expansionAnimation) { isExpanded = true }
+        } label: {
+            HStack(spacing: 10) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(card.name).font(.subheadline.weight(.semibold)).lineLimit(1)
+                    Text(compactSubtitle).font(.caption).foregroundStyle(palette.secondaryColor).lineLimit(1)
+                }
+                Spacer(minLength: 4)
+                Image(systemName: "chevron.up")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(palette.secondaryColor)
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .buttonStyle(.plain)
+        .skyPanel(cornerRadius: 18)
+    }
+
+    private var expandedCard: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(card.name).font(.title2.weight(.semibold))
+                Button {
+                    withAnimation(expansionAnimation) { isExpanded = false }
+                } label: {
+                    HStack {
+                        Text(card.name).font(.title2.weight(.semibold))
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(palette.secondaryColor)
+                    }
+                }
+                .buttonStyle(.plain)
                 Spacer()
                 Button {
                     narrator.isMuted.toggle()
@@ -85,8 +140,26 @@ struct ConstellationCard: View {
         }
         .padding(16)
         .skyPanel()
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("constellationCard")
+    }
+
+    private var compactSubtitle: String {
+        if let preview = deepDivePreviewLine { return preview }
+        if let summary = card.narration?.summary {
+            return summary
+        }
+        return "Tap for details"
+    }
+
+    private var deepDivePreviewLine: String? {
+        switch card.deepDive {
+        case .idle: return nil
+        case .streaming(let text):
+            if text.isEmpty { return "Asking Gemma…" }
+            return String(text.prefix(80))
+        case .done(let text), .cached(let text, _):
+            return String(text.prefix(80))
+        case .failed: return nil
+        }
     }
 
     @ViewBuilder private var deepDive: some View {
@@ -105,7 +178,7 @@ struct ConstellationCard: View {
             Text("\(reason). Showing the saved answer.").font(.caption2).foregroundStyle(palette.lightColor)
         case .failed(let message):
             Text(message).font(.footnote).foregroundStyle(palette.lightColor)
-            Button("Try again", action: onTellMore).buttonStyle(.bordered)
+            Button("Try again") { onTellMore() }.buttonStyle(.bordered)
         }
     }
 

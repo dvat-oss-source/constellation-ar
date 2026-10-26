@@ -143,6 +143,9 @@ final class AppModel {
     @ObservationIgnored private var hideCardTask: Task<Void, Never>? = nil
     @ObservationIgnored private var infoTask: Task<Void, Never>? = nil
     @ObservationIgnored private var deepDiveTask: Task<Void, Never>? = nil
+    @ObservationIgnored private var autoDeepDiveTask: Task<Void, Never>? = nil
+    /// Constellations that already triggered a network deep dive this launch (cache hits are always allowed).
+    @ObservationIgnored private var deepDiveRequestedNetwork: Set<String> = []
     @ObservationIgnored private var pendingAutoPinID: String?
     @ObservationIgnored private var suppressLensSwitch = false
 
@@ -558,15 +561,18 @@ final class AppModel {
             if let t = driver?.lastContext?.displayTime { focus.beginOutlineIfNeeded(id: id, displayTime: t) }
             guard !focus.isPinned else { return }
             hideCardTask?.cancel()
+            autoDeepDiveTask?.cancel()
             deepDiveTask?.cancel()
             narrator.stop()
             let model = ConstellationCardModel(id: id, name: engine.constellationName(id), narration: engine.narrationCard(id),
                                                catalogStars: engine.catalogStars(for: id))
             withAnimation(.easeOut(duration: 0.15)) { card = model }
             if narrate, let text = model.spokenText { narrator.speak(text) }
+            scheduleAutoDeepDive(constellationID: id)
         case .unlocked:
             guard !focus.isPinned else { return }
             hideCardTask?.cancel()
+            autoDeepDiveTask?.cancel()
             hideCardTask = Task { [weak self] in
                 try? await Task.sleep(for: .seconds(2.5))
                 guard !Task.isCancelled, let self else { return }
@@ -579,26 +585,51 @@ final class AppModel {
 
     static let deepDiveQuestion = "Tell me more about this constellation: its story, how to recognise it, and what is near it tonight."
 
+    private func scheduleAutoDeepDive(constellationID: String) {
+        autoDeepDiveTask?.cancel()
+        autoDeepDiveTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(0.8))
+            guard !Task.isCancelled, let self else { return }
+            guard card?.id == constellationID, !focus.isPinned else { return }
+            askDeepDive()
+        }
+    }
+
     func askDeepDive() {
         guard let card = pinnedCard ?? card else { return }
-        guard let context = driver?.lastContext, let facts = engine.deepDiveFacts(for: card.id, context: context) else {
+        let id = card.id
+        let cacheStore = DeepDiveCache.applicationSupport()
+        if let saved = cacheStore.answer(constellationID: id, question: Self.deepDiveQuestion) {
+            card.deepDive = .done(saved)
+            return
+        }
+        if case .failed = card.deepDive {
+            deepDiveRequestedNetwork.remove(id)
+        } else if deepDiveRequestedNetwork.contains(id) {
+            return
+        }
+        if case .streaming = card.deepDive { return }
+        guard let context = driver?.lastContext, let facts = engine.deepDiveFacts(for: id, context: context) else {
             card.deepDive = .failed("The sky is not ready yet (waiting for location or catalogs).")
             return
         }
-        let client = DeepDiveClient(cache: .applicationSupport(), modelID: AppInfo.gemmaModelID, apiKey: AppInfo.vertexAPIKey,
+        deepDiveRequestedNetwork.insert(id)
+        let client = DeepDiveClient(cache: cacheStore, modelID: AppInfo.gemmaModelID, apiKey: AppInfo.vertexAPIKey,
                                     projectID: AppInfo.gcpProjectID, location: AppInfo.gemmaLocation)
         let prompt = DeepDiveClient.prompt(facts: facts, question: Self.deepDiveQuestion)
         card.deepDive = .streaming("")
         deepDiveTask?.cancel()
-        deepDiveTask = Task { [weak card] in
-            for await update in client.ask(constellationID: card?.id ?? "", question: Self.deepDiveQuestion, prompt: prompt) {
+        deepDiveTask = Task { [weak self, weak card] in
+            for await update in client.ask(constellationID: id, question: Self.deepDiveQuestion, prompt: prompt) {
                 guard let card else { return }
                 switch update {
                 case .text(let text): card.deepDive = .streaming(text)
                 case .finished:
                     if case .streaming(let text) = card.deepDive { card.deepDive = .done(text) }
                 case .cached(let text, let reason): card.deepDive = .cached(text: text, reason: reason)
-                case .failed(let message): card.deepDive = .failed(message)
+                case .failed(let message):
+                    card.deepDive = .failed(message)
+                    self?.deepDiveRequestedNetwork.remove(id)
                 }
             }
         }
