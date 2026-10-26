@@ -1,5 +1,9 @@
 import Foundation
+import OSLog
 import SkyCore
+
+private let focusResourcesLog = Logger(subsystem: Bundle.main.bundleIdentifier ?? "ConstellationAR", category: "FocusResources")
+private nonisolated(unsafe) var didLogPassageBundleLoad = false
 
 /// Bundled focus data (boundaries, atlas, passages) loaded alongside sky catalogs.
 @MainActor
@@ -68,6 +72,11 @@ final class FocusResources {
         var verifier: AnswerVerifier?
         if let passagesURL = bundle.url(forResource: "passages", withExtension: "json") {
             let library = try PassageLibrary(url: passagesURL)
+            if !didLogPassageBundleLoad {
+                didLogPassageBundleLoad = true
+                focusResourcesLog.info("passages.json loaded from bundle (\(library.passages.count) passages)")
+                assert(!library.passages.isEmpty, "passages.json must not be empty")
+            }
             bm25 = BM25Index(passages: library.passages)
             let list = try ConstellationList.load(url: url("constellations", "json"))
             let names = try StarNames(url: url("names", "json"))

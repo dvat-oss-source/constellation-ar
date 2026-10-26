@@ -3,7 +3,8 @@ import Foundation
 /// Citation syntax of grounded answers: `[P:<passage id>]`, e.g. "Rigel is the left foot of the hunter [P:Ori-wiki-7]."
 /// Several citations are written one after another: `[P:Ori-wiki-7][P:Ori-allen-3]`.
 public enum Citation {
-    static let regex = try! NSRegularExpression(pattern: #"\[P:([A-Za-z]{2,3}-(?:wiki|allen|aratus)-\d+)\]"#)
+    static let regex = try! NSRegularExpression(
+        pattern: #"\[P:((?:[A-Za-z]{2,3}-(?:wiki|allen|aratus)-\d+)|facts|card))\]"#)
 
     /// Cited ids in order of appearance, duplicates removed.
     public static func ids(in text: String) -> [String] {
@@ -152,6 +153,8 @@ public struct VerificationResult: Sendable, Hashable {
 ///   their sentence are not checked.
 public struct AnswerVerifier: Sendable {
     public static let notInSourcesAnswer = "Not in sources."
+    /// App-computed context ids (`FocusChatPrompt`); valid citations but not checked against `passages.json`.
+    public static let syntheticPassageIDs: Set<String> = ["facts", "card"]
 
     public let library: PassageLibrary
     public let stars: StarFactIndex
@@ -274,6 +277,7 @@ public struct AnswerVerifier: Sendable {
         }
         var cited: [Passage] = []
         for id in ids {
+            if Self.syntheticPassageIDs.contains(id) { continue }
             if let p = library.passage(id: id) { cited.append(p) } else {
                 issues.append(VerificationIssue(kind: .unknownCitation, detail: "cited passage \(id) does not exist"))
             }

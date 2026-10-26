@@ -13,6 +13,14 @@ public struct Passage: Sendable, Hashable, Identifiable {
     public var source: Source
     public var heading: String
     public var text: String
+
+    public init(id: String, constellation: String, source: Source, heading: String, text: String) {
+        self.id = id
+        self.constellation = constellation
+        self.source = source
+        self.heading = heading
+        self.text = text
+    }
 }
 
 public struct PassageSourceInfo: Sendable, Hashable, Codable {
@@ -147,5 +155,20 @@ public struct BM25Index: Sendable {
         }
         return scores.sorted { a, c in a.value != c.value ? a.value > c.value : passages[a.key].id < passages[c.key].id }
             .prefix(limit).map { Hit(passage: passages[$0.key], score: $0.value) }
+    }
+
+    /// Constellation-scoped search first; if fewer than `minFiltered` hits, fills from an unfiltered search (constellation hits kept first).
+    public func searchWithConstellationFallback(_ query: String, limit: Int = 5, constellation: String,
+                                                minFiltered: Int = 3) -> [Hit] {
+        let filtered = search(query, limit: limit, constellation: constellation)
+        guard filtered.count < minFiltered else { return filtered }
+        var seen = Set(filtered.map(\.passage.id))
+        var merged = filtered
+        for hit in search(query, limit: max(limit * 2, 8), constellation: nil) {
+            guard seen.insert(hit.passage.id).inserted else { continue }
+            merged.append(hit)
+            if merged.count >= limit { break }
+        }
+        return merged
     }
 }

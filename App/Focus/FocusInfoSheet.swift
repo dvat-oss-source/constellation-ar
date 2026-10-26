@@ -150,6 +150,9 @@ struct FocusInfoSheet: View {
     private var chatSection: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Ask about \(name)").font(.footnote.bold())
+            if chat.isStreaming, let status = chat.statusText {
+                Text(status).font(.caption2.italic()).foregroundStyle(palette.secondaryColor)
+            }
             ForEach(chat.messages) { msg in
                 VStack(alignment: .leading, spacing: 2) {
                     Text(msg.role == .user ? "You" : "Guide").font(.caption2.bold()).foregroundStyle(palette.secondaryColor)
