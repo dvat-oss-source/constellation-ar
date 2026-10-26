@@ -185,7 +185,7 @@ actor CameraCapture {
 
     /// Returns a failure status, or nil on success.
     private func configure() -> Status? {
-        guard let receiver else { return .failed("no Metal texture cache") }
+        guard receiver != nil else { return .failed("no Metal texture cache") }
         guard let camera = cameraDevice(for: selectedLens) ?? cameraDevice(for: .wide) else {
             return .unavailable("no back camera")
         }
@@ -194,44 +194,31 @@ actor CameraCapture {
         }
         session.beginConfiguration()
         defer { session.commitConfiguration() }
-
-        if videoOutput == nil {
-            let output = AVCaptureVideoDataOutput()
-            output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
-            output.alwaysDiscardsLateVideoFrames = true
-            output.setSampleBufferDelegate(receiver, queue: videoQueue)
-            guard session.canAddOutput(output) else { return .failed("cannot add video output") }
-            session.addOutput(output)
-            videoOutput = output
-        }
-        guard let output = videoOutput, let connection = output.connection(with: .video) else {
-            return .failed("no video connection")
-        }
-        if let failure = attach(camera: camera, connection: connection) { return failure }
-        self.connection = connection
-        return nil
+        return attach(camera: camera)
     }
 
     private func switchDevice() async -> Status? {
-        guard let receiver, let output = videoOutput, let connection = output.connection(with: .video),
-              let camera = cameraDevice(for: selectedLens) else {
+        guard let camera = cameraDevice(for: selectedLens) else {
             return .unavailable("lens \(selectedLens.label) unavailable")
         }
         session.beginConfiguration()
-        defer { session.commitConfiguration() }
-        if let failure = attach(camera: camera, connection: connection) { return failure }
-        self.connection = connection
-        exposureState = exposure.apply(blend: lightingBlend, to: camera)
-        focusOutcome = await focus.lockFar(camera, lens: selectedLens, autofocus: shouldAutofocus)
+        var failure = attach(camera: camera)
+        if failure != nil, selectedLens != .wide, let wide = cameraDevice(for: .wide) {
+            log.error("lens switch failed, reverting to 1x")
+            selectedLens = .wide
+            if attach(camera: wide) == nil { failure = .unavailable("lens switch failed; reverted to 1×") }
+        }
+        session.commitConfiguration()
+        guard let device else { return failure }
+        exposureState = exposure.apply(blend: lightingBlend, to: device)
+        focusOutcome = await focus.lockFar(device, lens: selectedLens, autofocus: shouldAutofocus)
         log.info("switched to \(self.selectedLens.label, privacy: .public) camera")
-        return nil
+        return failure
     }
 
-    private func attach(camera: AVCaptureDevice, connection: AVCaptureConnection) -> Status? {
+    /// Input must be attached before the output's video connection exists.
+    private func attach(camera: AVCaptureDevice) -> Status? {
         guard let receiver else { return .failed("no Metal texture cache") }
-        if connection.isVideoStabilizationSupported {
-            connection.preferredVideoStabilizationMode = .off
-        }
         if let input = videoInput {
             session.removeInput(input)
             videoInput = nil
@@ -247,6 +234,21 @@ actor CameraCapture {
         session.addInput(input)
         videoInput = input
 
+        if videoOutput == nil {
+            let output = AVCaptureVideoDataOutput()
+            output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
+            output.alwaysDiscardsLateVideoFrames = true
+            output.setSampleBufferDelegate(receiver, queue: videoQueue)
+            guard session.canAddOutput(output) else { return .failed("cannot add video output") }
+            session.addOutput(output)
+            videoOutput = output
+        }
+        guard let connection = videoOutput?.connection(with: .video) else { return .failed("no video connection") }
+
+        // Intrinsic matrix delivery is only offered with stabilization off, so that comes first.
+        if connection.isVideoStabilizationSupported {
+            connection.preferredVideoStabilizationMode = .off
+        }
         let (format, tried) = chooseFormat(camera, connection)
         guard let format else { return .unavailable("no suitable video format") }
         if (try? camera.lockForConfiguration()) != nil {
@@ -268,6 +270,7 @@ actor CameraCapture {
         lensObservation = camera.observe(\.lensPosition, options: [.initial, .new]) { [receiver] camera, _ in
             receiver.setLensPosition(camera.lensPosition)
         }
+        self.connection = connection
         probe = CameraProbe(device: camera, connection: connection, formatsTried: tried)
         return nil
     }

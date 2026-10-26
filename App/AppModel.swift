@@ -190,7 +190,7 @@ final class AppModel {
             setupError = "Metal is not available"
         }
         availableCaptureLenses = isSimulator ? [] : CaptureLens.available()
-        selectedCaptureLens = CaptureLens.loadPersisted(available: availableCaptureLenses)
+        selectedCaptureLens = .wide
         if isSimulator { cameraStatus = .unavailable("simulator") }
         if ProcessInfo.processInfo.arguments.contains("-autoPinOri") { pendingAutoPinID = "Ori" }
 
@@ -256,11 +256,11 @@ final class AppModel {
         driver?.resetIntrinsicsCache()
         if let failure = await capture.setLens(selectedCaptureLens) {
             suppressLensSwitch = true
-            selectedCaptureLens = previous
+            selectedCaptureLens = .wide
             suppressLensSwitch = false
-            UserDefaults.standard.set(previous.rawValue, forKey: CaptureLens.persistenceKey)
+            UserDefaults.standard.set(CaptureLens.wide.rawValue, forKey: CaptureLens.persistenceKey)
             applyLensBoresight()
-            cameraStatus = failure
+            if await capture.snapshot().activeLens == nil { cameraStatus = failure }
         }
     }
 
