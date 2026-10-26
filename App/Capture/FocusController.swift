@@ -22,38 +22,45 @@ struct FocusController: Sendable {
         "focus.farLensPosition.\(lens.rawValue)"
     }
 
+    /// Rejects 0, NaN and the 1.0 fallback, which are never a real learned far position.
+    static func isSane(_ position: Float) -> Bool {
+        position.isFinite && position > 0.01 && position < 1.0
+    }
+
     func storedFarPosition(for lens: CaptureLens) -> Float? {
         let key = Self.storedPositionKey(for: lens)
-        if let value = UserDefaults.standard.object(forKey: key) as? Float { return value }
-        if lens == .wide, let legacy = UserDefaults.standard.object(forKey: Self.storedPositionKey) as? Float { return legacy }
+        if let value = UserDefaults.standard.object(forKey: key) as? Float, Self.isSane(value) { return value }
+        if lens == .wide, let legacy = UserDefaults.standard.object(forKey: Self.storedPositionKey) as? Float,
+           Self.isSane(legacy) { return legacy }
         return nil
     }
 
-    /// `autofocus` true by day; at night (no contrast to focus on) the stored position is reused.
+    /// `autofocus` true by day/twilight: continuous AF stays on and the settled position is stored.
+    /// At night (no contrast to focus on) the stored position is locked.
     nonisolated(nonsending) func lockFar(_ device: AVCaptureDevice, lens: CaptureLens, autofocus: Bool) async -> FocusOutcome {
-        guard device.isLockingFocusWithCustomLensPositionSupported else {
-            return FocusOutcome(lensPosition: device.lensPosition, source: .unsupported)
-        }
-
-        if autofocus, device.isFocusModeSupported(.autoFocus), device.isFocusPointOfInterestSupported,
-           (try? device.lockForConfiguration()) != nil {
+        if autofocus, device.isFocusModeSupported(.continuousAutoFocus), (try? device.lockForConfiguration()) != nil {
             if device.isAutoFocusRangeRestrictionSupported {
                 device.autoFocusRangeRestriction = .far
             }
-            device.focusPointOfInterest = CGPoint(x: 0.5, y: 0.5)
-            device.focusMode = .autoFocus
+            if device.isFocusPointOfInterestSupported {
+                device.focusPointOfInterest = CGPoint(x: 0.5, y: 0.5)
+            }
+            device.focusMode = .continuousAutoFocus
             device.unlockForConfiguration()
 
             // A scan may not start at all if the lens is already sharp, so the first wait is short.
             _ = await waitUntil(timeout: 0.5) { device.isAdjustingFocus }
-            if await waitUntil(timeout: 3.0, { !device.isAdjustingFocus }) {
-                let position = device.lensPosition
+            _ = await waitUntil(timeout: 3.0) { !device.isAdjustingFocus }
+            let position = device.lensPosition
+            if Self.isSane(position) {
                 UserDefaults.standard.set(position, forKey: Self.storedPositionKey(for: lens))
-                lock(device, at: position)
-                return FocusOutcome(lensPosition: position, source: .autofocused)
             }
+            return FocusOutcome(lensPosition: position, source: .autofocused)
         }
 
+        guard device.isLockingFocusWithCustomLensPositionSupported, device.isFocusModeSupported(.locked) else {
+            return FocusOutcome(lensPosition: device.lensPosition, source: .unsupported)
+        }
         if let stored = storedFarPosition(for: lens) {
             lock(device, at: stored)
             return FocusOutcome(lensPosition: stored, source: .stored)

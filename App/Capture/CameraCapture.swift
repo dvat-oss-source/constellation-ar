@@ -107,6 +107,14 @@ actor CameraCapture {
         if phaseChanged || abs(previous - lightingBlend) > 0.02 {
             exposureState = exposure.apply(blend: lightingBlend, to: device)
         }
+        if phaseChanged {
+            Task { await self.reapplyFocus() }
+        }
+    }
+
+    private func reapplyFocus() async {
+        guard let device, status == .running else { return }
+        focusOutcome = await focus.lockFar(device, lens: selectedLens, autofocus: shouldAutofocus)
     }
 
     func setNightExposure(duration: Double, strategy: NightExposureStrategy) {
@@ -169,7 +177,7 @@ actor CameraCapture {
     private var shouldAutofocus: Bool {
         switch LightingPhase(blend: lightingBlend) {
         case .day: true
-        case .twilight: focus.storedFarPosition(for: selectedLens) == nil
+        case .twilight: true
         case .night: false
         }
     }
