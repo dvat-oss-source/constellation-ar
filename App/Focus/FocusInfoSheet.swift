@@ -13,6 +13,14 @@ struct FocusInfoSheet: View {
     let onTellMore: () -> Void
     let onSendChat: () -> Void
     let onClose: () -> Void
+    let scrollChatIntoView: Bool
+    let onChatScrolled: () -> Void
+
+    @FocusState private var chatFieldFocused: Bool
+
+    private enum ScrollID {
+        static let chat = "focusChatSection"
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -21,19 +29,24 @@ struct FocusInfoSheet: View {
                 Spacer()
                 Button("Close", action: onClose).font(.footnote.weight(.medium))
             }
-            ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
-                    narrationSection
-                    factsSection
-                    starsSection
-                    dsoSection
-                    bodiesSection
-                    tellMeMoreSection
-                    chatSection
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 10) {
+                        narrationSection
+                        factsSection
+                        starsSection
+                        dsoSection
+                        bodiesSection
+                        tellMeMoreSection
+                        chatSection
+                            .id(ScrollID.chat)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxHeight: 340)
+                .onAppear { revealChatIfNeeded(proxy: proxy) }
+                .onChange(of: scrollChatIntoView) { _, _ in revealChatIfNeeded(proxy: proxy) }
             }
-            .frame(maxHeight: 340)
         }
         .padding(16)
         .skyPanel()
@@ -150,6 +163,7 @@ struct FocusInfoSheet: View {
                 TextField("Ask a question…", text: $chat.draft, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
                     .lineLimit(1...3)
+                    .focused($chatFieldFocused)
                     .disabled(chat.isStreaming)
                     .onSubmit(onSendChat)
                 Button("Send", action: onSendChat)
@@ -157,6 +171,15 @@ struct FocusInfoSheet: View {
             }
         }
         .accessibilityIdentifier("focusChatSection")
+    }
+
+    private func revealChatIfNeeded(proxy: ScrollViewProxy) {
+        guard scrollChatIntoView else { return }
+        withAnimation(StyleTokens.panelAnimation) {
+            proxy.scrollTo(ScrollID.chat, anchor: .bottom)
+        }
+        chatFieldFocused = true
+        onChatScrolled()
     }
 
     private func starDetail(_ star: ConstellationFacts.BrightStar) -> String {

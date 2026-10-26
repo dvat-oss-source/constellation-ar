@@ -26,7 +26,10 @@ enum SkyLayer: String, CaseIterable, Identifiable, Sendable {
 @MainActor
 @Observable
 final class LayerSettings {
+    private static let persistenceKey = "layerOverrides"
     private(set) var overrides: [SkyLayer: Bool] = [:]
+
+    init() { restore() }
 
     func isOn(_ layer: SkyLayer, night: Bool) -> Bool {
         overrides[layer] ?? layer.isOnByDefault(night: night)
@@ -34,11 +37,27 @@ final class LayerSettings {
 
     func set(_ layer: SkyLayer, on: Bool, night: Bool) {
         overrides[layer] = on == layer.isOnByDefault(night: night) ? nil : on
+        persist()
     }
 
-    func useDefaults() { overrides = [:] }
+    func useDefaults() {
+        overrides = [:]
+        persist()
+    }
 
     var hasOverrides: Bool { !overrides.isEmpty }
+
+    private func persist() {
+        let raw = Dictionary(uniqueKeysWithValues: overrides.map { ($0.key.rawValue, $0.value) })
+        UserDefaults.standard.set(raw, forKey: Self.persistenceKey)
+    }
+
+    private func restore() {
+        guard let raw = UserDefaults.standard.dictionary(forKey: Self.persistenceKey) as? [String: Bool] else { return }
+        overrides = Dictionary(uniqueKeysWithValues: raw.compactMap { key, value in
+            SkyLayer(rawValue: key).map { ($0, value) }
+        })
+    }
 }
 
 struct LayerPanel: View {

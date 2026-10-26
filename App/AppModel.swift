@@ -96,9 +96,13 @@ final class AppModel {
 
     var skyOnly = false
     var attitudeSource: AttitudeSource
-    var lightingOverride: LightingOverride = .auto
+    var lightingOverride: LightingOverride = .auto {
+        didSet { UserDefaults.standard.set(lightingOverride.rawValue, forKey: "lighting") }
+    }
     var redTheme = false
-    var showDebug: Bool
+    var showDebug: Bool {
+        didSet { UserDefaults.standard.set(showDebug, forKey: "debug") }
+    }
     var warpMode: WarpMode = .auto
     var snapTaps = true
     var recordingConfig = SessionConfig()
@@ -131,12 +135,17 @@ final class AppModel {
     private(set) var card: ConstellationCardModel? = nil
     private(set) var pinnedFacts: ConstellationFacts? = nil
     private(set) var pinnedCard: ConstellationCardModel? = nil
+    var focusChatPendingScroll = false
     private(set) var objectInfo: ObjectInfo? = nil
     private(set) var skyDataError: String? = nil
     private(set) var skyDataLoaded = false
     private(set) var skyDataLoadSeconds: Double? = nil
-    var showLayers: Bool
-    var showSatellites: Bool
+    var showLayers: Bool {
+        didSet { UserDefaults.standard.set(showLayers, forKey: "showLayers") }
+    }
+    var showSatellites: Bool {
+        didSet { UserDefaults.standard.set(showSatellites, forKey: "showSatellites") }
+    }
 
     @ObservationIgnored private var refreshTask: Task<Void, Never>? = nil
     @ObservationIgnored private var pushedLighting: Double? = nil
@@ -411,9 +420,16 @@ final class AppModel {
             return (self.skyDate(now: Date()), GeoLocation(latitude: o.latitude, longitude: o.longitude, height: o.altitude))
         }
         if let capture {
-            await capture.setInitialLens(selectedCaptureLens)
+            await capture.setInitialLens(.wide)
             cameraStatus = await capture.start()
             applyLensBoresight()
+            let saved = CaptureLens.loadPersisted(available: availableCaptureLenses)
+            if saved != .wide, availableCaptureLenses.contains(saved) {
+                suppressLensSwitch = true
+                selectedCaptureLens = saved
+                suppressLensSwitch = false
+                await switchCaptureLens(revertingTo: .wide)
+            }
             pushedLighting = nil
         }
     }
@@ -465,14 +481,17 @@ final class AppModel {
         showInfo(info)
     }
 
-    func pinConstellation(id: String, name: String, context: OverlayContext) {
+    func pinConstellation(id: String, name: String, context: OverlayContext,
+                          preservingDeepDiveFrom source: ConstellationCardModel? = nil) {
         hideCardTask?.cancel()
         focus.pin(constellation: id, name: name)
         engine.applyFocusPin(id, context: context)
         focus.beginOutlineIfNeeded(id: id, displayTime: context.displayTime)
         pinnedFacts = focus.facts(for: id, context: context, engine: engine)
-        pinnedCard = ConstellationCardModel(id: id, name: name, narration: engine.narrationCard(id),
+        let pinned = ConstellationCardModel(id: id, name: name, narration: engine.narrationCard(id),
                                             catalogStars: engine.catalogStars(for: id))
+        if let source, source.id == id { pinned.deepDive = source.deepDive }
+        pinnedCard = pinned
         focusChat.reset()
         if ProcessInfo.processInfo.arguments.contains("-autoPinOri"), id == "Ori" {
             focusChat.messages = [
@@ -494,6 +513,13 @@ final class AppModel {
         pinnedFacts = nil
         pinnedCard = nil
         focusChat.reset()
+        focusChatPendingScroll = false
+    }
+
+    func askQuestionFromLockCard() {
+        guard let lockCard = card, let context = driver?.lastContext else { return }
+        focusChatPendingScroll = true
+        pinConstellation(id: lockCard.id, name: lockCard.name, context: context, preservingDeepDiveFrom: lockCard)
     }
 
     func sendFocusChat() {

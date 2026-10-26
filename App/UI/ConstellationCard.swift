@@ -43,6 +43,7 @@ struct ConstellationCard: View {
     @Bindable var narrator: Narrator
     let hasDeepDiveKey: Bool
     let onTellMore: () -> Void
+    let onAskQuestion: () -> Void
 
     @State private var isExpanded = false
 
@@ -133,6 +134,10 @@ struct ConstellationCard: View {
                         }
                     }
                     deepDive
+                    Button("Ask a question", action: onAskQuestion)
+                        .buttonStyle(.bordered)
+                        .padding(.top, 4)
+                        .accessibilityIdentifier("askQuestionButton")
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }

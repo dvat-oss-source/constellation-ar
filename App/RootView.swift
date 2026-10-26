@@ -40,11 +40,14 @@ struct RootView: View {
                     FocusInfoSheet(constellationID: card.id, name: card.name, narration: card.narration, facts: facts,
                                    chat: model.focusChat, card: card, hasDeepDiveKey: AppInfo.hasVertexAPIKey,
                                    onTellMore: { model.askDeepDive() }, onSendChat: { model.sendFocusChat() },
-                                   onClose: { model.dismissFocusPin() })
+                                   onClose: { model.dismissFocusPin() },
+                                   scrollChatIntoView: model.focusChatPendingScroll,
+                                   onChatScrolled: { model.focusChatPendingScroll = false })
                     .id(card.id)
                     .transition(.opacity)
                 } else if let card = model.card, !model.showDebug {
-                    ConstellationCard(card: card, narrator: model.narrator, hasDeepDiveKey: AppInfo.hasVertexAPIKey) { model.askDeepDive() }
+                    ConstellationCard(card: card, narrator: model.narrator, hasDeepDiveKey: AppInfo.hasVertexAPIKey,
+                                      onTellMore: { model.askDeepDive() }, onAskQuestion: { model.askQuestionFromLockCard() })
                         .id(card.id)
                         .transition(.opacity)
                 }
