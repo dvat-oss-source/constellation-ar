@@ -116,6 +116,14 @@ final class AppModel {
         didSet { pushNightExposure() }
     }
     private(set) var cameraStatus: CameraCapture.Status = .idle
+    private(set) var availableCaptureLenses: [CaptureLens] = []
+    var selectedCaptureLens: CaptureLens = .wide {
+        didSet {
+            guard selectedCaptureLens != oldValue, !suppressLensSwitch else { return }
+            UserDefaults.standard.set(selectedCaptureLens.rawValue, forKey: CaptureLens.persistenceKey)
+            Task { await switchCaptureLens(revertingTo: oldValue) }
+        }
+    }
     private(set) var headingQuality = HeadingQuality()
     private(set) var debugSections: [DebugSection] = []
     private(set) var lastTap: String? = nil
@@ -136,6 +144,7 @@ final class AppModel {
     @ObservationIgnored private var infoTask: Task<Void, Never>? = nil
     @ObservationIgnored private var deepDiveTask: Task<Void, Never>? = nil
     @ObservationIgnored private var pendingAutoPinID: String?
+    @ObservationIgnored private var suppressLensSwitch = false
 
     init() {
         #if targetEnvironment(simulator)
@@ -177,6 +186,8 @@ final class AppModel {
         } else {
             setupError = "Metal is not available"
         }
+        availableCaptureLenses = isSimulator ? [] : CaptureLens.available()
+        selectedCaptureLens = CaptureLens.loadPersisted(available: availableCaptureLenses)
         if isSimulator { cameraStatus = .unavailable("simulator") }
         if ProcessInfo.processInfo.arguments.contains("-autoPinOri") { pendingAutoPinID = "Ori" }
 
@@ -215,7 +226,39 @@ final class AppModel {
         let loaded = CalibrationStore.load()
         calibration = loaded.calibration
         calibrationSource = loaded.source
-        alignment.setBoresight(loaded.calibration.lens?.boresightInDevice ?? simd_quatd(angle: 0, axis: SIMD3(0, 0, 1)))
+        applyLensBoresight()
+    }
+
+    /// Phase-6 lens JSON applies to the 1× wide camera only.
+    var activeLensCalibration: LensCalibration? {
+        selectedCaptureLens == .wide ? calibration.lens : nil
+    }
+
+    var showsLensPicker: Bool {
+        !isSimulator && cameraStatus == .running && effectiveAttitudeSource == .motion && showsCamera
+            && availableCaptureLenses.count > 1
+    }
+
+    func applyLensBoresight() {
+        if selectedCaptureLens == .wide, let lens = calibration.lens {
+            alignment.setBoresight(lens.boresightInDevice)
+        } else {
+            alignment.setBoresight(simd_quatd(angle: 0, axis: SIMD3(0, 0, 1)))
+        }
+    }
+
+    private func switchCaptureLens(revertingTo previous: CaptureLens) async {
+        guard let capture else { return }
+        applyLensBoresight()
+        driver?.resetIntrinsicsCache()
+        if let failure = await capture.setLens(selectedCaptureLens) {
+            suppressLensSwitch = true
+            selectedCaptureLens = previous
+            suppressLensSwitch = false
+            UserDefaults.standard.set(previous.rawValue, forKey: CaptureLens.persistenceKey)
+            applyLensBoresight()
+            cameraStatus = failure
+        }
     }
 
     /// When the centre row of a frame was exposed: the frame's timestamp, the chosen point of its exposure, and the measured offset.
@@ -311,10 +354,10 @@ final class AppModel {
             let attitude = alignment.drawnAttitude(coreMotion: cm.deviceFromReference, at: t)
             let date = skyDate(now: Date().addingTimeInterval(t - now))
             var intrinsics = SkyCore.CameraIntrinsics(fx: k.fx, fy: k.fy, cx: k.cx, cy: k.cy, bufferWidth: Double(request.width), bufferHeight: Double(request.height))
-            if let lens = calibration.lens { intrinsics = lens.applied(to: intrinsics) }
+            if let lens = activeLensCalibration { intrinsics = lens.applied(to: intrinsics) }
             var projector = Projector(pose: CameraPose(referenceToDevice: simd_double3x3(attitude)), intrinsics: intrinsics,
                                       mapping: .identity(bufferWidth: Double(request.width), bufferHeight: Double(request.height)))
-            if let lens = calibration.lens, lens.hasDistortion { projector.distortion = lens.distortion }
+            if let lens = activeLensCalibration, lens.hasDistortion { projector.distortion = lens.distortion }
             let objects: [[String: Any]] = engine.predictionObjects(date: date, observer: o, maxMagnitude: 2.5).compactMap { object in
                 guard let p = projector.pixel(enu: object.enu), p.x >= 0, p.y >= 0, p.x < Double(request.width), p.y < Double(request.height) else { return nil }
                 return ["name": object.name, "mag": object.magnitude, "x": p.x, "y": p.y]
@@ -365,7 +408,9 @@ final class AppModel {
             return (self.skyDate(now: Date()), GeoLocation(latitude: o.latitude, longitude: o.longitude, height: o.altitude))
         }
         if let capture {
+            await capture.setInitialLens(selectedCaptureLens)
             cameraStatus = await capture.start()
+            applyLensBoresight()
             pushedLighting = nil
         }
     }
@@ -660,6 +705,10 @@ final class AppModel {
         sections.append(DebugSection(title: "Rendering", lines: render))
 
         var camera: [String] = ["status \(String(describing: cameraStatus))"]
+        if let lens = snapshot?.activeLens {
+            let fov = snapshot?.probe.map { String(format: ", horizontal FOV %.1f°", $0.fieldOfViewDegrees) } ?? ""
+            camera.append("active lens \(lens.label)\(fov)")
+        }
         if let context {
             let i = context.camera.intrinsics
             let fov = i.fieldOfViewDegrees

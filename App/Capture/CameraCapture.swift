@@ -4,6 +4,7 @@ import os
 
 struct CaptureSnapshot: Sendable {
     var status: CameraCapture.Status
+    var activeLens: CaptureLens?
     var probe: CameraProbe?
     var focus: FocusOutcome?
     var exposure: ExposureState?
@@ -14,7 +15,7 @@ struct CaptureSnapshot: Sendable {
     var nightProbe: [NightProbeTrial]
 }
 
-/// Back wide-angle camera only (never a virtual multi-lens device). Runs on its own serial queue; frames are
+/// One physical back camera at a time (never a virtual multi-lens device). Runs on its own serial queue; frames are
 /// delivered to `receiver` on a second queue in the native landscape orientation (no connection rotation).
 actor CameraCapture {
     enum Status: Sendable, Equatable {
@@ -30,8 +31,11 @@ actor CameraCapture {
     private let session: AVCaptureSession
     private let videoQueue = DispatchQueue(label: "ConstellationAR.camera.video", qos: .userInteractive)
     private let log = Logger(subsystem: "org.constellationar.ConstellationAR", category: "camera")
+    private var videoInput: AVCaptureDeviceInput?
+    private var videoOutput: AVCaptureVideoDataOutput?
     private var device: AVCaptureDevice?
     private var connection: AVCaptureConnection?
+    private(set) var selectedLens: CaptureLens = .wide
     private var lensObservation: NSKeyValueObservation?
     private var focus = FocusController()
     private var exposure = ExposureController()
@@ -45,6 +49,20 @@ actor CameraCapture {
     init(metalDevice: any MTLDevice) {
         session = AVCaptureSession()
         receiver = VideoFrameReceiver(metalDevice: metalDevice)
+    }
+
+    func setInitialLens(_ lens: CaptureLens) {
+        guard status != .running else { return }
+        selectedLens = lens
+    }
+
+    /// Reconfigures the session for another physical lens while running.
+    func setLens(_ lens: CaptureLens) async -> Status? {
+        guard lens != selectedLens else { return nil }
+        guard CaptureLens.available().contains(lens) else { return .unavailable("lens \(lens.label) unavailable") }
+        selectedLens = lens
+        guard status == .running else { return nil }
+        return await switchDevice()
     }
 
     @discardableResult
@@ -70,7 +88,7 @@ actor CameraCapture {
             probe?.syncClockOffsetFromHost = CMClockGetTime(clock).seconds - CMClockGetTime(CMClockGetHostTimeClock()).seconds
         }
         exposureState = exposure.apply(blend: lightingBlend, to: device)
-        focusOutcome = await focus.lockFar(device, autofocus: shouldAutofocus)
+        focusOutcome = await focus.lockFar(device, lens: selectedLens, autofocus: shouldAutofocus)
         if let probe { log.info("camera probe: \(probe.lines.joined(separator: " | "), privacy: .public)") }
         return set(.running)
     }
@@ -101,11 +119,11 @@ actor CameraCapture {
     /// Autofocus again on the distant centre and store the result as the new far position.
     func refocusFar() async {
         guard let device, status == .running else { return }
-        focusOutcome = await focus.lockFar(device, autofocus: true)
+        focusOutcome = await focus.lockFar(device, lens: selectedLens, autofocus: true)
     }
 
     func snapshot() -> CaptureSnapshot {
-        CaptureSnapshot(status: status, probe: probe, focus: focusOutcome, exposure: exposureState,
+        CaptureSnapshot(status: status, activeLens: device == nil ? nil : selectedLens, probe: probe, focus: focusOutcome, exposure: exposureState,
                         exposureDuration: device?.exposureDuration.seconds, iso: device?.iso,
                         lensPosition: device?.lensPosition, isAdjustingFocus: device?.isAdjustingFocus ?? false,
                         nightProbe: nightProbe)
@@ -151,7 +169,7 @@ actor CameraCapture {
     private var shouldAutofocus: Bool {
         switch LightingPhase(blend: lightingBlend) {
         case .day: true
-        case .twilight: focus.storedFarPosition == nil
+        case .twilight: focus.storedFarPosition(for: selectedLens) == nil
         case .night: false
         }
     }
@@ -161,15 +179,63 @@ actor CameraCapture {
         return newStatus
     }
 
+    private func cameraDevice(for lens: CaptureLens) -> AVCaptureDevice? {
+        AVCaptureDevice.default(lens.deviceType, for: .video, position: .back)
+    }
+
     /// Returns a failure status, or nil on success.
     private func configure() -> Status? {
         guard let receiver else { return .failed("no Metal texture cache") }
-        guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) else {
-            return .unavailable("no back wide-angle camera")
+        guard let camera = cameraDevice(for: selectedLens) ?? cameraDevice(for: .wide) else {
+            return .unavailable("no back camera")
+        }
+        if let lens = CaptureLens.displayOrder.first(where: { cameraDevice(for: $0)?.uniqueID == camera.uniqueID }) {
+            selectedLens = lens
         }
         session.beginConfiguration()
         defer { session.commitConfiguration() }
 
+        if videoOutput == nil {
+            let output = AVCaptureVideoDataOutput()
+            output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
+            output.alwaysDiscardsLateVideoFrames = true
+            output.setSampleBufferDelegate(receiver, queue: videoQueue)
+            guard session.canAddOutput(output) else { return .failed("cannot add video output") }
+            session.addOutput(output)
+            videoOutput = output
+        }
+        guard let output = videoOutput, let connection = output.connection(with: .video) else {
+            return .failed("no video connection")
+        }
+        if let failure = attach(camera: camera, connection: connection) { return failure }
+        self.connection = connection
+        return nil
+    }
+
+    private func switchDevice() async -> Status? {
+        guard let receiver, let output = videoOutput, let connection = output.connection(with: .video),
+              let camera = cameraDevice(for: selectedLens) else {
+            return .unavailable("lens \(selectedLens.label) unavailable")
+        }
+        session.beginConfiguration()
+        defer { session.commitConfiguration() }
+        if let failure = attach(camera: camera, connection: connection) { return failure }
+        self.connection = connection
+        exposureState = exposure.apply(blend: lightingBlend, to: camera)
+        focusOutcome = await focus.lockFar(camera, lens: selectedLens, autofocus: shouldAutofocus)
+        log.info("switched to \(self.selectedLens.label, privacy: .public) camera")
+        return nil
+    }
+
+    private func attach(camera: AVCaptureDevice, connection: AVCaptureConnection) -> Status? {
+        guard let receiver else { return .failed("no Metal texture cache") }
+        if connection.isVideoStabilizationSupported {
+            connection.preferredVideoStabilizationMode = .off
+        }
+        if let input = videoInput {
+            session.removeInput(input)
+            videoInput = nil
+        }
         let input: AVCaptureDeviceInput
         do {
             input = try AVCaptureDeviceInput(device: camera)
@@ -179,19 +245,8 @@ actor CameraCapture {
         input.unifiedAutoExposureDefaultsEnabled = true
         guard session.canAddInput(input) else { return .failed("cannot add camera input") }
         session.addInput(input)
+        videoInput = input
 
-        let output = AVCaptureVideoDataOutput()
-        output.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
-        output.alwaysDiscardsLateVideoFrames = true
-        output.setSampleBufferDelegate(receiver, queue: videoQueue)
-        guard session.canAddOutput(output) else { return .failed("cannot add video output") }
-        session.addOutput(output)
-        guard let connection = output.connection(with: .video) else { return .failed("no video connection") }
-
-        // Intrinsic matrix delivery is only offered with stabilization off, so that comes first.
-        if connection.isVideoStabilizationSupported {
-            connection.preferredVideoStabilizationMode = .off
-        }
         let (format, tried) = chooseFormat(camera, connection)
         guard let format else { return .unavailable("no suitable video format") }
         if (try? camera.lockForConfiguration()) != nil {
@@ -208,11 +263,11 @@ actor CameraCapture {
 
         let maxFrameRate = format.videoSupportedFrameRateRanges.map(\.maxFrameRate).max() ?? 30
         exposure.dayFrameRate = min(maxFrameRate, 120)
+        lensObservation?.invalidate()
         device = camera
         lensObservation = camera.observe(\.lensPosition, options: [.initial, .new]) { [receiver] camera, _ in
             receiver.setLensPosition(camera.lensPosition)
         }
-        self.connection = connection
         probe = CameraProbe(device: camera, connection: connection, formatsTried: tried)
         return nil
     }

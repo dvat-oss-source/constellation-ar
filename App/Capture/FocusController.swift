@@ -18,12 +18,19 @@ struct FocusController: Sendable {
     static let storedPositionKey = "focus.farLensPosition"
     static let fallbackLensPosition: Float = 1.0
 
-    var storedFarPosition: Float? {
-        UserDefaults.standard.object(forKey: Self.storedPositionKey) as? Float
+    static func storedPositionKey(for lens: CaptureLens) -> String {
+        "focus.farLensPosition.\(lens.rawValue)"
+    }
+
+    func storedFarPosition(for lens: CaptureLens) -> Float? {
+        let key = Self.storedPositionKey(for: lens)
+        if let value = UserDefaults.standard.object(forKey: key) as? Float { return value }
+        if lens == .wide, let legacy = UserDefaults.standard.object(forKey: Self.storedPositionKey) as? Float { return legacy }
+        return nil
     }
 
     /// `autofocus` true by day; at night (no contrast to focus on) the stored position is reused.
-    nonisolated(nonsending) func lockFar(_ device: AVCaptureDevice, autofocus: Bool) async -> FocusOutcome {
+    nonisolated(nonsending) func lockFar(_ device: AVCaptureDevice, lens: CaptureLens, autofocus: Bool) async -> FocusOutcome {
         guard device.isLockingFocusWithCustomLensPositionSupported else {
             return FocusOutcome(lensPosition: device.lensPosition, source: .unsupported)
         }
@@ -41,13 +48,13 @@ struct FocusController: Sendable {
             _ = await waitUntil(timeout: 0.5) { device.isAdjustingFocus }
             if await waitUntil(timeout: 3.0, { !device.isAdjustingFocus }) {
                 let position = device.lensPosition
-                UserDefaults.standard.set(position, forKey: Self.storedPositionKey)
+                UserDefaults.standard.set(position, forKey: Self.storedPositionKey(for: lens))
                 lock(device, at: position)
                 return FocusOutcome(lensPosition: position, source: .autofocused)
             }
         }
 
-        if let stored = storedFarPosition {
+        if let stored = storedFarPosition(for: lens) {
             lock(device, at: stored)
             return FocusOutcome(lensPosition: stored, source: .stored)
         }

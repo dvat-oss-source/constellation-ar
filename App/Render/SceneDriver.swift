@@ -33,6 +33,10 @@ final class SceneDriver {
     var displayFramesPerSecond: Double { displayRate.rate }
     var renderedCameraFramesPerSecond: Double { cameraRate.rate }
 
+    func resetIntrinsicsCache() {
+        measuredIntrinsics = nil
+    }
+
     init(model: AppModel, device: any MTLDevice) throws {
         self.model = model
         renderer = try Renderer(device: device, pixelFormat: Self.pixelFormat)
@@ -57,7 +61,7 @@ final class SceneDriver {
         var attitude: simd_double3x3
         var intrinsics: CameraIntrinsics
         var warp: FrameWarp?
-        let calibration = model.calibration
+        let lensCalibration = model.activeLensCalibration
         let useCorrection = model.effectiveAttitudeSource != .fixed
 
         if model.showsCamera, let receiver = model.capture?.receiver {
@@ -73,11 +77,11 @@ final class SceneDriver {
         }
 
         if let frame = cameraFrame {
-            let timing = calibration.timing ?? .none
+            let timing = model.calibration.timing ?? .none
             let frameTime = model.captureTime(frameHostTime: frame.hostTime, exposure: frame.exposureDuration)
             let size = SIMD2(Double(frame.size.x), Double(frame.size.y))
             let raw = frame.intrinsics ?? measuredIntrinsics?.scaled(to: size) ?? .nominal(size: size, longAxisFOVDegrees: Self.nominalFieldOfView)
-            intrinsics = raw.refined(by: calibration.lens)
+            intrinsics = raw.refined(by: lensCalibration)
 
             // Warped: the (possibly slow, long-exposure) frame is re-projected to the gyro attitude at display time, and the
             // overlay uses that attitude too. Frame-matched: the overlay uses the attitude at the frame's own time.
@@ -108,14 +112,14 @@ final class SceneDriver {
             attitude = skyOnlyAttitude(at: displayTime)
             lastCoreMotion = simd_quatd(attitude)
             intrinsics = (measuredIntrinsics ?? .nominal(size: Self.nominalSensorSize, longAxisFOVDegrees: Self.nominalFieldOfView))
-                .refined(by: calibration.lens)
+                .refined(by: lensCalibration)
             cameraToDisplayLatency = nil
             attitudeSampleAge = nil
             if useCorrection { attitude = model.alignment.apply(to: attitude, at: displayTime) }
         }
         lastWarp = warp
 
-        let distortion = calibration.lens.flatMap { $0.hasDistortion ? $0.distortion : nil }
+        let distortion = lensCalibration.flatMap { $0.hasDistortion ? $0.distortion : nil }
         let geometry = CameraGeometry(intrinsics: intrinsics, drawableSize: drawableSize, distortion: distortion)
         let context = OverlayContext(hostTime: hostTime, displayTime: displayTime, skyDate: model.skyDate(now: Date()),
                                      observer: model.observer, deviceFromReference: attitude, camera: geometry,
