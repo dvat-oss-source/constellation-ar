@@ -122,11 +122,32 @@ final class SkyEngine {
             frame.add(OverlayMilkyWay(icrsFromScreen: Self.float(icrsFromScreen), intensity: Float(context.lighting)))
         }
 
-        // Artwork of the locked constellation
-        if on(.artwork) {
-            for visual in visuals where visual.artwork > 0.01 {
-                if let mesh = artworkMesh(for: visual.id, alpha: Float(visual.artwork) * 0.55, data: data, projector: projector,
+        // Constellation artwork (lock draw-in, or illustrated sky for every visible figure).
+        let dayArtScale = Float(0.14 + 0.86 * context.lighting)
+        if on(.illustrated) {
+            var drawInArt: [String: Float] = [:]
+            for visual in visuals where visual.artwork > 0.01 { drawInArt[visual.id] = Float(visual.artwork) }
+            let pinned = lockedID ?? focusOverrideID
+            let tint = StyleTokens.illustratedArtworkTint(lighting: context.lighting)
+            for id in data.placements.keys.sorted() {
+                guard data.artwork[id] != nil, let placement = data.placements[id] else { continue }
+                let ref = placement.direction(pixel: placement.imageSize * 0.5)
+                let enu = apparent(icrs: ref)
+                if enu.z < -0.01 || simd_dot(simd_normalize(enu), viewDirection) < cullCos { continue }
+                let pinnedHere = id == pinned
+                let fade = pinnedHere ? (drawInArt[id] ?? 1) : 1
+                let base: Float = pinnedHere ? 0.8 : 0.45
+                let alpha = base * fade * dayArtScale
+                if alpha <= 0.01 { continue }
+                if let mesh = artworkMesh(for: id, alpha: alpha, tint: tint, data: data, projector: projector,
                                           icrsToENU: icrsToENU, beta: beta) {
+                    frame.add(mesh)
+                }
+            }
+        } else if on(.artwork) {
+            for visual in visuals where visual.artwork > 0.01 {
+                if let mesh = artworkMesh(for: visual.id, alpha: Float(visual.artwork) * 0.55, tint: StyleTokens.lockArtworkTint,
+                                          data: data, projector: projector, icrsToENU: icrsToENU, beta: beta) {
                     frame.add(mesh)
                 }
             }
@@ -316,8 +337,8 @@ final class SkyEngine {
 
     // MARK: Pieces
 
-    private func artworkMesh(for id: String, alpha: Float, data: SkyData, projector: Projector, icrsToENU: simd_double3x3,
-                             beta: SIMD3<Double>) -> OverlayMesh? {
+    private func artworkMesh(for id: String, alpha: Float, tint: SIMD3<Float>, data: SkyData, projector: Projector,
+                             icrsToENU: simd_double3x3, beta: SIMD3<Double>) -> OverlayMesh? {
         guard let info = data.artwork[id], let placement = data.placements[id] else { return nil }
         let columns = 8, rows = 8
         let grid: [ArtworkPlacement.Vertex]
@@ -344,7 +365,7 @@ final class SkyEngine {
                 }
             }
         }
-        return OverlayMesh(textureID: info.file, vertices: vertices, alpha: alpha)
+        return OverlayMesh(textureID: info.file, vertices: vertices, alpha: alpha, tint: tint)
     }
 
     private struct BodyMarker {

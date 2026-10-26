@@ -314,10 +314,11 @@ vertex MeshOut meshVertex(uint vid [[vertex_id]], constant FrameUniforms &u [[bu
 // The artwork is greyscale on black (made for additive blending), so it adds light and never darkens the sky.
 fragment float4 meshFragment(MeshOut in [[stage_in]], constant FrameUniforms &u [[buffer(0)]],
                              constant float &alpha [[buffer(1)]],
+                             constant float3 &tint [[buffer(2)]],
                              texture2d<float> image [[texture(0)]]) {
     constexpr sampler linearSampler(filter::linear, address::clamp_to_zero);
     float luminance = image.sample(linearSampler, in.uv).r * alpha;
-    return float4(applyTheme(float3(0.72, 0.84, 1.0), u.redTheme) * luminance, 0.0);
+    return float4(applyTheme(tint, u.redTheme) * luminance, 0.0);
 }
 
 struct MilkyWayUniforms {

@@ -312,8 +312,10 @@ final class Renderer {
                 upload(mesh.vertices, at: offset)
                 bindUniforms(meshPipeline)
                 var alpha = mesh.alpha
+                var tint = mesh.tint
                 encoder.setVertexBuffer(buffer, offset: offset, index: 1)
                 encoder.setFragmentBytes(&alpha, length: MemoryLayout<Float>.stride, index: 1)
+                encoder.setFragmentBytes(&tint, length: MemoryLayout<SIMD3<Float>>.stride, index: 2)
                 encoder.setFragmentTexture(texture, index: 0)
                 encoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: mesh.vertices.count)
             case .milkyWay(let params, let texture):

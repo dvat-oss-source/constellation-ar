@@ -185,7 +185,8 @@ final class ProjectionAgreementTests: XCTestCase {
     func testLayerDefaultsFollowDayAndNight() {
         let layers = LayerSettings()
         XCTAssertEqual(SkyLayer.allCases.filter { layers.isOn($0, night: false) }, [.lines, .planets, .satellites])
-        XCTAssertEqual(SkyLayer.allCases.filter { layers.isOn($0, night: true) }, SkyLayer.allCases)
+        XCTAssertEqual(SkyLayer.allCases.filter { layers.isOn($0, night: true) },
+                       SkyLayer.allCases.filter { $0 != .illustrated })
         layers.set(.stars, on: true, night: false)
         XCTAssertTrue(layers.isOn(.stars, night: false))
         layers.set(.stars, on: false, night: false)

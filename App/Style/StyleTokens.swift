@@ -87,6 +87,16 @@ enum StyleTokens {
     /// Glow strength per `OverlaySegment.glow` (the halo reaches 4x the line width at 1).
     static let restingLineGlow: Float = 0.35
     static let litLineGlow: Float = 0.9
+
+    /// Additive constellation art (display-encoded); `applyTheme` in the shader handles red night.
+    static let lockArtworkTint = SIMD3<Float>(0.72, 0.84, 1.0)
+
+    static func illustratedArtworkTint(lighting: Double) -> SIMD3<Float> {
+        let palette = blended(lighting: lighting, red: false)
+        let ivory = SIMD3<Float>(1, 0.96, 0.85)
+        let linear = palette.light + (ivory - palette.light) * 0.45
+        return encode(linear)
+    }
     /// Day keeps a dark rim under the line so it reads over bright sky.
     static let dayUnderglowWidth: Float = 1.1
 

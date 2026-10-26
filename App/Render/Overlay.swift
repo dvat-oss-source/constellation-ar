@@ -82,6 +82,7 @@ struct OverlayMesh: Sendable {
     var textureID: String
     var vertices: [OverlayMeshVertex]
     var alpha: Float
+    var tint: SIMD3<Float> = StyleTokens.lockArtworkTint
 }
 
 /// The Milky Way is shaded per pixel from an equirectangular ICRS level map.

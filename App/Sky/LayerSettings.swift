@@ -4,6 +4,7 @@ import SwiftUI
 enum SkyLayer: String, CaseIterable, Identifiable, Sendable {
     case milkyWay = "Milky Way"
     case artwork = "Artwork"
+    case illustrated = "Illustrated sky"
     case lines = "Constellation lines"
     case asterisms = "Asterisms"
     case stars = "Stars"
@@ -16,7 +17,8 @@ enum SkyLayer: String, CaseIterable, Identifiable, Sendable {
 
     /// Day shows lines, planets/Sun/Moon and satellites; night shows everything.
     func isOnByDefault(night: Bool) -> Bool {
-        night || self == .lines || self == .planets || self == .satellites
+        if self == .illustrated { return false }
+        return night || self == .lines || self == .planets || self == .satellites
     }
 }
 
