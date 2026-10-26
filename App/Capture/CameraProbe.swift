@@ -3,6 +3,11 @@ import AVFoundation
 /// What the active camera format actually allows on this hardware, recorded once after configuration.
 struct CameraProbe: Sendable {
     var deviceName: String
+    var deviceID: String
+    var deviceType: String
+    var zoomFactor: Double
+    var upscaleThreshold: Double
+    var formatInventory: [String]
     var dimensions: SIMD2<Int>
     var pixelFormat: String
     var isBinned: Bool
@@ -32,6 +37,18 @@ struct CameraProbe: Sendable {
         let dims = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
         let ranges = format.videoSupportedFrameRateRanges
         deviceName = device.localizedName
+        deviceID = device.uniqueID
+        deviceType = device.deviceType.rawValue
+        zoomFactor = Double(device.videoZoomFactor)
+        upscaleThreshold = Double(format.videoZoomFactorUpscaleThreshold)
+        formatInventory = device.formats.compactMap { f in
+            let d = CMVideoFormatDescriptionGetDimensions(f.formatDescription)
+            guard d.width >= 1280, d.width <= 3840, d.height >= 720 else { return nil }
+            let rates = f.videoSupportedFrameRateRanges.map { String(format: "%.0f–%.0f", $0.minFrameRate, $0.maxFrameRate) }.joined(separator: ",")
+            return String(format: "%d×%d %@ %@fps FOV %.1f° binned=%@", d.width, d.height,
+                          Self.fourCC(CMFormatDescriptionGetMediaSubType(f.formatDescription)), rates,
+                          f.videoFieldOfView, f.isVideoBinned ? "yes" : "no")
+        }
         dimensions = SIMD2(Int(dims.width), Int(dims.height))
         pixelFormat = Self.fourCC(CMFormatDescriptionGetMediaSubType(format.formatDescription))
         isBinned = format.isVideoBinned
@@ -61,6 +78,8 @@ struct CameraProbe: Sendable {
     var lines: [String] {
         [
             "\(deviceName) \(dimensions.x)×\(dimensions.y) \(pixelFormat)\(isBinned ? " binned" : "")",
+            "physical input \(deviceType) [\(deviceID)]",
+            String(format: "device zoom %.3f×, upscaling starts above %.3f×", zoomFactor, upscaleThreshold),
             String(format: "fps %.0f–%.0f, FOV %.1f°, f/%.2f", minFrameRate, maxFrameRate, fieldOfViewDegrees, lensAperture),
             String(format: "exposure %.6f–%.3f s (auto max %.3f s)", minExposure, maxExposure, defaultMaxAutoExposure),
             String(format: "ISO %.0f–%.0f", minISO, maxISO),
@@ -68,7 +87,7 @@ struct CameraProbe: Sendable {
             "focus lock \(customFocusLockSupported); priority: shutter \(shutterPrioritySupported), ISO \(isoPrioritySupported)",
             "low-light boost \(lowLightBoostSupported), low-light NR \(lowLightNoiseReductionSupported)",
             "sync clock − host: " + (syncClockOffsetFromHost.map { String(format: "%.6f s", $0) } ?? "n/a"),
-        ] + formatsTried.map { "tried " + $0 }
+        ] + formatsTried.map { "tried " + $0 } + formatInventory.map { "available " + $0 }
     }
 
     static func fourCC(_ code: FourCharCode) -> String {

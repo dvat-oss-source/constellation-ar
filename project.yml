@@ -62,7 +62,7 @@ targets:
           fi
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: org.constellationar.ConstellationAR
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_IDENTIFIER)
         PRODUCT_NAME: ConstellationAR
         TARGETED_DEVICE_FAMILY: "1"
         SUPPORTS_MACCATALYST: NO
@@ -111,7 +111,7 @@ targets:
       - target: ConstellationAR
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: org.constellationar.ConstellationARUITests
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_IDENTIFIER).UITests
         GENERATE_INFOPLIST_FILE: YES
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
@@ -129,7 +129,7 @@ targets:
         product: SkyCore
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: org.constellationar.ConstellationARTests
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_IDENTIFIER).Tests
         GENERATE_INFOPLIST_FILE: YES
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic

@@ -17,6 +17,9 @@ struct RecordedFrame {
     let iso: Double?
     let lensPosition: Float?
     let intrinsics: CameraIntrinsics?
+    let deliveredAt: Double
+    let sampleDuration: Double
+    let captureStateAtDelivery: [String: Any]
 }
 
 /// Lets a long-lived closure reach whichever recorder is currently attached.
@@ -115,7 +118,7 @@ final class SessionRecorder: Sendable {
         fresh.config = config
         fresh.startedAt = Date()
         fresh.startHost = CACurrentMediaTime()
-        for name in ["motion.f64", "frames.jsonl", "location.jsonl", "predictions.jsonl", "taps.jsonl", "platesolves.jsonl"] {
+        for name in ["motion.f64", "frames.jsonl", "location.jsonl", "predictions.jsonl", "taps.jsonl", "platesolves.jsonl", "drops.jsonl", "renders.jsonl"] {
             let url = folder.appending(path: name)
             FileManager.default.createFile(atPath: url.path, contents: nil)
             fresh.handles[name] = try FileHandle(forWritingTo: url)
@@ -129,6 +132,9 @@ final class SessionRecorder: Sendable {
         full["motionColumns"] = Self.motionColumns
         full["smallFrame"] = ["downsample": Self.downsample, "file": "frames/s<seq>.y8", "layout": "uint8 luminance, row-major"]
         full["fullFrame"] = ["file": "frames/f<seq>.y8", "png": "frames/f<seq>.png"]
+        full["colorFrame"] = ["png": "frames/f<seq>-color.png", "stage": "delivered BGRA buffer, before app rendering; not sensor RAW"]
+        full["captureStateAtDelivery"] = "Device properties observed at callback time; exposure and iso on frame rows are sample attachments."
+        full["renderTiming"] = "CPU draw submission and display-link target, not measured GPU completion or panel presentation."
         full["smallEvery"] = config.smallEvery
         full["fullEvery"] = config.fullEvery
         try JSONSerialization.data(withJSONObject: full, options: [.prettyPrinted, .sortedKeys]).write(to: folder.appending(path: "meta.json"))
@@ -224,6 +230,9 @@ final class SessionRecorder: Sendable {
                 files["full"] = "frames/f\(name).y8"
                 files["png"] = "frames/f\(name).png"
                 write(luma, width: width, height: height, name: "f" + name, png: true)
+                if writeColor(f.pixelBuffer, name: "f" + name + "-color") {
+                    files["colorPNG"] = "frames/f\(name)-color.png"
+                }
             }
             if decision.small, let small = Self.downsampled(luma, width: width, height: height, factor: Self.downsample) {
                 files["small"] = "frames/s\(name).y8"
@@ -232,6 +241,9 @@ final class SessionRecorder: Sendable {
             }
         }
         var line: [String: Any] = ["seq": f.sequence, "t": f.hostTime, "pts": f.pts, "size": [width, height]]
+        line["deliveredAt"] = f.deliveredAt
+        line["sampleDuration"] = f.sampleDuration.isFinite ? f.sampleDuration : nil
+        line["captureStateAtDelivery"] = f.captureStateAtDelivery
         if let e = f.exposureDuration { line["exposure"] = e }
         if let iso = f.iso { line["iso"] = iso }
         if let lens = f.lensPosition { line["lens"] = lens }
@@ -254,11 +266,39 @@ final class SessionRecorder: Sendable {
     func recordPredictions(_ line: [String: Any]) { append(line, to: "predictions.jsonl") }
     func recordTap(_ line: [String: Any]) { append(line, to: "taps.jsonl") }
     func recordPlateSolve(_ line: [String: Any]) { append(line, to: "platesolves.jsonl") }
+    func recordDrop(_ line: [String: Any]) { append(line, to: "drops.jsonl") }
+    func recordRender(_ line: [String: Any]) { append(line, to: "renders.jsonl") }
 
     /// Whether the frame with this sequence number was just stored at full resolution.
     func storedFull(sequence: UInt64) -> Bool { state.withLock { $0.recentFull.contains(sequence) } }
 
     // MARK: Helpers
+
+    /// Copy only sampled full frames; never retain camera-pool buffers on the PNG writer's queue.
+    private func writeColor(_ buffer: CVPixelBuffer, name: String) -> Bool {
+        guard let folder = state.withLock({ $0.folder }), CVPixelBufferGetPixelFormatType(buffer) == kCVPixelFormatType_32BGRA else { return false }
+        CVPixelBufferLockBaseAddress(buffer, .readOnly)
+        guard let base = CVPixelBufferGetBaseAddress(buffer) else {
+            CVPixelBufferUnlockBaseAddress(buffer, .readOnly)
+            return false
+        }
+        let width = CVPixelBufferGetWidth(buffer), height = CVPixelBufferGetHeight(buffer)
+        let rowBytes = CVPixelBufferGetBytesPerRow(buffer)
+        let pixels = Data(bytes: base, count: rowBytes * height)
+        CVPixelBufferUnlockBaseAddress(buffer, .readOnly)
+        queue.async {
+            guard let provider = CGDataProvider(data: pixels as CFData),
+                  let image = CGImage(width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: rowBytes,
+                                      space: CGColorSpaceCreateDeviceRGB(),
+                                      bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipFirst.rawValue).union(.byteOrder32Little),
+                                      provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent),
+                  let destination = CGImageDestinationCreateWithURL(folder.appending(path: "frames/\(name).png") as CFURL,
+                                                                    UTType.png.identifier as CFString, 1, nil) else { return }
+            CGImageDestinationAddImage(destination, image, nil)
+            CGImageDestinationFinalize(destination)
+        }
+        return true
+    }
 
     private func append(_ object: [String: Any], to file: String) {
         guard let handle = state.withLock({ $0.handles[file] }),

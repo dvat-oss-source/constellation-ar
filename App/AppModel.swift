@@ -116,7 +116,7 @@ final class AppModel {
     var nightExposureDuration: Double = 1.0 / 8 {
         didSet { pushNightExposure() }
     }
-    var nightStrategy: NightExposureStrategy = .manual {
+    var nightStrategy: NightExposureStrategy = .shutterPriority {
         didSet { pushNightExposure() }
     }
     private(set) var cameraStatus: CameraCapture.Status = .idle

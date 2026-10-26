@@ -127,6 +127,14 @@ final class SceneDriver {
                                      contentScale: Double(layer.contentsScale))
         lastContext = context
         let overlay = model.overlayProvider(context)
+        if let frame = cameraFrame, model.recorder.isRecording {
+            model.recorder.recordRender([
+                "seq": frame.sequence, "frameHostTime": frame.hostTime, "submittedAt": CACurrentMediaTime(),
+                "targetDisplayTime": displayTime, "drawableSize": [drawableSize.x, drawableSize.y],
+                "sensorSize": [frame.size.x, frame.size.y], "pixelsPerSensorPixel": geometry.scale,
+                "warping": warping, "redTheme": model.redTheme,
+            ])
+        }
         renderer.draw(to: update.drawable, background: background, geometry: geometry,
                       deviceFromReference: attitude, warp: warp, overlay: overlay, redTheme: model.redTheme,
                       contentScale: context.contentScale, lighting: model.lightingBlend)

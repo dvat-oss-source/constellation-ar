@@ -162,13 +162,57 @@ final class VideoFrameReceiver: NSObject, AVCaptureVideoDataOutputSampleBufferDe
         if let recorder = recorder.withLock({ $0 }), recorder.isRecording {
             recorder.record(frame: RecordedFrame(pixelBuffer: pixelBuffer, sequence: sequence, hostTime: hostTime, pts: pts.seconds,
                                                  exposureDuration: exposure, iso: iso, lensPosition: lensPosition.withLock { $0 },
-                                                 intrinsics: intrinsics))
+                                                 intrinsics: intrinsics, deliveredAt: deliveredAt,
+                                                 sampleDuration: CMSampleBufferGetDuration(sampleBuffer).seconds,
+                                                 captureStateAtDelivery: Self.captureState(output: output, connection: connection)))
         }
         latest.withLock { $0 = frame }
     }
 
     func captureOutput(_ output: AVCaptureOutput, didDrop sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         stats.withLock { $0.dropped += 1 }
+        if let recorder = recorder.withLock({ $0 }), recorder.isRecording {
+            let reason = CMGetAttachment(sampleBuffer, key: kCMSampleBufferAttachmentKey_DroppedFrameReason, attachmentModeOut: nil)
+            recorder.recordDrop(["pts": CMSampleBufferGetPresentationTimeStamp(sampleBuffer).seconds,
+                                 "deliveredAt": CACurrentMediaTime(), "reason": reason.map { String(describing: $0) } ?? "unknown"])
+        }
+    }
+
+    /// Device properties are observations at callback time, NOT exposure-synchronized sample attachments.
+    /// Read only while recording so diagnostics add no work to the normal preview path.
+    private static func captureState(output: AVCaptureOutput, connection: AVCaptureConnection) -> [String: Any] {
+        guard let input = connection.inputPorts.first(where: { $0.mediaType == .video })?.input as? AVCaptureDeviceInput else { return [:] }
+        let camera = input.device
+        let format = camera.activeFormat
+        let dims = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
+        var state: [String: Any] = [
+            "deviceID": camera.uniqueID, "deviceType": camera.deviceType.rawValue, "deviceName": camera.localizedName,
+            "virtualDevice": camera.isVirtualDevice, "formatSize": [dims.width, dims.height],
+            "formatPixelType": CameraProbe.fourCC(CMFormatDescriptionGetMediaSubType(format.formatDescription)),
+            "binned": format.isVideoBinned, "formatFOV": format.videoFieldOfView,
+            "formatMinISO": format.minISO, "formatMaxISO": format.maxISO,
+            "zoomFactor": camera.videoZoomFactor, "upscaleThreshold": format.videoZoomFactorUpscaleThreshold,
+            "minFrameDuration": camera.activeVideoMinFrameDuration.seconds,
+            "maxFrameDuration": camera.activeVideoMaxFrameDuration.seconds,
+            "focusMode": camera.focusMode.rawValue, "adjustingFocus": camera.isAdjustingFocus,
+            "focusRangeRestriction": camera.autoFocusRangeRestriction.rawValue, "minimumFocusDistanceMM": camera.minimumFocusDistance,
+            "lensPosition": camera.lensPosition, "exposureMode": camera.exposureMode.rawValue,
+            "adjustingExposure": camera.isAdjustingExposure, "deviceExposure": camera.exposureDuration.seconds,
+            "deviceISO": camera.iso, "exposureTargetOffset": camera.exposureTargetOffset,
+            "exposureTargetBias": camera.exposureTargetBias,
+            "whiteBalanceMode": camera.whiteBalanceMode.rawValue, "adjustingWhiteBalance": camera.isAdjustingWhiteBalance,
+            "aperture": camera.lensAperture, "hdr": camera.isVideoHDREnabled,
+            "stabilization": connection.activeVideoStabilizationMode.rawValue,
+            "intrinsicsEnabled": connection.isCameraIntrinsicMatrixDeliveryEnabled,
+        ]
+        if camera.activeMaxExposureDuration.seconds.isFinite {
+            state["autoExposureCeiling"] = camera.activeMaxExposureDuration.seconds
+        }
+        if let output = output as? AVCaptureVideoDataOutput {
+            state["automaticOutputDimensions"] = output.automaticallyConfiguresOutputBufferDimensions
+            state["previewSizedBuffers"] = output.deliversPreviewSizedOutputBuffers
+        }
+        return state
     }
 
     private static func intrinsics(of sampleBuffer: CMSampleBuffer, size: SIMD2<Int>) -> CameraIntrinsics? {

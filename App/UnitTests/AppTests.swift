@@ -1,8 +1,98 @@
 import Foundation
+import AVFoundation
+import ImageIO
 import simd
 import SkyCore
 import XCTest
 @testable import ConstellationAR
+
+final class CameraFormatPolicyTests: XCTestCase {
+    private func format(_ width: Int32 = 1920, _ height: Int32 = 1080, fps: Double = 60,
+                        fov: Float = 100, binned: Bool = false) -> CameraFormatRank {
+        CameraFormatRank(width: width, height: height, fov: fov, fps: fps, isBinned: binned, fullRange: true)
+    }
+
+    func testSecondaryCamerasKeep1080DetailInsteadOf720HighSpeed() {
+        let detail = format(), highSpeed = format(1280, 720, fps: 120, binned: true)
+        for lens in [CaptureLens.ultraWide, .telephoto] {
+            XCTAssertTrue(detail.isPreferred(to: highSpeed, lens: lens))
+            XCTAssertFalse(highSpeed.isPreferred(to: detail, lens: lens))
+            XCTAssertEqual(CameraFormatRank.dayFrameRate(lens: lens, maximum: 120), 60)
+            XCTAssertEqual(CameraFormatRank.dayFrameRate(lens: lens, maximum: 30), 30)
+        }
+    }
+
+    func testNightDefaultsKeepAutomaticISOInsteadOfForcingMaximumGain() {
+        XCTAssertEqual(ExposureController().nightStrategy, .shutterPriority)
+    }
+
+    func testMainCameraRetainsHighSpeedRankingAndRate() {
+        XCTAssertTrue(format(1280, 720, fps: 120, binned: true).isPreferred(to: format(), lens: .wide))
+        XCTAssertTrue(format(fps: 120, binned: true).isPreferred(to: format(fps: 60), lens: .wide))
+        XCTAssertEqual(CameraFormatRank.dayFrameRate(lens: .wide, maximum: 240), 120)
+        XCTAssertEqual(CameraFormatRank.dayFrameRate(lens: .wide, maximum: 60), 60)
+    }
+
+    func testSecondaryAvoidsBinningWhenResolutionAndFieldOfViewMatch() {
+        XCTAssertTrue(format(fps: 60).isPreferred(to: format(fps: 120, binned: true), lens: .telephoto))
+        XCTAssertTrue(format(fps: 60).isPreferred(to: format(fps: 30), lens: .ultraWide))
+        XCTAssertFalse(format(fps: 120).isPreferred(to: format(fps: 60), lens: .ultraWide))
+    }
+
+    func testFieldOfViewAndPortraitAspectFillStayConsistent() {
+        for lens in CaptureLens.allCases {
+            XCTAssertTrue(format(1280, 720, fov: 110).isPreferred(to: format(fov: 100), lens: lens))
+            XCTAssertTrue(format().isPreferred(to: format(1920, 1440), lens: lens))
+            XCTAssertFalse(format().isPreferred(to: format(), lens: lens))
+        }
+    }
+}
+
+final class CameraQualityRecordingTests: XCTestCase {
+    func testFullFrameKeepsColorAndDeliveryMetadataBeforeRendering() throws {
+        var buffer: CVPixelBuffer?
+        XCTAssertEqual(CVPixelBufferCreate(nil, 2, 2, kCVPixelFormatType_32BGRA, nil, &buffer), kCVReturnSuccess)
+        let pixels = try XCTUnwrap(buffer)
+        CVPixelBufferLockBaseAddress(pixels, [])
+        let base = try XCTUnwrap(CVPixelBufferGetBaseAddress(pixels)).assumingMemoryBound(to: UInt8.self)
+        let stride = CVPixelBufferGetBytesPerRow(pixels)
+        for y in 0..<2 {
+            for x in 0..<2 {
+                let i = y * stride + x * 4
+                base[i] = 8; base[i + 1] = 16; base[i + 2] = 224; base[i + 3] = 255
+            }
+        }
+        CVPixelBufferUnlockBaseAddress(pixels, [])
+        let recorder = SessionRecorder()
+        let folder = try recorder.start(config: SessionConfig(smallEvery: 0, fullEvery: 1), meta: [:])
+        defer { try? FileManager.default.removeItem(at: folder) }
+        recorder.record(frame: RecordedFrame(pixelBuffer: pixels, sequence: 42, hostTime: 10, pts: 9.5,
+                                             exposureDuration: 1.0 / 60, iso: 200, lensPosition: 0.7, intrinsics: nil,
+                                             deliveredAt: 10.02, sampleDuration: .nan,
+                                             captureStateAtDelivery: ["deviceType": "test telephoto", "zoomFactor": 1.0]))
+        _ = recorder.stop()
+        let line = try Data(contentsOf: folder.appending(path: "frames.jsonl"))
+        let row = try XCTUnwrap(JSONSerialization.jsonObject(with: line) as? [String: Any])
+        XCTAssertEqual(row["deliveredAt"] as? Double, 10.02)
+        XCTAssertNil(row["sampleDuration"], "invalid CMTime must not discard the whole JSON row")
+        XCTAssertEqual((row["captureStateAtDelivery"] as? [String: Any])?["deviceType"] as? String, "test telephoto")
+        let png = try XCTUnwrap(row["colorPNG"] as? String)
+        let source = try XCTUnwrap(CGImageSourceCreateWithURL(folder.appending(path: png) as CFURL, nil))
+        let image = try XCTUnwrap(CGImageSourceCreateImageAtIndex(source, 0, nil))
+        XCTAssertEqual(image.width, 2)
+        XCTAssertEqual(image.height, 2)
+        var rgba = [UInt8](repeating: 0, count: 16)
+        let decoded = rgba.withUnsafeMutableBytes { storage -> Bool in
+            guard let context = CGContext(data: storage.baseAddress, width: 2, height: 2, bitsPerComponent: 8,
+                                          bytesPerRow: 8, space: CGColorSpaceCreateDeviceRGB(),
+                                          bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue) else { return false }
+            context.draw(image, in: CGRect(x: 0, y: 0, width: 2, height: 2))
+            return true
+        }
+        XCTAssertTrue(decoded)
+        XCTAssertEqual(Array(rgba.prefix(4)), [224, 16, 8, 255], "BGRA copy must preserve channels, not save grayscale or swap red and blue")
+    }
+}
 
 private struct StubStreamer: LineStreamer {
     var status = 200

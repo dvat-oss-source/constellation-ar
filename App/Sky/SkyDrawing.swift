@@ -74,26 +74,86 @@ enum SkySymbols {
     }
 }
 
-/// Greedy label placement: higher priority first, anything overlapping an already placed label is dropped.
+/// Constellation label anchor from visible stick-figure geometry (same horizon/clip rules as constellation lines).
+enum FigureLabels {
+    struct Anchor {
+        var position: SIMD2<Float>
+        /// 1 when part of the drawn figure is above the horizon, fading toward 0 as the highest drawn point sinks to −0.02.
+        var visibility: Float
+    }
+
+    /// Centroid of the on-screen (guard-band clipped) segment ends, preferring ends above the horizon.
+    static func anchor(figure: FigureRender, enu: [SIMD3<Double>], projector: Projector) -> Anchor? {
+        var skySum = SIMD2<Double>.zero, allSum = SIMD2<Double>.zero
+        var skyCount = 0, allCount = 0
+        var maxZ = -1.0
+        func accumulate(_ point: SIMD2<Double>, z: Double) {
+            maxZ = max(maxZ, z)
+            allSum += point
+            allCount += 1
+            if z >= 0 {
+                skySum += point
+                skyCount += 1
+            }
+        }
+        for (a, b) in figure.pairs {
+            let pa = enu[a], pb = enu[b]
+            if pa.z < -0.02 && pb.z < -0.02 { continue }
+            guard let clip = projector.clipSegment(pa, pb) else { continue }
+            let za = simd_normalize(pa).z, zb = simd_normalize(pb).z
+            accumulate(clip.start, z: za + (zb - za) * clip.startT)
+            accumulate(clip.end, z: za + (zb - za) * clip.endT)
+        }
+        guard allCount > 0 else { return nil }
+        let position = skyCount > 0 ? skySum / Double(skyCount) : allSum / Double(allCount)
+        let visibility = skyCount > 0 ? 1 : Float(min(1, max(0, (maxZ + 0.02) / 0.02)))
+        return Anchor(position: SIMD2<Float>(position), visibility: visibility)
+    }
+}
+
+/// Greedy label placement: higher priority first; constellation names stay on-screen and shift rather than drop.
 struct LabelPlacer {
     private struct Candidate {
         var label: OverlayLabel
         var priority: Float
-        /// Offsets (points) to try, in order, when the label does not fit where it is anchored.
         var fallbacks: [SIMD2<Float>]
+        /// Try many offsets and clamp into the safe rect instead of dropping (constellation names).
+        var required: Bool
     }
 
     private var candidates: [Candidate] = []
-    private let viewport: SIMD2<Float>
+    /// Pixels; labels never extend above the top bar, past the sides, or under the bottom card/control bar.
+    private let safeMin: SIMD2<Float>
+    private let safeMax: SIMD2<Float>
     private let scale: Float
 
-    init(viewport: SIMD2<Double>, contentScale: Double) {
-        self.viewport = SIMD2<Float>(viewport)
+    /// Points, nearest first, tried for required labels before they are forced in.
+    private static let requiredOffsets: [SIMD2<Float>] = {
+        var out: [SIMD2<Float>] = []
+        for dy in stride(from: Float(-78), through: Float(78), by: 26) {
+            for dx in stride(from: Float(-80), through: Float(80), by: 40) { out.append(SIMD2(dx, dy)) }
+        }
+        return out.sorted { simd_length_squared($0) < simd_length_squared($1) }
+    }()
+
+    init(viewport: SIMD2<Double>, contentScale: Double, bottomInsetPoints: Float = 168, topInsetPoints: Float = 44,
+         sideInsetPoints: Float = 6) {
         scale = Float(contentScale)
+        safeMin = SIMD2(sideInsetPoints, topInsetPoints) * scale
+        safeMax = SIMD2<Float>(viewport) - SIMD2(sideInsetPoints, bottomInsetPoints) * scale
     }
 
-    mutating func add(_ label: OverlayLabel, priority: Float, fallbacks: [SIMD2<Float>] = []) {
-        candidates.append(Candidate(label: label, priority: priority, fallbacks: fallbacks))
+    mutating func add(_ label: OverlayLabel, priority: Float, fallbacks: [SIMD2<Float>] = [], required: Bool = false) {
+        candidates.append(Candidate(label: label, priority: priority, fallbacks: fallbacks, required: required))
+    }
+
+    private func offsets(for candidate: Candidate) -> [SIMD2<Float>] {
+        candidate.required ? Self.requiredOffsets : [SIMD2<Float>.zero] + candidate.fallbacks
+    }
+
+    private func clampOrigin(_ origin: SIMD2<Float>, size: SIMD2<Float>) -> SIMD2<Float> {
+        SIMD2(min(max(origin.x, safeMin.x), max(safeMin.x, safeMax.x - size.x)),
+              min(max(origin.y, safeMin.y), max(safeMin.y, safeMax.y - size.y)))
     }
 
     func place() -> [OverlayLabel] {
@@ -103,17 +163,30 @@ struct LabelPlacer {
             var l = candidate.label
             let size = SIMD2(Float(l.text.count) * l.fontSize * 0.56 + 6, l.fontSize * 1.3) * scale
             let home = l.position
-            for offset in [SIMD2<Float>.zero] + candidate.fallbacks {
+            var accepted = false
+            for offset in offsets(for: candidate) {
                 l.position = home + offset * scale
-                let origin = l.position - size * l.anchor
-                guard origin.x > -size.x, origin.y > -size.y, origin.x < viewport.x, origin.y < viewport.y else { continue }
+                var origin = l.position - size * l.anchor
+                if candidate.required {
+                    origin = clampOrigin(origin, size: size)
+                    l.position = origin + size * l.anchor
+                } else if origin.x < safeMin.x || origin.y < safeMin.y || origin.x + size.x > safeMax.x || origin.y + size.y > safeMax.y {
+                    continue
+                }
                 let box = (min: origin, max: origin + size)
                 if placed.contains(where: { $0.min.x < box.max.x && $0.max.x > box.min.x && $0.min.y < box.max.y && $0.max.y > box.min.y }) {
                     continue
                 }
                 placed.append(box)
                 result.append(l)
+                accepted = true
                 break
+            }
+            if !accepted, candidate.required {
+                let origin = clampOrigin(home - size * l.anchor, size: size)
+                l.position = origin + size * l.anchor
+                placed.append((min: origin, max: origin + size))
+                result.append(l)
             }
         }
         return result

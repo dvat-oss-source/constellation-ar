@@ -46,7 +46,10 @@ cat > "$tmp/request.json" <<'JSON'
 }
 JSON
 
-project="$(xcconfig_value GCP_PROJECT_ID "$config")"
+project="$(xcconfig_value GCP_PROJECT_ID "$secrets")"
+if [ -z "$project" ]; then
+  project="$(xcconfig_value GCP_PROJECT_ID "$config")"
+fi
 location="$(xcconfig_value GEMMA_LOCATION "$config")"
 if [ "$model" = "$(xcconfig_value GEMMA_MODEL_ID "$config")" ] && [ -n "$project" ] && [ -n "$location" ]; then
   url="https://aiplatform.googleapis.com/v1/projects/${project}/locations/${location}/publishers/google/models/${model}:streamGenerateContent?alt=sse"

@@ -30,7 +30,7 @@ actor CameraCapture {
 
     private let session: AVCaptureSession
     private let videoQueue = DispatchQueue(label: "ConstellationAR.camera.video", qos: .userInteractive)
-    private let log = Logger(subsystem: "org.constellationar.ConstellationAR", category: "camera")
+    private let log = Logger(subsystem: "org.constellationar.app", category: "camera")
     private var videoInput: AVCaptureDeviceInput?
     private var videoOutput: AVCaptureVideoDataOutput?
     private var device: AVCaptureDevice?
@@ -52,7 +52,8 @@ actor CameraCapture {
     }
 
     func setInitialLens(_ lens: CaptureLens) {
-        guard status != .running else { return }
+        // A stopped session still owns its physical input. Don't relabel that input on foreground return.
+        guard device == nil, status != .running else { return }
         selectedLens = lens
     }
 
@@ -88,9 +89,13 @@ actor CameraCapture {
             probe?.syncClockOffsetFromHost = CMClockGetTime(clock).seconds - CMClockGetTime(CMClockGetHostTimeClock()).seconds
         }
         exposureState = exposure.apply(blend: lightingBlend, to: device)
-        focusOutcome = await focus.lockFar(device, lens: selectedLens, autofocus: shouldAutofocus)
+        // Focus awaits and lets the lighting refresh enter this actor. Mark capture running first so a
+        // newer lighting phase is actually applied, rather than merely cached until the next resume.
+        status = .running
+        let outcome = await focus.lockFar(device, lens: selectedLens, autofocus: shouldAutofocus)
+        if self.device === device, session.isRunning { focusOutcome = outcome }
         if let probe { log.info("camera probe: \(probe.lines.joined(separator: " | "), privacy: .public)") }
-        return set(.running)
+        return status
     }
 
     func stop() {
@@ -272,7 +277,7 @@ actor CameraCapture {
         }
 
         let maxFrameRate = format.videoSupportedFrameRateRanges.map(\.maxFrameRate).max() ?? 30
-        exposure.dayFrameRate = min(maxFrameRate, 120)
+        exposure.dayFrameRate = CameraFormatRank.dayFrameRate(lens: selectedLens, maximum: maxFrameRate)
         lensObservation?.invalidate()
         device = camera
         lensObservation = camera.observe(\.lensPosition, options: [.initial, .new]) { [receiver] camera, _ in
@@ -283,16 +288,12 @@ actor CameraCapture {
         return nil
     }
 
-    /// Prefers the widest field of view, then up to 120 fps, then 16:9 (the portrait aspect-fill crops the
-    /// short axis anyway), then 1920 px wide; the first candidate whose connection supports intrinsic delivery wins.
+    /// Keep the main camera's existing high-rate policy. Secondary cameras prioritize delivered detail over
+    /// high-speed formats; those can trade resolution/binning and exposure time for a rate we don't need.
     private func chooseFormat(_ camera: AVCaptureDevice, _ connection: AVCaptureConnection) -> (AVCaptureDevice.Format?, [String]) {
         struct Candidate {
             let format: AVCaptureDevice.Format
-            let width: Int32
-            let height: Int32
-            let fov: Float
-            let fps: Double
-            let fullRange: Bool
+            let rank: CameraFormatRank
         }
         let candidates: [Candidate] = camera.formats.compactMap { format in
             let dims = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
@@ -301,17 +302,18 @@ actor CameraCapture {
                   (1280...1920).contains(dims.width), dims.height >= 720 else { return nil }
             let fps = format.videoSupportedFrameRateRanges.map(\.maxFrameRate).max() ?? 0
             guard fps >= 30 else { return nil }
-            return Candidate(format: format, width: dims.width, height: dims.height, fov: format.videoFieldOfView,
-                             fps: fps, fullRange: subtype == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)
+            if selectedLens != .wide {
+                // A format whose range starts above 60 cannot honor the secondary-camera rate cap.
+                guard format.videoSupportedFrameRateRanges.contains(where: {
+                    max($0.minFrameRate, 30) <= min($0.maxFrameRate, 60)
+                }) else { return nil }
+            }
+            return Candidate(format: format, rank: CameraFormatRank(width: dims.width, height: dims.height,
+                             fov: format.videoFieldOfView, fps: fps, isBinned: format.isVideoBinned,
+                             fullRange: subtype == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange))
         }
         let ranked = candidates.sorted { a, b in
-            let fovA = (a.fov * 2).rounded(), fovB = (b.fov * 2).rounded()
-            if fovA != fovB { return fovA > fovB }
-            if min(a.fps, 120) != min(b.fps, 120) { return min(a.fps, 120) > min(b.fps, 120) }
-            let wideA = a.width * 9 == a.height * 16, wideB = b.width * 9 == b.height * 16
-            if wideA != wideB { return wideA }
-            if a.width != b.width { return a.width > b.width }
-            return a.fullRange && !b.fullRange
+            a.rank.isPreferred(to: b.rank, lens: selectedLens)
         }
 
         var tried: [String] = []
@@ -320,10 +322,41 @@ actor CameraCapture {
         for candidate in ranked.prefix(8) {
             camera.activeFormat = candidate.format
             let supported = connection.isCameraIntrinsicMatrixDeliverySupported
-            tried.append(String(format: "%d×%d %.0ffps FOV %.1f° %@ intrinsics=%@", candidate.width, candidate.height, candidate.fps,
-                                candidate.fov, candidate.fullRange ? "420f" : "420v", supported ? "yes" : "no"))
+            let r = candidate.rank
+            tried.append(String(format: "%d×%d %.0ffps FOV %.1f° %@ binned=%@ intrinsics=%@", r.width, r.height, r.fps,
+                                r.fov, r.fullRange ? "420f" : "420v", r.isBinned ? "yes" : "no", supported ? "yes" : "no"))
             if supported { return (candidate.format, tried) }
         }
         return (ranked.first?.format, tried)
+    }
+}
+
+/// Value-only format policy so resolution/rate tradeoffs can be checked without camera hardware.
+struct CameraFormatRank {
+    let width: Int32
+    let height: Int32
+    let fov: Float
+    let fps: Double
+    let isBinned: Bool
+    let fullRange: Bool
+
+    static func dayFrameRate(lens: CaptureLens, maximum: Double) -> Double {
+        min(maximum, lens == .wide ? 120 : 60)
+    }
+
+    func isPreferred(to other: Self, lens: CaptureLens) -> Bool {
+        let fovA = (fov * 2).rounded(), fovB = (other.fov * 2).rounded()
+        if fovA != fovB { return fovA > fovB }
+        if lens != .wide {
+            if width != other.width { return width > other.width }
+            if isBinned != other.isBinned { return !isBinned }
+        }
+        let rateA = Self.dayFrameRate(lens: lens, maximum: fps)
+        let rateB = Self.dayFrameRate(lens: lens, maximum: other.fps)
+        if rateA != rateB { return rateA > rateB }
+        let wideA = width * 9 == height * 16, wideB = other.width * 9 == other.height * 16
+        if wideA != wideB { return wideA }
+        if width != other.width { return width > other.width }
+        return fullRange && !other.fullRange
     }
 }

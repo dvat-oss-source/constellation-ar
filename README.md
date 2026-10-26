@@ -43,11 +43,13 @@ Sky math (bias-precession-nutation, aberration, sidereal time, refraction) is va
 Requirements: Xcode 27, [XcodeGen](https://github.com/yonaskolb/XcodeGen), an Apple ID (a free Personal Team works).
 
 ```sh
-cp Config/Secrets.example.xcconfig Config/Secrets.xcconfig   # add your Vertex AI API key; this file is git-ignored
+cp Config/Secrets.example.xcconfig Config/Secrets.xcconfig   # add your API key, cloud project and signing team; git-ignored
 xcodegen generate
 open ConstellationAR.xcodeproj
 ```
 
-Model IDs and the Google Cloud project live in `Config/Config.xcconfig`; set `DEVELOPMENT_TEAM` there or in `Secrets.xcconfig`. The sky works offline; narration and Q&A need the Vertex AI key.
+Model IDs live in `Config/Config.xcconfig`. Keep your Vertex AI API key, Google Cloud project ID and `DEVELOPMENT_TEAM` in the git-ignored `Config/Secrets.xcconfig`. The sky works offline; narration and Q&A need the Vertex AI key.
+
+The public bundle identifier is `org.constellationar.app`. To keep an existing local installation's identity, set `APP_BUNDLE_IDENTIFIER` in `Secrets.xcconfig`; keep personal identifiers out of tracked files. For public commits, use a GitHub `noreply` email address.
 
 Tests: `swift test` in `Packages/SkyCore`, and the `ConstellationAR` scheme's test action for the app.

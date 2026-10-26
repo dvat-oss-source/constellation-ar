@@ -46,4 +46,5 @@ tools/.cache/
 
 # IDE
 .idea/
+.serena/
 *.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist

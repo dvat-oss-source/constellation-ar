@@ -279,7 +279,7 @@ final class SkyEngine {
 
         // Labels
         if on(.labels) {
-            addLabels(to: &placer, data: data, context: context, style: style, icrsToENU: icrsToENU, beta: beta, visuals: visuals,
+            addLabels(to: &placer, data: data, context: context, style: style, icrsToENU: icrsToENU, visuals: visuals,
                       viewDirection: viewDirection, cullCos: cullCos, dso: on(.deepSky) ? dsoSelection : [])
         }
         frame.add(placer.place())
@@ -441,8 +441,8 @@ final class SkyEngine {
     }
 
     private func addLabels(to placer: inout LabelPlacer, data: SkyData, context: OverlayContext, style: SkyStyle,
-                           icrsToENU: simd_double3x3, beta: SIMD3<Double>, visuals: [ConstellationVisual],
-                           viewDirection: SIMD3<Double>, cullCos: Double, dso: [VisibleDeepSkyObject]) {
+                           icrsToENU: simd_double3x3, visuals: [ConstellationVisual], viewDirection: SIMD3<Double>,
+                           cullCos: Double, dso: [VisibleDeepSkyObject]) {
         let projector = context.projector
         let px = style.px
         for label in data.starLabels {
@@ -457,16 +457,14 @@ final class SkyEngine {
         }
         let lockedLabel = Dictionary(visuals.map { ($0.id, $0.label) }, uniquingKeysWith: max)
         for figure in data.figures {
-            guard let centroid = figure.centroid else { continue }
-            let enu = refraction.apparent(enu: icrsToENU * SkySession.aberrate(centroid, beta: beta))
-            guard enu.z > 0, let p = projector.screenPoint(enu: enu), projector.isOnScreen(p, margin: -10) else { continue }
+            guard let anchor = FigureLabels.anchor(figure: figure, enu: figureENU, projector: projector) else { continue }
             let emphasis = Float(lockedLabel[figure.id] ?? 0)
-            var color = SIMD4<Float>(0.7, 0.8, 1.0, 0.55 + 0.45 * emphasis)
-            if emphasis > 0 { color = SIMD4(1, 1, 1, 0.55 + 0.45 * emphasis) }
-            placer.add(OverlayLabel(text: figure.name.uppercased(), position: SIMD2<Float>(p), color: color,
+            let baseAlpha = (0.55 + 0.45 * emphasis) * max(0.35, anchor.visibility)
+            var color = SIMD4<Float>(0.7, 0.8, 1.0, baseAlpha)
+            if emphasis > 0 { color = SIMD4(1, 1, 1, baseAlpha) }
+            placer.add(OverlayLabel(text: figure.name.uppercased(), position: anchor.position, color: color,
                                     fontSize: 12 + 5 * emphasis, bold: emphasis > 0.3),
-                       priority: emphasis > 0 ? 30 + emphasis : 10,
-                       fallbacks: [SIMD2(0, 26), SIMD2(0, -26), SIMD2(0, 52), SIMD2(0, -52)])
+                       priority: emphasis > 0 ? 55 + emphasis : 50, required: true)
         }
         for item in dso where item.object.messier != nil {
             let c = SIMD2<Float>(item.screenPoint)

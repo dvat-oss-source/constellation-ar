@@ -16,7 +16,18 @@ OUT="${1:-$REPO/build/astrometry-solve}"; [ $# -gt 0 ] && shift
 mkdir -p "$OUT"
 BASE="$(basename "${IMG%.*}")"
 
-solve-field --config "$HERE/astrometry.cfg" \
+# Resolve the index directory without publishing a developer's absolute home path.
+SOLVER_CONFIG="$(mktemp)"
+trap 'rm -f "$SOLVER_CONFIG"' EXIT
+while IFS= read -r line || [ -n "$line" ]; do
+  if [ "$line" = 'add_path tools/.cache/astrometry' ]; then
+    printf 'add_path %s/tools/.cache/astrometry\n' "$REPO"
+  else
+    printf '%s\n' "$line"
+  fi
+done < "$HERE/astrometry.cfg" > "$SOLVER_CONFIG"
+
+solve-field --config "$SOLVER_CONFIG" \
   --scale-units degwidth --scale-low "${SCALE_LOW:-10}" --scale-high "${SCALE_HIGH:-90}" \
   --cpulimit "${CPULIMIT:-60}" --no-plots --overwrite --dir "$OUT" \
   --new-fits none --index-xyls none --rdls none --match none \

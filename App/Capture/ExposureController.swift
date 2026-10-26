@@ -37,7 +37,7 @@ struct ExposureController: Sendable {
     var dayFrameRate: Double = 60
     var nightExposureDuration: Double = 1.0 / 8
     var nightISOFraction: Float = 1
-    var nightStrategy: NightExposureStrategy = .manual
+    var nightStrategy: NightExposureStrategy = .shutterPriority
 
     func apply(blend rawBlend: Double, to device: AVCaptureDevice) -> ExposureState? {
         let blend = min(max(rawBlend, 0), 1)
@@ -74,10 +74,18 @@ struct ExposureController: Sendable {
             setFrameDurations(device, min: frameDuration, max: max(frameDuration, duration.seconds))
             let priorityAllowed = format.supportsExposureModeCustom(lensAperture: AVCaptureDevice.currentLensAperture,
                                                                     duration: duration, iso: AVCaptureDevice.autoISO)
-            if nightStrategy == .shutterPriority, priorityAllowed {
+            if nightStrategy == .shutterPriority {
                 device.activeMaxExposureDuration = duration
-                device.setExposureModeCustom(duration: duration, iso: AVCaptureDevice.autoISO, completionHandler: nil)
-                return state(phase, blend, "shutter priority, ISO auto", duration.seconds, nil, device)
+                if priorityAllowed {
+                    device.setExposureModeCustom(duration: duration, iso: AVCaptureDevice.autoISO, completionHandler: nil)
+                    return state(phase, blend, "shutter priority, ISO auto", duration.seconds, nil, device)
+                }
+                // Preserve automatic metering on formats without the iOS 27 priority combination.
+                // Falling back to maximum manual ISO can blow out a lit scene on foreground return.
+                if device.isExposureModeSupported(.continuousAutoExposure) {
+                    device.exposureMode = .continuousAutoExposure
+                    return state(phase, blend, "auto, night ceiling", duration.seconds, nil, device)
+                }
             }
             let iso = min(max(format.minISO + (format.maxISO - format.minISO) * nightISOFraction, format.minISO), format.maxISO)
             device.setExposureModeCustom(duration: duration, iso: iso, completionHandler: nil)
